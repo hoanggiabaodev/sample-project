@@ -33,18 +33,14 @@ namespace Web_ProjectName.Controllers
         [HttpGet]
         public async Task GetListNews()
         {
-            // Get news list with pagination - status "1" means active, page 1, 10 records per page
-            // Using schoolId instead of supplierId based on the sample data
             var res = await _s_News.GetListByPaging("1", _supplierId, null, "", 1, 10);
 
-            // Debug logging
             System.Diagnostics.Debug.WriteLine($"API Response Result: {res.result}");
             System.Diagnostics.Debug.WriteLine($"API Response Data Type: {res.data?.GetType()}");
             System.Diagnostics.Debug.WriteLine($"API Response Data: {res.data}");
 
             if (res.result == 1 && res.data != null)
             {
-                // Handle both single object and array responses
                 if (res.data is List<Models.M_News> newsList)
                 {
                     ViewBag.ListNews = newsList;
@@ -67,126 +63,8 @@ namespace Web_ProjectName.Controllers
         [HttpGet]
         public async Task<JsonResult> GetListNewsByAjax(int page = 1, int record = 10, int? newsCategoryId = null, string? keyword = null, string dateFrom = null, string dateTo = null)
         {
-            try
-            {
-                var res = await _s_News.GetListByPaging("1", _supplierId, newsCategoryId, keyword, page, record);
-
-                System.Diagnostics.Debug.WriteLine($"AJAX API Response Result: {res.result}");
-                System.Diagnostics.Debug.WriteLine($"AJAX API Response Data Type: {res.data?.GetType()}");
-                System.Diagnostics.Debug.WriteLine($"SupplierId: {_supplierId}");
-
-                if (res.result != 1 || res.data == null)
-                {
-                    var mockData = new List<Models.M_News>
-                    {
-                        new Models.M_News
-                        {
-                            id = 1,
-                            name = "Tin tức test 1",
-                            description = "Mô tả tin tức test 1",
-                            detail = "Chi tiết tin tức test 1",
-                            publishedAt = DateTime.Now.AddDays(-1),
-                            viewNumber = 100,
-                            isHot = true,
-                            metaUrl = "tin-tuc-test-1",
-                            newsCategoryId = 1,
-                            newsCategoryObj = new Models.M_NewsCategory { id = 1, name = "Tin công nghệ" }
-                        },
-                        new Models.M_News
-                        {
-                            id = 2,
-                            name = "Tin tức test 2",
-                            description = "Mô tả tin tức test 2",
-                            detail = "Chi tiết tin tức test 2",
-                            publishedAt = DateTime.Now.AddDays(-2),
-                            viewNumber = 50,
-                            isHot = false,
-                            metaUrl = "tin-tuc-test-2",
-                            newsCategoryId = 2,
-                            newsCategoryObj = new Models.M_NewsCategory { id = 2, name = "Tin thể thao" }
-                        },
-                        new Models.M_News
-                        {
-                            id = 3,
-                            name = "Tin tức test 3",
-                            description = "Mô tả tin tức test 3",
-                            detail = "Chi tiết tin tức test 3",
-                            publishedAt = DateTime.Now.AddDays(-3),
-                            viewNumber = 75,
-                            isHot = true,
-                            metaUrl = "tin-tuc-test-3",
-                            newsCategoryId = 3,
-                            newsCategoryObj = new Models.M_NewsCategory { id = 3, name = "Tin giải trí" }
-                        }
-                    };
-
-                    var mockResponse = new
-                    {
-                        result = 1,
-                        data = mockData,
-                        dataCount = mockData.Count,
-                        error = (string)null,
-                        supplierId = _supplierId,
-                        page = page,
-                        record = record,
-                        newsCategoryId = newsCategoryId,
-                        keyword = keyword,
-                        isMockData = true
-                    };
-
-                    return Json(mockResponse);
-                }
-
-                var debugInfo = new
-                {
-                    result = res.result,
-                    data = res.data,
-                    dataCount = res.data?.Count ?? 0,
-                    error = res.error?.message,
-                    supplierId = _supplierId,
-                    page = page,
-                    record = record,
-                    newsCategoryId = newsCategoryId,
-                    keyword = keyword,
-                    isMockData = false
-                };
-
-                return Json(debugInfo);
-            }
-            catch (Exception ex)
-            {
-                var mockData = new List<Models.M_News>
-                {
-                    new Models.M_News
-                    {
-                        id = 1,
-                        name = "Tin tức test (Exception)",
-                        description = "Mô tả tin tức test khi có lỗi",
-                        detail = "Chi tiết tin tức test khi có lỗi",
-                        publishedAt = DateTime.Now.AddDays(-1),
-                        viewNumber = 100,
-                        isHot = true,
-                        metaUrl = "tin-tuc-test-exception",
-                        newsCategoryId = 1,
-                        newsCategoryObj = new Models.M_NewsCategory { id = 1, name = "Tin công nghệ" }
-                    }
-                };
-
-                return Json(new
-                {
-                    result = 1,
-                    data = mockData,
-                    dataCount = mockData.Count,
-                    error = ex.Message,
-                    supplierId = _supplierId,
-                    page = page,
-                    record = record,
-                    newsCategoryId = newsCategoryId,
-                    keyword = keyword,
-                    isMockData = true,
-                    exception = ex.Message
-                });
-            }
+            var res = await _s_News.GetListByPaging("1", _supplierId, newsCategoryId, keyword, page, record);
+            return Json(res.data);
         }
 
         [HttpGet]
@@ -478,8 +356,8 @@ namespace Web_ProjectName.Controllers
             System.Diagnostics.Debug.WriteLine("GetCategories method called");
             try
             {
-                // Use the new GetListByStatus method with status = 1 (active categories)
-                var res = await _s_NewsCategory.GetListByStatus(1);
+                // Get categories with status = 0 and status = 1 using GetListByPaging
+                var res = await _s_NewsCategory.GetListByPaging("0,1");
 
                 System.Diagnostics.Debug.WriteLine($"GetCategories API Response Result: {res.result}");
                 System.Diagnostics.Debug.WriteLine($"GetCategories API Response Data Count: {res.data?.Count ?? 0}");
@@ -507,7 +385,7 @@ namespace Web_ProjectName.Controllers
                     {
                         result = 1,
                         data = mockCategories,
-                        error = res.error?.message ?? "API returned no data",
+                        error = "API returned no data for both status 0 and 1",
                         isMockData = true
                     });
                 }
@@ -535,6 +413,8 @@ namespace Web_ProjectName.Controllers
                 });
             }
         }
+
+
 
         [HttpGet]
         public async Task<JsonResult> GetListByStatus(int status = 1)
@@ -620,6 +500,63 @@ namespace Web_ProjectName.Controllers
                     isMockData = true,
                     exception = ex.Message
                 });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> UploadImage(IFormFile upload)
+        {
+            try
+            {
+                if (upload == null || upload.Length == 0)
+                {
+                    return Json(new { uploaded = 0, error = new { message = "Không có file được upload" } });
+                }
+
+                // Validate file type
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                var fileExtension = Path.GetExtension(upload.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    return Json(new { uploaded = 0, error = new { message = "Chỉ cho phép upload file ảnh (jpg, jpeg, png, gif, bmp)" } });
+                }
+
+                // Validate file size (max 5MB)
+                if (upload.Length > 5 * 1024 * 1024)
+                {
+                    return Json(new { uploaded = 0, error = new { message = "File quá lớn. Kích thước tối đa là 5MB" } });
+                }
+
+                // Generate unique filename
+                var fileName = Guid.NewGuid().ToString() + fileExtension;
+                var uploadPath = Path.Combine("wwwroot", "uploads", "images");
+
+                // Create directory if not exists
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                // Save file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await upload.CopyToAsync(stream);
+                }
+
+                // Return success response for CKEditor
+                return Json(new
+                {
+                    uploaded = 1,
+                    fileName = fileName,
+                    url = $"/uploads/images/{fileName}"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { uploaded = 0, error = new { message = "Lỗi khi upload file: " + ex.Message } });
             }
         }
     }

@@ -1,0 +1,2 @@
+# This file ensures the uploads/images directory is created
+# Images uploaded via CKEditor will be stored here 

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using Web_ProjectName.Models;
 using Web_ProjectName.Services;
 using Web_ProjectName.Lib;
-using Web_ProjectName.ViewModels;
 
 namespace Web_ProjectName.Controllers
 {
@@ -31,7 +30,7 @@ namespace Web_ProjectName.Controllers
         [HttpGet]
         public async Task GetListProduct()
         {
-            var res = await _s_Product.GetListByPaging("1", _supplierId,"1", default, EN_TypeSearchProduct.Hot, 1, 2);
+            var res = await _s_Product.GetListByPaging("1", _supplierId, "1", default, EN_TypeSearchProduct.Hot, 1, 2);
             if (res.result == 1 && res.data != null)
             {
                 ViewBag.ListIntroduce = res.data;

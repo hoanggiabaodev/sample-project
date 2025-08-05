@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Web_ProjectName.Lib;
 using Web_ProjectName.Models;
 using Web_ProjectName.Models.Common;
@@ -27,7 +26,7 @@ namespace Web_ProjectName.Controllers
         protected string _supplierId => HttpContext.RequestServices.GetService<IOptions<Config_Supplier>>().Value.id.ToString();
 
         protected string _refCode => HttpContext.RequestServices.GetService<IOptions<Config_Supplier>>().Value.refCode;
-        
+
         protected string _package => HttpContext.RequestServices.GetService<IOptions<Config_Supplier>>().Value.package;
 
         protected IMemoryCache _memoryCache => memoryCache ?? (memoryCache = HttpContext?.RequestServices.GetService<IMemoryCache>());
@@ -146,7 +145,7 @@ namespace Web_ProjectName.Controllers
                 if (newsCategory.result == 1 && newsCategory.data != null)
                     _memoryCache.Set(CommonConstants.CACHE_KEY_NEWSCATEGORY, newsCategory, cacheExpiryOptions);
             }
-            
+
             if (!_memoryCache.TryGetValue(CommonConstants.CACHE_KEY_PACKAGE, out string package))
             {
                 package = _package;

@@ -5,6 +5,7 @@ namespace Web_ProjectName.Services
 {
     public interface IS_NewsCategory
     {
+        Task<ResponseData<List<M_NewsCategory>>> GetListByPaging(string sequenceStatus);
         Task<ResponseData<List<M_NewsCategory>>> GetListBySequenceStatusSupplierId(string accessToken, string sequenceStatus, string supplierId);
         Task<ResponseData<List<M_NewsCategory>>> GetListBySupplierId(string supplierId);
         Task<ResponseData<List<M_NewsCategory>>> GetListByStatus(int status);
@@ -21,6 +22,15 @@ namespace Web_ProjectName.Services
         public S_NewsCategory(ICallBaseApi callApi)
         {
             _callApi = callApi;
+        }
+
+        public async Task<ResponseData<List<M_NewsCategory>>> GetListByPaging(string sequenceStatus)
+        {
+            Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
+            {
+                {"sequenceStatus", sequenceStatus},
+            };
+            return await _callApi.GetResponseDataAsync<List<M_NewsCategory>>("NewsCategory/GetListByPaging", dictPars);
         }
 
         public async Task<ResponseData<List<M_NewsCategory>>> GetListBySequenceStatusSupplierId(string accessToken, string sequenceStatus, string supplierId)
@@ -49,6 +59,7 @@ namespace Web_ProjectName.Services
             };
             return await _callApi.GetResponseDataAsync<List<M_NewsCategory>>("NewsCategory/GetListByStatus", dictPars);
         }
+
         public async Task<ResponseData<M_NewsCategory>> GetById(int id)
         {
             Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>

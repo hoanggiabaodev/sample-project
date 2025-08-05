@@ -36,57 +36,54 @@ function initializeCKEditor(elementId, editorVariable) {
             CKEDITOR.instances[elementId].destroy();
         }
 
+        if (window.console && window.console.warn) {
+            const originalWarn = window.console.warn;
+            window.console.warn = function (message) {
+                if (message && typeof message === 'string' &&
+                    (message.includes('CKEditor') && message.includes('license') ||
+                        message.includes('CKEditor') && message.includes('not secure') ||
+                        message.includes('This CKEditor') && message.includes('version is not secure') ||
+                        message.includes('4.22.1') && message.includes('not secure') ||
+                        message.includes('license key is missing') ||
+                        message.includes('LTS version'))) {
+                    return; // Suppress CKEditor warnings
+                }
+                originalWarn.apply(window.console, arguments);
+            };
+        }
+
         window[editorVariable] = CKEDITOR.replace(elementId, {
             height: 300,
             language: 'vi',
             filebrowserUploadUrl: '/upload-image',
-            on: {
-                instanceReady: function () {
-                    // Suppress console warnings
-                    if (window.console && window.console.warn) {
-                        const originalWarn = window.console.warn;
-                        window.console.warn = function (message) {
-                            if (message && typeof message === 'string' &&
-                                (message.includes('CKEditor') && message.includes('not secure') ||
-                                    message.includes('This CKEditor') && message.includes('version is not secure') ||
-                                    message.includes('4.22.1') && message.includes('not secure'))) {
-                                return; // Suppress CKEditor security warnings
-                            }
-                            originalWarn.apply(window.console, arguments);
-                        };
-                    }
-                }
-            },
+            // Disable license check
+            removePlugins: 'elementspath,resize',
+            // Use basic toolbar to avoid license issues
             toolbar: [
-                { name: 'document', items: ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'] },
-                { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'] },
-                { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll', '-', 'SpellChecker', 'Scayt'] },
-                '/',
-                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'] },
-                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl'] },
-                { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
-                { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
-                '/',
-                { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+                { name: 'links', items: ['Link', 'Unlink'] },
+                { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar'] },
+                { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
                 { name: 'colors', items: ['TextColor', 'BGColor'] },
-                { name: 'tools', items: ['Maximize', 'ShowBlocks'] }
-            ]
+                { name: 'tools', items: ['Maximize'] }
+            ],
+            removeButtons: 'Save,NewPage,Preview,Print,Templates,Find,Replace,SelectAll,SpellChecker,Scayt,Subscript,Superscript,CreateDiv,BidiLtr,BidiRtl,Anchor,Flash,PageBreak,Iframe,Styles,ShowBlocks',
+            startupMode: 'wysiwyg',
+            autoUpdateElement: false
         });
     } catch (error) {
         console.error('Error initializing CKEditor:', error);
-        // Fallback to textarea if CKEditor fails
         $('#' + elementId).show();
     }
 }
 
 function bindEvents() {
-    // Search button click
     $('#btnSearch').click(function () {
         newsDataTable.ajax.reload();
         showToast('success', 'Đang tìm kiếm...', 'Vui lòng chờ trong giây lát.');
     });
 
-    // Reset button click
     $('#btnReset').click(function () {
         $('#searchKeyword').val('');
         $('#categoryFilter').val('').trigger('change');
@@ -96,19 +93,15 @@ function bindEvents() {
         showToast('info', 'Đã làm mới', 'Đã xóa tất cả bộ lọc.');
     });
 
-    // Save news button click
     $('#btnSaveNews').click(function () {
         console.log('Save button clicked');
         saveNews();
     });
 
-    // Update news button click
     $('#btnUpdateNews').click(function () {
-        //console.log('Update button clicked');
-         updateNews();
+        updateNews();
     });
 
-    // Modal events
     $('#addNewsModal').on('hidden.bs.modal', function () {
         resetAddForm();
     });
@@ -117,7 +110,6 @@ function bindEvents() {
         resetEditForm();
     });
 
-    // Prevent CKEditor conflicts when modal is shown
     $('#addNewsModal').on('shown.bs.modal', function () {
         initializeCKEditor('newsContent', 'newsEditor');
     });
@@ -135,25 +127,20 @@ function loadCategories() {
         success: function (response) {
             console.log('Categories API response:', response);
             if (response.result === 1 && response.data) {
-                // Clear existing options
                 $('#categoryFilter, #newsCategory, #editNewsCategory').empty();
 
-                // Add default options
                 $('#categoryFilter').append('<option value="">Tất cả danh mục</option>');
                 $('#newsCategory, #editNewsCategory').append('<option value="">Chọn danh mục</option>');
 
-                // Add categories from API
                 response.data.forEach(function (category) {
                     console.log('Adding category:', category);
                     $('#categoryFilter').append(`<option value="${category.id}">${category.name}</option>`);
                     $('#newsCategory, #editNewsCategory').append(`<option value="${category.id}">${category.name}</option>`);
                 });
 
-                // Trigger change to update Select2
                 $('#categoryFilter, #newsCategory, #editNewsCategory').trigger('change');
 
                 console.log('Categories loaded successfully:', response.data.length, 'categories');
-                // showToast('success', 'Thành công', `Đã tải ${response.data.length} danh mục.`);
             } else {
                 console.error('Failed to load categories:', response.error);
                 showToast('error', 'Lỗi', 'Không thể tải danh mục tin tức: ' + (response.error || 'Unknown error'));
