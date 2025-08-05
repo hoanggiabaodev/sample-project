@@ -8,8 +8,8 @@ namespace Web_ProjectName.Services
     {
         Task<ResponseData<List<M_News>>> GetListBySequenceStatusSupplierIdNewsCategoryId(string accessToken, string sequenceStatus, string supplierId, int? newsCategoryId, DateTime? fdate, DateTime? tdate);
         Task<ResponseData<List<M_News>>> GetListBySequenceStatusSupplierIdSearchText(string accessToken, string sequenceStatus, string supplierId, string searchText);
-        Task<ResponseData<List<M_News>>> GetListByPaging(string sequenceStatus, string supplierId, int? newsCategoryId, string keyword, int page = 1, int record = 10);
-        Task<ResponseData<M_News>> GetById(string accessToken, int id);
+        Task<ResponseData<List<M_News>>> GetListByPaging(string sequenceStatus, string supplierId, int? newsCategoryId, string? keyword, int page = 1, int record = 10);
+        Task<ResponseData<M_News>> GetById(string? accessToken, int id);
         Task<ResponseData<M_News>> GetByMetaUrl(string metaUrl);
         Task<ResponseData<M_News>> Create(string accessToken, EM_News model, string refCode, string createdBy);
         Task<ResponseData<M_News>> Update(string accessToken, EM_News model, string refCode, string updatedBy);

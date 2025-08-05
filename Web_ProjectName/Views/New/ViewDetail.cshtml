@@ -1,0 +1,251 @@
+@{
+    ViewData["Title"] = "Chi tiết tin tức";
+    var newsDetail = ViewBag.NewsDetail as Web_ProjectName.Models.M_News;
+}
+
+@if (newsDetail != null)
+{
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "New")">Tin tức</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">@newsDetail.name</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <!-- News Content -->
+                                    <article class="news-detail">
+                                        <header class="mb-4">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div>
+                                                    @if (newsDetail.isHot)
+                                                    {
+                                                            <span class="badge bg-danger me-2">Hot</span>
+                                                    }
+                                                    @if (newsDetail.newsCategoryObj != null)
+                                                    {
+                                                            <span class="badge bg-primary">@newsDetail.newsCategoryObj.name</span>
+                                                    }
+                                                </div>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar-alt"></i> 
+                                                    @(newsDetail.publishedAt?.ToString("dd/MM/yyyy HH:mm") ?? "")
+                                                </small>
+                                            </div>
+                                        
+                                            <h1 class="h2 mb-3">@newsDetail.name</h1>
+                                        
+                                            @if (!string.IsNullOrEmpty(newsDetail.description))
+                                            {
+                                                    <p class="lead text-muted">@newsDetail.description</p>
+                                            }
+                                        
+                                            <div class="d-flex align-items-center text-muted mb-3">
+                                                <small>
+                                                    <i class="fas fa-eye"></i> @(newsDetail.viewNumber ?? 0) lượt xem
+                                                </small>
+                                            </div>
+                                        </header>
+
+                                        @if (newsDetail.imageObj != null && !string.IsNullOrEmpty(newsDetail.imageObj.relativeUrl))
+                                        {
+                                                <div class="text-center mb-4">
+                                                    <img src="@newsDetail.imageObj.relativeUrl" 
+                                                         class="img-fluid rounded" 
+                                                         alt="@newsDetail.name"
+                                                         style="max-height: 400px; object-fit: cover;">
+                                                </div>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(newsDetail.detail))
+                                        {
+                                                <div class="news-content">
+                                                    @Html.Raw(newsDetail.detail)
+                                                </div>
+                                        }
+                                        else
+                                        {
+                                                <div class="text-center py-5">
+                                                    <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                                                    <p class="text-muted">Nội dung chi tiết đang được cập nhật...</p>
+                                                </div>
+                                        }
+                                    </article>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <!-- Sidebar -->
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="fas fa-info-circle"></i> Thông tin tin tức
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <strong>Tiêu đề:</strong>
+                                                    <br>
+                                                    <span class="text-muted">@newsDetail.name</span>
+                                                </li>
+                                                @if (newsDetail.newsCategoryObj != null)
+                                                {
+                                                        <li class="mb-2">
+                                                            <strong>Danh mục:</strong>
+                                                            <br>
+                                                            <span class="badge bg-primary">@newsDetail.newsCategoryObj.name</span>
+                                                        </li>
+                                                }
+                                                <li class="mb-2">
+                                                    <strong>Ngày đăng:</strong>
+                                                    <br>
+                                                    <span class="text-muted">@(newsDetail.publishedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa cập nhật")</span>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <strong>Lượt xem:</strong>
+                                                    <br>
+                                                    <span class="text-muted">@(newsDetail.viewNumber ?? 0)</span>
+                                                </li>
+                                                @if (newsDetail.isHot)
+                                                {
+                                                        <li class="mb-2">
+                                                            <strong>Trạng thái:</strong>
+                                                            <br>
+                                                            <span class="badge bg-danger">Tin nổi bật</span>
+                                                        </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Related News Section -->
+                                    <div class="card mt-4">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="fas fa-newspaper"></i> Tin tức liên quan
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="relatedNews">
+                                                <div class="text-center">
+                                                    <div class="spinner-border spinner-border-sm" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    <p class="text-muted mt-2">Đang tải tin tức liên quan...</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+}
+else
+{
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <img src="~/images/no-data/no-data.png" alt="No data" class="img-fluid" style="max-width: 200px;">
+                            <h5 class="mt-3 text-muted">Không tìm thấy tin tức</h5>
+                            <p class="text-muted">Tin tức bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+                            <a href="@Url.Action("Index", "New")" class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> Quay lại danh sách tin tức
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+}
+
+@section Scripts {
+        <script>
+            $(document).ready(function() {
+                // Load related news
+                loadRelatedNews();
+            });
+
+            function loadRelatedNews() {
+                $.ajax({
+                    url: '@Url.Action("GetListNewsByAjax", "New")',
+                    type: 'GET',
+                    data: {
+                        page: 1,
+                        record: 5,
+                        newsCategoryId: @(newsDetail?.newsCategoryId ?? 0)
+                    },
+                    success: function(response) {
+                        if (response.result === 1 && response.data && response.data.length > 0) {
+                            updateRelatedNews(response.data);
+                        } else {
+                            showNoRelatedNews();
+                        }
+                    },
+                    error: function() {
+                        showNoRelatedNews();
+                    }
+                });
+            }
+
+            function updateRelatedNews(newsList) {
+                let html = '';
+                newsList.forEach(function(news) {
+                    html += `
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                ${news.imageObj && news.imageObj.relativeUrl ? 
+                                    `<img src="${news.imageObj.relativeUrl}" class="rounded" alt="${news.name}" style="width: 60px; height: 60px; object-fit: cover;">` :
+                                    `<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                        <i class="fas fa-newspaper text-muted"></i>
+                                    </div>`
+                                }
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">
+                                    <a href="/News/ViewDetail/${news.id}" class="text-decoration-none">
+                                        ${news.name}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt"></i> ${formatDate(news.publishedAt)}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                });
+                $('#relatedNews').html(html);
+            }
+
+            function showNoRelatedNews() {
+                $('#relatedNews').html(`
+                    <div class="text-center py-3">
+                        <i class="fas fa-newspaper fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Chưa có tin tức liên quan</p>
+                    </div>
+                `);
+            }
+
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('vi-VN');
+            }
+        </script>
+}
