@@ -1,0 +1,50 @@
+﻿@{
+    var supplierInfo = ViewBag.SupplierInfo as M_Supplier;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noodp,noydir,index,follow" />
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta http-equiv="Content-Security-Policy" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="@ViewData["Description"]">
+    <meta name="keywords" content="@ViewData["Keywords"]">
+    <meta name="author" content="@supplierInfo.name">
+    <title>@ViewData["Title"]</title>
+    <link rel="shortcut icon" href="@(supplierInfo.faviconUrl ?? "/favicon.ico")">
+
+    <!-- Facebook, Zalo, Telegram Meta Tags -->
+    <meta property="og:image" content="@ViewData["ImagePreview"]" />
+    <meta property="og:image:alt" content="@ViewData["Title"]" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="vi" />
+    @*<meta property="og:url" content="url" />*@
+    <meta property="og:site_name" content="@supplierInfo.name" />
+    <meta property="og:title" content="@ViewData["Title"]" />
+    <meta property="og:description" content="@ViewData["Description"]" />
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="@ViewData["ImagePreview"]" />
+    <meta name="twitter:title" content="@ViewData["Title"]" />
+    <meta name="twitter:description" content="@ViewData["Description"]" />
+
+    <title>@ViewData["Title"]</title>
+    <partial name="_P_Styles" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <partial name="_P_Header" />
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <partial name="_P_Footer" />
+    <partial name="_P_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
