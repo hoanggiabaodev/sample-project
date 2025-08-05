@@ -29,6 +29,8 @@ HttpClientHandler GetDefaultHttpClientHandler()
         UseDefaultCredentials = true,
         ClientCertificateOptions = ClientCertificateOption.Manual,
         ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true,
+        SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13,
+        CheckCertificateRevocationList = false
     };
 }
 

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Net.Http.Headers;
+using System;
 
 namespace Web_ProjectName.Lib
 {
@@ -172,29 +173,88 @@ namespace Web_ProjectName.Lib
             ResponseData<T> res = new ResponseData<T>();
             try
             {
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - URL: {url}");
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Factory Name: {_factoryName}");
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Access Token: {accessToken ?? "NULL"}");
+
                 HttpClient client = _factory.CreateClient(_factoryName);
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - HttpClient created successfully");
+
                 if (!string.IsNullOrEmpty(accessToken))
+                {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Authorization header added");
+                }
 
-                MultipartFormDataContent formData = new MultipartFormDataContent();
-                if (dictPars != null)
-                    foreach (KeyValuePair<string, dynamic> item in dictPars)
-                        formData.Add(new StringContent(item.Value == null ? "" : item.Value.ToString()), item.Key);
+                // For News/Update endpoint, use query parameters instead of form data
+                if (url.Contains("News/Update"))
+                {
+                    int i = 0;
+                    string param = "?";
+                    if (dictPars != null)
+                        foreach (KeyValuePair<string, dynamic> item in dictPars)
+                        {
+                            param += (i == 0 ? "" : "&") + string.Format("{0}={1}", item.Key, item.Value == null ? "" : Uri.EscapeDataString(item.Value.ToString()));
+                            i++;
+                        }
 
-                var response = await client.PutAsync(url, formData);
-                response.EnsureSuccessStatusCode();
-                var jsonres = await response.Content.ReadAsStringAsync();
-                res = JsonConvert.DeserializeObject<ResponseData<T>>(jsonres);
-                return res;
+                    string fullUrl = url + param;
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Full URL: {fullUrl}");
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Base Address: {client.BaseAddress}");
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Parameters: {System.Text.Json.JsonSerializer.Serialize(dictPars)}");
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Timeout: {client.Timeout}");
+
+                    var response = await client.PutAsync(fullUrl, null);
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Response Status: {response.StatusCode}");
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Response Headers: {System.Text.Json.JsonSerializer.Serialize(response.Headers)}");
+
+                    response.EnsureSuccessStatusCode();
+                    var jsonres = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Response Content: {jsonres}");
+
+                    res = JsonConvert.DeserializeObject<ResponseData<T>>(jsonres);
+                    return res;
+                }
+                else
+                {
+                    // For other endpoints, use form data as before
+                    MultipartFormDataContent formData = new MultipartFormDataContent();
+                    if (dictPars != null)
+                        foreach (KeyValuePair<string, dynamic> item in dictPars)
+                            formData.Add(new StringContent(item.Value == null ? "" : item.Value.ToString()), item.Key);
+
+                    var response = await client.PutAsync(url, formData);
+                    response.EnsureSuccessStatusCode();
+                    var jsonres = await response.Content.ReadAsStringAsync();
+                    res = JsonConvert.DeserializeObject<ResponseData<T>>(jsonres);
+                    return res;
+                }
             }
             catch (HttpRequestException ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - HttpRequestException: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - HttpRequestException StatusCode: {ex.StatusCode}");
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - HttpRequestException StackTrace: {ex.StackTrace}");
+
                 res.result = -1;
                 res.error = new error() { code = ex.StatusCode.HasValue ? (int)ex.StatusCode : -1, message = ex.Message };
                 return res;
             }
+            catch (TaskCanceledException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - TaskCanceledException: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - TaskCanceledException StackTrace: {ex.StackTrace}");
+
+                res.result = -1;
+                res.error = new error() { code = -1, message = "Lỗi timeout kết nối đến máy chủ" };
+                return res;
+            }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Exception: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Exception Type: {ex.GetType().Name}");
+                System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Exception StackTrace: {ex.StackTrace}");
+
                 res.result = -1;
                 res.error = new error() { code = -1, message = ex.Message };
                 return res;

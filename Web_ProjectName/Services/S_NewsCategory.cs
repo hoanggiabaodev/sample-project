@@ -7,6 +7,7 @@ namespace Web_ProjectName.Services
     {
         Task<ResponseData<List<M_NewsCategory>>> GetListBySequenceStatusSupplierId(string accessToken, string sequenceStatus, string supplierId);
         Task<ResponseData<List<M_NewsCategory>>> GetListBySupplierId(string supplierId);
+        Task<ResponseData<List<M_NewsCategory>>> GetListByStatus(int status);
         Task<ResponseData<M_NewsCategory>> GetById(int id);
         Task<ResponseData<M_NewsCategory>> Create(string accessToken, EM_NewsCategory model, string createdBy);
         Task<ResponseData<M_NewsCategory>> Update(string accessToken, EM_NewsCategory model, string updatedBy);
@@ -38,6 +39,15 @@ namespace Web_ProjectName.Services
                 {"supplierId", supplierId},
             };
             return await _callApi.GetResponseDataAsync<List<M_NewsCategory>>("NewsCategory/GetListBySupplierId", dictPars);
+        }
+
+        public async Task<ResponseData<List<M_NewsCategory>>> GetListByStatus(int status)
+        {
+            Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
+            {
+                {"status", status},
+            };
+            return await _callApi.GetResponseDataAsync<List<M_NewsCategory>>("NewsCategory/GetListByStatus", dictPars);
         }
         public async Task<ResponseData<M_NewsCategory>> GetById(int id)
         {

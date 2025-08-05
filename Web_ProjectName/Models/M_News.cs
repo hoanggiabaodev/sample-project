@@ -25,6 +25,7 @@ namespace Web_ProjectName.Models
         public M_NewsCategory newsCategoryObj { get; set; }
         public M_Image imageObj { get; set; }
     }
+
     public class EM_News : M_BaseModel.BaseCustom
     {
         public int? id { get; set; }
@@ -58,5 +59,26 @@ namespace Web_ProjectName.Models
         public IFormFile imageFile { get; set; }
         public M_NewsCategory newsCategoryObj { get; set; }
         public M_Image imageObj { get; set; }
+    }
+
+    // Model for API requests (without IFormFile)
+    public class EM_News_API : M_BaseModel.BaseCustom
+    {
+        public int? id { get; set; }
+        public string name { get; set; }
+        public int? newsCategoryId { get; set; }
+        public int? supplierId { get; set; }
+        public string description { get; set; }
+        public string detail { get; set; }
+        public bool isHot { get; set; }
+        public int? viewNumber { get; set; }
+        public DateTime publishedAt { get; set; }
+        public int? imageId { get; set; }
+        public string metaKeywords { get; set; }
+        public string metaDescription { get; set; }
+        public string metaTitle { get; set; }
+        public string metaUrl { get; set; }
+        public string metaImagePreview { get; set; }
+        public int? status { get; set; }
     }
 }
