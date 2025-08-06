@@ -65,6 +65,26 @@ const NewsApi = {
 };
 
 const CategoryApi = {
+    getList: function (params = {}) {
+        return ApiService.get('/NewCategory/GetListByStatus', params);
+    },
+
+    getById: function (id) {
+        return ApiService.get(`/NewCategory/GetById?id=${id}`);
+    },
+
+    save: function (data) {
+        return ApiService.post('/NewCategory/Save', data);
+    },
+
+    update: function (data) {
+        return ApiService.post('/NewCategory/Update', data);
+    },
+
+    delete: function (id) {
+        return ApiService.delete(`/NewCategory/Delete/${id}`);
+    },
+
     getCategories: function () {
         return ApiService.get('/New/GetCategories');
     }
@@ -89,3 +109,19 @@ const ApiUtils = {
         return { success: false, error: errorMessage };
     }
 };
+
+// Toast notification function
+function showToast(type, title, message) {
+    // Check if iziToast is available
+    if (typeof iziToast !== 'undefined') {
+        iziToast[type]({
+            title: title,
+            message: message,
+            position: 'topRight',
+            timeout: 5000
+        });
+    } else {
+        // Fallback to alert if iziToast is not available
+        alert(`${title}: ${message}`);
+    }
+}

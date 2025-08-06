@@ -201,7 +201,6 @@ function initializeDataTable() {
                     let hotBadge = row.isHot ? '<span class="badge bg-danger ms-2">Hot</span>' : '';
                     return `<div>
                         <strong>${data}</strong>${hotBadge}
-                        <br><small class="text-muted">${row.description || 'Không có mô tả'}</small>
                     </div>`;
                 }
             },
@@ -302,7 +301,6 @@ function displayNewsDetails(news) {
             </div>
             <div class="col-md-8">
                 <h4>${news.name}</h4>
-                <p class="text-muted">${news.description || 'Không có mô tả'}</p>
                 <div class="mb-3">
                     <strong>Danh mục:</strong> ${news.newsCategoryObj?.name || 'Không có'}
                 </div>

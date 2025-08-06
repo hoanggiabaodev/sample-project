@@ -170,6 +170,11 @@ app.UseEndpoints(endpoints =>
         defaults: new { controller = "News", action = "Latest" });
 
     endpoints.MapControllerRoute(
+        name: "New Category",
+        pattern: "new-category",
+        defaults: new { controller = "NewCategory", action = "Index" });
+
+    endpoints.MapControllerRoute(
        name: "Error page",
        pattern: "error/{code}",
        defaults: new { controller = "Error", action = "Index" });

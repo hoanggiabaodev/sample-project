@@ -1,0 +1,421 @@
+@{
+    ViewData["Title"] = "Quản lý danh mục tin tức";
+    ViewData["Description"] = "Quản lý danh mục tin tức";
+    Layout = "_LayoutDashmin";
+}
+
+<!-- Content Start -->
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="bg-light rounded h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0">Danh mục tin tức</h6>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#addCategoryModal">
+                        <i class="fa fa-plus me-2"></i>Thêm danh mục
+                    </button>
+                </div>
+
+                <!-- Filter Section -->
+                @* <div class="row mb-3">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchKeyword" placeholder="Tìm kiếm...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary" id="btnSearch">
+                            <i class="fa fa-search me-2"></i>Tìm kiếm
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-outline-secondary" id="btnReset">
+                            <i class="fa fa-refresh me-2"></i>Làm mới
+                        </button>
+                    </div>
+                </div> *@
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover" id="categoriesDataTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Tên danh mục</th>
+                                <th scope="col">URL Meta</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Cập nhật</th>
+                                <th scope="col">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded by DataTable -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center" id="pagination">
+                        <!-- Pagination will be generated here -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Content End -->
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCategoryModalLabel">Thêm danh mục mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCategoryForm">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Tên danh mục *</label>
+                        <input type="text" class="form-control" id="categoryName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryStatus" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="categoryStatus" name="status">
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryMetaUrl" class="form-label">URL Meta</label>
+                        <input type="text" class="form-control" id="categoryMetaUrl" name="metaUrl"
+                            placeholder="url-meta-danh-muc">
+                        <div class="form-text">URL thân thiện cho SEO (tùy chọn)</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnSaveCategory">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCategoryModalLabel">Chỉnh sửa danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCategoryForm">
+                    <input type="hidden" id="editCategoryId" name="id">
+                    <div class="mb-3">
+                        <label for="editCategoryName" class="form-label">Tên danh mục *</label>
+                        <input type="text" class="form-control" id="editCategoryName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCategoryStatus" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="editCategoryStatus" name="status">
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCategoryMetaUrl" class="form-label">URL Meta</label>
+                        <input type="text" class="form-control" id="editCategoryMetaUrl" name="metaUrl"
+                            placeholder="url-meta-danh-muc">
+                        <div class="form-text">URL thân thiện cho SEO (tùy chọn)</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnUpdateCategory">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Category Modal -->
+<div class="modal fade" id="viewCategoryModal" tabindex="-1" aria-labelledby="viewCategoryModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewCategoryModalLabel">Chi tiết danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="viewCategoryContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCategoryModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa danh mục này không?</p>
+                <p class="text-danger"><strong>Hành động này không thể hoàn tác!</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/responsive.dataTables.min.css">
+
+    <link rel="stylesheet" type="text/css" href="~/lib/select2/css/select2.min.css">
+
+    <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+
+    <script src="~/lib/ckeditor/ckeditor.js"></script>
+
+    <script type="text/javascript" src="~/lib/datatable/js/datatables.min.js"></script>
+    <script type="text/javascript" src="~/lib/datatable/js/datatables.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="~/lib/datatable/js/dataTables.responsive.min.js"></script>
+
+    <script src="~/lib/select2/js/select2.min.js"></script>
+
+    <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/dist/js/il8n/vi.js"></script>
+
+    <link rel="stylesheet" href="~/lib/izi-toast-mater/css/iziToast.min.css">
+    <script src="~/lib/izi-toast-mater/iziToast.min.js"></script>
+    <script src="~/js/call-api.js"></script>
+    <script src="~/js/new_categories_management.js"></script>
+    @* <script>
+
+        let currentDeleteId = null;
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // Load categories on page load
+        $(document).ready(function () {
+            loadCategories();
+
+            // Status filter change
+            $('#statusFilter').change(function () {
+                currentPage = 1;
+                loadCategories();
+            });
+        });
+
+        function loadCategories() {
+            const status = $('#statusFilter').val();
+            const url = status ? `/new-category/get-list-by-status?status=${status}` : '/new-category/get-list-by-status';
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (response) {
+                    if (response.result === 1) {
+                        displayCategories(response.data);
+                    } else {
+                        showAlert('Lỗi khi tải dữ liệu', 'error');
+                    }
+                },
+                error: function () {
+                    showAlert('Lỗi kết nối', 'error');
+                }
+            });
+        }
+
+        function displayCategories(categories) {
+            const tbody = $('#categoryTableBody');
+            tbody.empty();
+
+            if (categories.length === 0) {
+                tbody.append(`
+                                            <tr>
+                                                <td colspan="6" class="text-center">Không có dữ liệu</td>
+                                            </tr>
+                                        `);
+                return;
+            }
+
+            categories.forEach((category, index) => {
+                const statusBadge = category.status === 1
+                    ? '<span class="badge bg-success">Hoạt động</span>'
+                    : '<span class="badge bg-secondary">Không hoạt động</span>';
+
+                const createdAt = new Date(category.createdAt).toLocaleDateString('vi-VN');
+
+                tbody.append(`
+                                            <tr>
+                                                <td>${index + 1}</td>
+                                                <td>${category.name}</td>
+                                                <td>${category.description || '-'}</td>
+                                                <td>${statusBadge}</td>
+                                                <td>${createdAt}</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="editCategory(${category.id})">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${category.id})">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `);
+            });
+        }
+
+        function saveCategory() {
+            const formData = {
+                name: $('#categoryName').val(),
+                description: $('#categoryDescription').val(),
+                status: parseInt($('#categoryStatus').val())
+            };
+
+            $.ajax({
+                url: '/new-category/save',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.result === 1) {
+                        showAlert('Thêm danh mục thành công', 'success');
+                        $('#addCategoryModal').modal('hide');
+                        $('#addCategoryForm')[0].reset();
+                        loadCategories();
+                    } else {
+                        showAlert(response.error || 'Lỗi khi thêm danh mục', 'error');
+                    }
+                },
+                error: function () {
+                    showAlert('Lỗi kết nối', 'error');
+                }
+            });
+        }
+
+        function editCategory(id) {
+            $.ajax({
+                url: `/new-category/get-by-id?id=${id}`,
+                type: 'GET',
+                success: function (response) {
+                    if (response.result === 1) {
+                        const category = response.data;
+                        $('#editCategoryId').val(category.id);
+                        $('#editCategoryName').val(category.name);
+                        $('#editCategoryDescription').val(category.description || '');
+                        $('#editCategoryStatus').val(category.status);
+                        $('#editCategoryModal').modal('show');
+                    } else {
+                        showAlert('Không tìm thấy danh mục', 'error');
+                    }
+                },
+                error: function () {
+                    showAlert('Lỗi kết nối', 'error');
+                }
+            });
+        }
+
+        function updateCategory() {
+            const formData = {
+                id: parseInt($('#editCategoryId').val()),
+                name: $('#editCategoryName').val(),
+                description: $('#editCategoryDescription').val(),
+                status: parseInt($('#editCategoryStatus').val())
+            };
+
+            $.ajax({
+                url: '/new-category/update',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.result === 1) {
+                        showAlert('Cập nhật danh mục thành công', 'success');
+                        $('#editCategoryModal').modal('hide');
+                        loadCategories();
+                    } else {
+                        showAlert(response.error || 'Lỗi khi cập nhật danh mục', 'error');
+                    }
+                },
+                error: function () {
+                    showAlert('Lỗi kết nối', 'error');
+                }
+            });
+        }
+
+        function deleteCategory(id) {
+            currentDeleteId = id;
+            $('#deleteCategoryModal').modal('show');
+        }
+
+        function confirmDelete() {
+            if (!currentDeleteId) return;
+
+            $.ajax({
+                url: `/new-category/delete?id=${currentDeleteId}`,
+                type: 'DELETE',
+                success: function (response) {
+                    if (response.result === 1) {
+                        showAlert('Xóa danh mục thành công', 'success');
+                        $('#deleteCategoryModal').modal('hide');
+                        loadCategories();
+                    } else {
+                        showAlert(response.error || 'Lỗi khi xóa danh mục', 'error');
+                    }
+                },
+                error: function () {
+                    showAlert('Lỗi kết nối', 'error');
+                }
+            });
+        }
+
+        function refreshTable() {
+            loadCategories();
+        }
+
+        function showAlert(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alertHtml = `
+                                        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                                            ${message}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    `;
+
+            // Remove existing alerts
+            $('.alert').remove();
+
+            // Add new alert
+            $('.container-fluid').prepend(alertHtml);
+
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                $('.alert').fadeOut();
+            }, 3000);
+        }
+    </script> *@
+}
