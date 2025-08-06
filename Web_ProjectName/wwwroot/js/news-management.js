@@ -111,7 +111,6 @@ function bindEvents() {
     });
     $('#editNewsModal').on('shown.bs.modal', function () {
         setTimeout(function () {
-            // Destroy existing instance if any
             if (CKEDITOR.instances['editNewsContent']) {
                 CKEDITOR.instances['editNewsContent'].destroy();
             }
@@ -123,6 +122,7 @@ function bindEvents() {
 function resetFilters() {
     $('#searchKeyword').val('');
     $('#categoryFilter').val('').trigger('change.select2');
+    $('#statusFilter').val('');
     $('#dateFrom').val('');
     $('#dateTo').val('');
     newsDataTable.ajax.reload();
@@ -164,11 +164,13 @@ function initializeDataTable() {
             url: '/New/GetListByStatus',
             type: 'GET',
             data: function (d) {
+                var statusFilter = $('#statusFilter').val();
                 return {
                     page: (d.start / d.length) + 1,
                     record: d.length,
                     keyword: $('#searchKeyword').val(),
                     newsCategoryId: $('#categoryFilter').val(),
+                    status: statusFilter === '' ? null : parseInt(statusFilter),
                     dateFrom: $('#dateFrom').val(),
                     dateTo: $('#dateTo').val()
                 };
@@ -228,7 +230,14 @@ function initializeDataTable() {
                 data: 'status',
                 width: '8%',
                 render: function (data, type, row) {
-                    return data == 1 ? `<span class="badge bg-success">Hoạt động</span>` : `<span class="badge bg-danger">Không hoạt động</span>`;
+                    switch (data) {
+                        case 0:
+                            return `<span class="badge bg-danger">Không hoạt động</span>`;
+                        case 1:
+                            return `<span class="badge bg-success">Hoạt động</span>`;
+                        default:
+                            return `<span class="badge bg-secondary">Không xác định</span>`;
+                    }
                 }
             },
             {
@@ -304,7 +313,7 @@ function displayNewsDetails(news) {
                     <strong>Lượt xem:</strong> ${news.viewNumber || 0}
                 </div>
                 <div class="mb-3">
-                    <strong>Trạng thái:</strong> ${news.status == 1 ? '<span class="badge bg-success">Hoạt động</span>' : '<span class="badge bg-danger">Không hoạt động</span>'}
+                    <strong>Trạng thái:</strong> ${getStatusBadge(news.status)}
                 </div>
                 <div class="mb-3">
                     <strong>Tin nổi bật:</strong> ${news.isHot ? '<span class="badge bg-danger">Hot</span>' : '<span class="badge bg-secondary">Bình thường</span>'}
@@ -344,6 +353,7 @@ function populateEditForm(news) {
     $('#editNewsDescription').val(news.description);
     $('#editNewsPublishedDate').val(formatDate(news.publishedAt));
     $('#editNewsIsHot').prop('checked', news.isHot);
+    $('#editNewsStatus').val(news.status || 0);
 
     $('#editNewsMetaKeywords').val(news.metaKeywords || "");
     $('#editNewsMetaDescription').val(news.metaDescription || news.description || "");
@@ -495,7 +505,7 @@ function buildAddFormData() {
         metaTitle: $('#newsTitle').val() || "",
         metaImagePreview: "",
         imageId: 0,
-        status: 1
+        status: parseInt($('#newsStatus').val()) || 0
     };
 
     return formData;
@@ -540,7 +550,7 @@ function buildEditFormData() {
         metaTitle: $('#editNewsMetaTitle').val() || $('#editNewsTitle').val() || "",
         metaImagePreview: $('#editNewsMetaImagePreview').val() || "",
         imageId: parseInt($('#editNewsImageId').val()) || 0,
-        status: 1
+        status: parseInt($('#editNewsStatus').val()) || 0
     };
 
     return formData;
@@ -557,12 +567,18 @@ function validateNewsForm(formData) {
         return false;
     }
 
+    if (formData.status === undefined || formData.status === null || formData.status === '') {
+        showToast('error', 'Lỗi', 'Vui lòng chọn trạng thái.');
+        return false;
+    }
+
     return true;
 }
 
 function resetAddForm() {
     $('#newsForm')[0].reset();
     $('#newsCategory').val('').trigger('change.select2');
+    $('#newsStatus').val('');
 
     try {
         if (newsEditor && newsEditor.setData) {
@@ -577,6 +593,7 @@ function resetAddForm() {
 function resetEditForm() {
     $('#editNewsForm')[0].reset();
     $('#editNewsCategory').val('').trigger('change.select2');
+    $('#editNewsStatus').val('');
 
     $('#editNewsMetaKeywords').val('');
     $('#editNewsMetaDescription').val('');
@@ -617,6 +634,17 @@ function generateMetaUrl(title) {
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
         .trim('-');
+}
+
+function getStatusBadge(status) {
+    switch (status) {
+        case 0:
+            return '<span class="badge bg-danger">Không hoạt động</span>';
+        case 1:
+            return '<span class="badge bg-success">Hoạt động</span>';
+        default:
+            return '<span class="badge bg-secondary">Không xác định</span>';
+    }
 }
 
 function showToast(type, title, message) {

@@ -65,15 +65,23 @@
             </div>
 
             <!-- Search and Filter Section -->
-            <div class="row mb-4">
-                <div class="col-md-3">
+            @* <div class="row mb-4">
+                <div class="col-md-2">
                     <label for="searchKeyword" class="form-label">Từ khóa tìm kiếm</label>
                     <input type="text" class="form-control" id="searchKeyword" placeholder="Nhập từ khóa...">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="categoryFilter" class="form-label">Danh mục</label>
                     <select class="form-control select2" id="categoryFilter">
                         <option value="">Tất cả danh mục</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="statusFilter" class="form-label">Trạng thái</label>
+                    <select class="form-control" id="statusFilter">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="0">Không hoạt động</option>
+                        <option value="1">Hoạt động</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -94,7 +102,7 @@
                         <i class="fas fa-undo me-2"></i>Làm mới
                     </button>
                 </div>
-            </div>
+            </div> *@
 
             <!-- News DataTable -->
             <div class="table-responsive">

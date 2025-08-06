@@ -309,7 +309,7 @@ namespace Web_ProjectName.Controllers
         {
             try
             {
-                var res = await _s_News.UpdateStatus("", id, 0, "");
+                var res = await _s_News.UpdateStatus("", id, -1, "");
                 if (res.result == 1)
                 {
                     return Json(new { result = 1, message = "Đã xóa tin tức thành công", res.data });
@@ -381,51 +381,74 @@ namespace Web_ProjectName.Controllers
 
 
         [HttpGet]
-        public async Task<JsonResult> GetListByStatus(int status = 1)
+        public async Task<JsonResult> GetListByStatus(int? status = null)
         {
             try
             {
-                var res = await _s_News.GetListByStatus(status);
-
-                if (res.result == 1 && res.data != null)
+                // Nếu status là null hoặc rỗng, lấy tất cả tin tức (cả 0 và 1)
+                if (status == null)
                 {
+                    var res0 = await _s_News.GetListByStatus(0);
+                    var res1 = await _s_News.GetListByStatus(1);
+
+                    var allNews = new List<Models.M_News>();
+                    if (res0.result == 1 && res0.data != null)
+                        allNews.AddRange(res0.data);
+                    if (res1.result == 1 && res1.data != null)
+                        allNews.AddRange(res1.data);
+
                     return Json(new
                     {
                         result = 1,
-                        res.data,
-                        dataCount = res.data?.Count ?? 0,
-                        status,
+                        data = allNews,
+                        dataCount = allNews.Count,
+                        status = "all"
                     });
                 }
                 else
                 {
-                    var mockData = new List<Models.M_News>
-                    {
-                        new Models.M_News
-                        {
-                            id = 1,
-                            name = "Tin tức theo trạng thái",
-                            description = "Mô tả tin tức theo trạng thái",
-                            detail = "Chi tiết tin tức theo trạng thái",
-                            publishedAt = DateTime.Now.AddDays(-1),
-                            viewNumber = 100,
-                            isHot = true,
-                            metaUrl = "tin-tuc-theo-trang-thai",
-                            newsCategoryId = 1,
-                            status = status,
-                            newsCategoryObj = new Models.M_NewsCategory { id = 1, name = "Tin công nghệ" }
-                        }
-                    };
+                    var res = await _s_News.GetListByStatus(status.Value);
 
-                    return Json(new
+                    if (res.result == 1 && res.data != null)
                     {
-                        result = 1,
-                        res.data,
-                        dataCount = res.data?.Count ?? 0,
-                        status,
-                        error = res.error?.message ?? "API returned no data",
-                        isMockData = true
-                    });
+                        return Json(new
+                        {
+                            result = 1,
+                            data = res.data,
+                            dataCount = res.data?.Count ?? 0,
+                            status = status.Value,
+                        });
+                    }
+                    else
+                    {
+                        var mockData = new List<Models.M_News>
+                        {
+                            new Models.M_News
+                            {
+                                id = 1,
+                                name = "Tin tức theo trạng thái",
+                                description = "Mô tả tin tức theo trạng thái",
+                                detail = "Chi tiết tin tức theo trạng thái",
+                                publishedAt = DateTime.Now.AddDays(-1),
+                                viewNumber = 100,
+                                isHot = true,
+                                metaUrl = "tin-tuc-theo-trang-thai",
+                                newsCategoryId = 1,
+                                status = status.Value,
+                                newsCategoryObj = new Models.M_NewsCategory { id = 1, name = "Tin công nghệ" }
+                            }
+                        };
+
+                        return Json(new
+                        {
+                            result = 1,
+                            data = res.data,
+                            dataCount = res.data?.Count ?? 0,
+                            status = status.Value,
+                            error = res.error?.message ?? "API returned no data",
+                            isMockData = true
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -443,7 +466,7 @@ namespace Web_ProjectName.Controllers
                         isHot = true,
                         metaUrl = "tin-tuc-theo-trang-thai-exception",
                         newsCategoryId = 1,
-                        status = status,
+                        status = status ?? 1,
                         newsCategoryObj = new Models.M_NewsCategory { id = 1, name = "Tin công nghệ" }
                     }
                 };
@@ -453,7 +476,7 @@ namespace Web_ProjectName.Controllers
                     result = 1,
                     data = mockData,
                     dataCount = mockData.Count,
-                    status,
+                    status = status?.ToString() ?? "all",
                     error = ex.Message,
                     isMockData = true,
                     exception = ex.Message

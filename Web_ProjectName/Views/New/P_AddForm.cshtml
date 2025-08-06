@@ -1,26 +1,30 @@
 @model Web_ProjectName.Models.M_News
 
-<div class="modal fade" id="addNewsModal" tabindex="-1" aria-labelledby="addNewsModalLabel" aria-hidden="true" style="z-index: 1050;">
+<div class="modal fade" id="addNewsModal" tabindex="-1" aria-labelledby="addNewsModalLabel" aria-hidden="true"
+    style="z-index: 1050;">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="addNewsModalLabel">
                     <i class="fas fa-plus me-2"></i>Thêm tin tức mới
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="newsForm">
                     <div class="row">
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <label for="newsTitle" class="form-label fw-bold">Tiêu đề tin tức <span class="text-danger">*</span></label>
+                                <label for="newsTitle" class="form-label fw-bold">Tiêu đề tin tức <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="newsTitle" name="name" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="newsCategory" class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+                                <label for="newsCategory" class="form-label fw-bold">Danh mục <span
+                                        class="text-danger">*</span></label>
                                 <select class="form-control select2" id="newsCategory" name="newsCategoryId" required>
                                     <option value="">Chọn danh mục</option>
                                 </select>
@@ -46,9 +50,23 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="newsStatus" class="form-label fw-bold">Trạng thái <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-control" id="newsStatus" name="status" required>
+                                    <option value="">Chọn trạng thái</option>
+                                    <option value="0">Không hoạt động</option>
+                                    <option value="1">Hoạt động</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label for="newsDescription" class="form-label fw-bold">Mô tả ngắn</label>
-                        <textarea class="form-control" id="newsDescription" name="description" rows="3" placeholder="Nhập mô tả ngắn cho tin tức..."></textarea>
+                        <textarea class="form-control" id="newsDescription" name="description" rows="3"
+                            placeholder="Nhập mô tả ngắn cho tin tức..."></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="newsContent" class="form-label fw-bold">Nội dung chi tiết</label>
