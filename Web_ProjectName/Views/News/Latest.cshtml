@@ -1,0 +1,196 @@
+@{
+    ViewData["Title"] = "Tin Tức Mới Nhất";
+    ViewData["Description"] = "Tin tức mới nhất và nổi bật";
+    Layout = "_LayoutNews";
+}
+
+<!-- Trending Area Start -->
+<div class="trending-area fix">
+    <div class="container">
+        <div class="trending-main">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Trending Top -->
+                    <div class="trending-top mb-30">
+                        <div class="trend-top-img">
+                            <img src="~/template/aznews-master/assets/img/trending/trending_top.jpg" alt="">
+                            <div class="trend-top-cap">
+                                <span class="color1">Tin tức mới nhất</span>
+                                <h4>Tin tức nổi bật trong ngày</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Trending Area End -->
+
+<!-- Whats New Start -->
+<section class="whats-news-area pt-50 pb-20">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Section Tittle -->
+                <div class="section-tittle mb-30">
+                    <h3>Tin Tức Mới Nhất</h3>
+                </div>
+
+                <!-- Categories -->
+                @if (ViewBag.Categories != null)
+                {
+                    <div class="mb-4">
+                        <h5>Danh mục:</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <a href="/tin-tuc/danh-muc/@category.id" class="btn btn-outline-primary btn-sm">
+                                    @category.name
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- News List -->
+                @if (ViewBag.NewsList != null)
+                {
+                    foreach (var news in ViewBag.NewsList)
+                    {
+                        <div class="single-what-news mb-100">
+                            <div class="what-img">
+                                <img src="@(news.imageObj?.relativeUrl ?? "~/template/aznews-master/assets/img/news/whatNews1.jpg")" 
+                                     alt="@news.name">
+                            </div>
+                            <div class="what-cap">
+                                <span class="color1">@(news.newsCategoryObj?.name ?? "Tin tức")</span>
+                                <h4><a href="/tin-tuc/@news.metaUrl">@news.name</a></h4>
+                                <p>@(news.description?.Length > 150 ? news.description.Substring(0, 150) + "..." : news.description)</p>
+                                <div class="news-meta">
+                                    <span class="color1"><i class="fas fa-calendar"></i> @news.publishedAt?.ToString("dd/MM/yyyy")</span>
+                                    <span class="color1"><i class="fas fa-eye"></i> @(news.viewNumber ?? 0) lượt xem</span>
+                                    @if (news.isHot)
+                                    {
+                                        <span class="color1"><i class="fas fa-fire"></i> Hot</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center">
+                        <h4>Chưa có tin tức nào</h4>
+                        <p>Vui lòng quay lại sau.</p>
+                    </div>
+                }
+
+                <!-- Pagination -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <nav class="blog-pagination justify-content-center d-flex">
+                        <ul class="pagination">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a href="?page=@(ViewBag.CurrentPage - 1)" class="page-link" aria-label="Previous">
+                                        <i class="ti-angle-left"></i>
+                                    </a>
+                                </li>
+                            }
+
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                if (i == ViewBag.CurrentPage)
+                                {
+                                    <li class="page-item active">
+                                        <span class="page-link">@i</span>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=@i">@i</a>
+                                    </li>
+                                }
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=@(ViewBag.CurrentPage + 1)" aria-label="Next">
+                                        <i class="ti-angle-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="col-lg-4">
+                <!-- Section Tittle -->
+                <div class="section-tittle mb-40">
+                    <h3>Tin Nổi Bật</h3>
+                </div>
+                <!-- Flow Socail -->
+                <div class="single-follow mb-23">
+                    <div class="single-box">
+                        <div class="follow-us d-flex align-items-center">
+                            <div class="follow-social">
+                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-fb.png" alt=""></a>
+                            </div>
+                            <div class="follow-count">
+                                <span>8,045</span>
+                                <p>Fans</p>
+                            </div>
+                        </div>
+                        <div class="follow-us d-flex align-items-center">
+                            <div class="follow-social">
+                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-tw.png" alt=""></a>
+                            </div>
+                            <div class="follow-count">
+                                <span>9,532</span>
+                                <p>Fans</p>
+                            </div>
+                        </div>
+                        <div class="follow-us d-flex align-items-center">
+                            <div class="follow-social">
+                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-ins.png" alt=""></a>
+                            </div>
+                            <div class="follow-count">
+                                <span>7,541</span>
+                                <p>Fans</p>
+                            </div>
+                        </div>
+                        <div class="follow-us d-flex align-items-center">
+                            <div class="follow-social">
+                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-yo.png" alt=""></a>
+                            </div>
+                            <div class="follow-count">
+                                <span>9,532</span>
+                                <p>Fans</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- New Poster -->
+                <div class="news-poster d-flex align-items-center">
+                    <div class="poster--thumb">
+                        <a href="#"><img src="~/template/aznews-master/assets/img/news/news_card.jpg" alt=""></a>
+                    </div>
+                    <div class="poster--content">
+                        <a href="#">
+                            <h5>Giải thưởng tin tức hàng năm</h5>
+                        </a>
+                        <p>@DateTime.Now.ToString("dd MMM yyyy")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Whats New End --> 
