@@ -35,28 +35,21 @@ namespace Web_ProjectName.Controllers
         {
             var res = await _s_News.GetListByPaging("1", _supplierId, null, "", 1, 10);
 
-            System.Diagnostics.Debug.WriteLine($"API Response Result: {res.result}");
-            System.Diagnostics.Debug.WriteLine($"API Response Data Type: {res.data?.GetType()}");
-            System.Diagnostics.Debug.WriteLine($"API Response Data: {res.data}");
-
             if (res.result == 1 && res.data != null)
             {
                 if (res.data is List<Models.M_News> newsList)
                 {
                     ViewBag.ListNews = newsList;
-                    System.Diagnostics.Debug.WriteLine($"Found {newsList.Count} news items");
                 }
                 else
                 {
-                    // If it's a single object, wrap it in a list
                     ViewBag.ListNews = new List<Models.M_News>();
-                    System.Diagnostics.Debug.WriteLine("Data is not a list, creating empty list");
                 }
             }
             else
             {
                 ViewBag.ListNews = new List<Models.M_News>();
-                System.Diagnostics.Debug.WriteLine("No data returned from API");
+                // System.Diagnostics.Debug.WriteLine("No data returned from API");
             }
         }
 
@@ -79,31 +72,7 @@ namespace Web_ProjectName.Controllers
                 }
                 else
                 {
-                    // Return mock data for testing
-                    var mockNews = new Models.M_News
-                    {
-                        id = id,
-                        name = $"Tin tức chi tiết {id}",
-                        description = $"Mô tả chi tiết cho tin tức {id}",
-                        detail = $"<p>Đây là nội dung chi tiết của tin tức {id}.</p><p>Bao gồm nhiều thông tin hữu ích cho người đọc.</p>",
-                        publishedAt = DateTime.Now.AddDays(-id),
-                        viewNumber = 100 + (id * 10),
-                        isHot = id % 2 == 0,
-                        metaUrl = $"tin-tuc-chi-tiet-{id}",
-                        newsCategoryId = (id % 3) + 1,
-                        newsCategoryObj = new Models.M_NewsCategory
-                        {
-                            id = (id % 3) + 1,
-                            name = ((id % 3) + 1) switch
-                            {
-                                1 => "Tin công nghệ",
-                                2 => "Tin thể thao",
-                                _ => "Tin giải trí"
-                            }
-                        }
-                    };
-
-                    return Json(new { result = 1, data = mockNews });
+                    return Json(new { result = 0, error = "Không tìm thấy tin tức" });
                 }
             }
             catch (Exception ex)
@@ -134,14 +103,12 @@ namespace Web_ProjectName.Controllers
                 news.createdAt = DateTime.Now;
                 news.updatedAt = DateTime.Now;
 
-                // Handle date parsing
                 if (news.publishedAt == default)
                 {
                     news.publishedAt = DateTime.Now;
                 }
                 else
                 {
-                    // Ensure the date is properly set
                     try
                     {
                         if (news.publishedAt.Kind == DateTimeKind.Unspecified)
@@ -156,13 +123,11 @@ namespace Web_ProjectName.Controllers
                     }
                 }
 
-                // Generate meta URL if not provided
                 if (string.IsNullOrEmpty(news.metaUrl))
                 {
                     news.metaUrl = GenerateMetaUrl(news.name);
                 }
 
-                // Set default values for required fields
                 if (string.IsNullOrEmpty(news.metaKeywords))
                     news.metaKeywords = "";
                 if (string.IsNullOrEmpty(news.metaDescription))
@@ -174,7 +139,6 @@ namespace Web_ProjectName.Controllers
                 if (news.imageId == null)
                     news.imageId = 0;
 
-                // Convert EM_News_API to EM_News for service call
                 var newsForService = new Models.EM_News
                 {
                     id = news.id,
@@ -198,18 +162,12 @@ namespace Web_ProjectName.Controllers
                 var res = await _s_News.Create("", newsForService, "", "0");
                 if (res.result == 1)
                 {
-                    return Json(new { result = 1, message = "Đã tạo tin tức thành công", data = res.data });
+                    return Json(new { result = 1, message = "Đã tạo tin tức thành công", res.data });
                 }
                 else
                 {
                     return Json(new { result = 0, error = res.error?.message ?? "Có lỗi xảy ra khi tạo tin tức" });
                 }
-                // return Json(new
-                // {
-                //     result = 1,
-                //     message = news.id == 0 ? "Đã tạo tin tức thành công" : "Đã cập nhật tin tức thành công",
-                //     data = news
-                // });
             }
             catch (Exception ex)
             {
@@ -241,18 +199,15 @@ namespace Web_ProjectName.Controllers
                     return Json(new { result = 0, error = "ID tin tức không hợp lệ" });
                 }
 
-                // Set default values
                 news.supplierId = Convert.ToInt32(_supplierId);
-                news.status = 1;
+                news.status = news.status ?? 1;
 
-                // Handle date parsing
                 if (news.publishedAt == default)
                 {
                     news.publishedAt = DateTime.Now;
                 }
                 else
                 {
-                    // Ensure the date is properly set
                     try
                     {
                         if (news.publishedAt.Kind == DateTimeKind.Unspecified)
@@ -267,13 +222,11 @@ namespace Web_ProjectName.Controllers
                     }
                 }
 
-                // Generate meta URL if not provided
                 if (string.IsNullOrEmpty(news.metaUrl))
                 {
                     news.metaUrl = GenerateMetaUrl(news.name);
                 }
 
-                // Set default values for required fields
                 if (string.IsNullOrEmpty(news.metaKeywords))
                     news.metaKeywords = "";
                 if (string.IsNullOrEmpty(news.metaDescription))
@@ -285,11 +238,6 @@ namespace Web_ProjectName.Controllers
                 if (news.imageId == null)
                     news.imageId = 0;
 
-                System.Diagnostics.Debug.WriteLine($"Controller Update - News ID: {news.id}");
-                System.Diagnostics.Debug.WriteLine($"Controller Update - News Name: {news.name}");
-                System.Diagnostics.Debug.WriteLine($"Controller Update - Published At: {news.publishedAt}");
-
-                // Convert EM_News_API to EM_News for service call
                 var newsForService = new Models.EM_News
                 {
                     id = news.id,
@@ -310,17 +258,11 @@ namespace Web_ProjectName.Controllers
                     status = news.status ?? 1
                 };
 
-                // Call the service to update
                 var res = await _s_News.Update("", newsForService, "", "0");
 
                 if (res.result == 1)
                 {
-                    return Json(new
-                    {
-                        result = 1,
-                        message = "Đã cập nhật tin tức thành công",
-                        data = res.data
-                    });
+                    return Json(new { result = 1, message = "Đã cập nhật tin tức thành công", res.data });
                 }
                 else
                 {
@@ -363,16 +305,19 @@ namespace Web_ProjectName.Controllers
         }
 
         [HttpDelete]
-        public JsonResult Delete(int id)
+        public async Task<JsonResult> Delete(int id)
         {
             try
             {
-                return Json(new
+                var res = await _s_News.UpdateStatus("", id, 0, "");
+                if (res.result == 1)
                 {
-                    result = 1,
-                    message = "Đã xóa tin tức thành công",
-                    data = new { id = id }
-                });
+                    return Json(new { result = 1, message = "Đã xóa tin tức thành công", res.data });
+                }
+                else
+                {
+                    return Json(new { result = 0, error = res.error?.message ?? "Có lỗi xảy ra khi xóa tin tức" });
+                }
             }
             catch (Exception ex)
             {
@@ -383,25 +328,16 @@ namespace Web_ProjectName.Controllers
         [HttpGet]
         public async Task<JsonResult> GetCategories()
         {
-            System.Diagnostics.Debug.WriteLine("GetCategories method called");
             try
             {
-                // Get categories with status = 0 and status = 1 using GetListByPaging
                 var res = await _s_NewsCategory.GetListByPaging("0,1");
-
-                System.Diagnostics.Debug.WriteLine($"GetCategories API Response Result: {res.result}");
-                System.Diagnostics.Debug.WriteLine($"GetCategories API Response Data Count: {res.data?.Count ?? 0}");
-                System.Diagnostics.Debug.WriteLine($"GetCategories API Response Error: {res.error?.message}");
 
                 if (res.result == 1 && res.data != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Returning {res.data.Count} categories from API");
                     return Json(new { result = 1, data = res.data });
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("API failed, returning mock data");
-                    // Return mock data if API fails
                     var mockCategories = new List<Models.M_NewsCategory>
                     {
                         new Models.M_NewsCategory { id = 1, name = "Tin công nghệ" },
@@ -422,8 +358,6 @@ namespace Web_ProjectName.Controllers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Exception in GetCategories: {ex.Message}");
-                // Return mock data if exception occurs
                 var mockCategories = new List<Models.M_NewsCategory>
                 {
                     new Models.M_NewsCategory { id = 1, name = "Tin công nghệ" },
@@ -453,24 +387,18 @@ namespace Web_ProjectName.Controllers
             {
                 var res = await _s_News.GetListByStatus(status);
 
-                System.Diagnostics.Debug.WriteLine($"GetListByStatus API Response Result: {res.result}");
-                System.Diagnostics.Debug.WriteLine($"GetListByStatus API Response Data Count: {res.data?.Count ?? 0}");
-                System.Diagnostics.Debug.WriteLine($"Status parameter: {status}");
-
                 if (res.result == 1 && res.data != null)
                 {
                     return Json(new
                     {
                         result = 1,
-                        data = res.data,
-                        dataCount = res.data.Count,
-                        status = status,
-                        error = (string)null
+                        res.data,
+                        dataCount = res.data?.Count ?? 0,
+                        status,
                     });
                 }
                 else
                 {
-                    // Return mock data if API fails
                     var mockData = new List<Models.M_News>
                     {
                         new Models.M_News
@@ -492,9 +420,9 @@ namespace Web_ProjectName.Controllers
                     return Json(new
                     {
                         result = 1,
-                        data = mockData,
-                        dataCount = mockData.Count,
-                        status = status,
+                        res.data,
+                        dataCount = res.data?.Count ?? 0,
+                        status,
                         error = res.error?.message ?? "API returned no data",
                         isMockData = true
                     });
@@ -525,7 +453,7 @@ namespace Web_ProjectName.Controllers
                     result = 1,
                     data = mockData,
                     dataCount = mockData.Count,
-                    status = status,
+                    status,
                     error = ex.Message,
                     isMockData = true,
                     exception = ex.Message
@@ -543,7 +471,6 @@ namespace Web_ProjectName.Controllers
                     return Json(new { uploaded = 0, error = new { message = "Không có file được upload" } });
                 }
 
-                // Validate file type
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
                 var fileExtension = Path.GetExtension(upload.FileName).ToLowerInvariant();
 
@@ -552,17 +479,14 @@ namespace Web_ProjectName.Controllers
                     return Json(new { uploaded = 0, error = new { message = "Chỉ cho phép upload file ảnh (jpg, jpeg, png, gif, bmp)" } });
                 }
 
-                // Validate file size (max 5MB)
                 if (upload.Length > 5 * 1024 * 1024)
                 {
                     return Json(new { uploaded = 0, error = new { message = "File quá lớn. Kích thước tối đa là 5MB" } });
                 }
 
-                // Generate unique filename
                 var fileName = Guid.NewGuid().ToString() + fileExtension;
                 var uploadPath = Path.Combine("wwwroot", "uploads", "images");
 
-                // Create directory if not exists
                 if (!Directory.Exists(uploadPath))
                 {
                     Directory.CreateDirectory(uploadPath);
@@ -570,17 +494,15 @@ namespace Web_ProjectName.Controllers
 
                 var filePath = Path.Combine(uploadPath, fileName);
 
-                // Save file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await upload.CopyToAsync(stream);
                 }
 
-                // Return success response for CKEditor
                 return Json(new
                 {
                     uploaded = 1,
-                    fileName = fileName,
+                    fileName,
                     url = $"/uploads/images/{fileName}"
                 });
             }
