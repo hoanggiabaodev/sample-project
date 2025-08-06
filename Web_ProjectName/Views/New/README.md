@@ -1,181 +1,171 @@
-# Module Quản lý Tin tức (New)
+# Quản lý Tin tức với Dashmin Template
 
-## Cấu trúc thư mục
+## Tổng quan
+
+Đã tích hợp template Dashmin để hiển thị danh sách tin tức với giao diện admin hiện đại và chuyên nghiệp.
+
+## Các thay đổi đã thực hiện
+
+### 1. Layout mới
+
+- Tạo file `_LayoutDashmin.cshtml` dựa trên template Dashmin
+- Sử dụng sidebar navigation với menu quản lý
+- Header với search bar và user dropdown
+- Footer với thông tin copyright
+
+### 2. Cập nhật News Index
+
+- Sử dụng layout Dashmin: `Layout = "_LayoutDashmin"`
+- Thiết kế card-based layout với `bg-light rounded h-100 p-4`
+- Table với styling `table-striped table-hover` và `thead-dark`
+- Sample data để demo giao diện
+
+### 3. Modal Forms
+
+- **Add Form**: Modal xl với header màu primary
+- **Edit Form**: Modal xl với header màu warning
+- **View Modal**: Modal xl với header màu info
+- Tất cả đều có icons và styling nhất quán
+
+### 4. Styling Features
+
+- **Badges**: Sử dụng Bootstrap badges cho status và categories
+- **Buttons**: Icon buttons với tooltips
+- **Responsive**: Table responsive và mobile-friendly
+- **Icons**: Font Awesome icons cho tất cả actions
+
+## Cấu trúc Template
 
 ```
+Views/Shared/
+├── _LayoutDashmin.cshtml          # Layout chính cho admin
+└── _Layout.cshtml                 # Layout gốc (giữ nguyên)
+
 Views/New/
-├── Index.cshtml          # Trang chính quản lý tin tức
-├── P_AddForm.cshtml      # Partial view form thêm tin tức
-├── P_EditForm.cshtml     # Partial view form chỉnh sửa tin tức
-├── P_ViewModal.cshtml    # Partial view modal xem chi tiết
-├── ViewDetail.cshtml     # Trang xem chi tiết tin tức
-└── README.md            # File hướng dẫn này
+├── Index.cshtml                   # Trang danh sách tin tức
+├── P_AddForm.cshtml              # Modal thêm tin tức
+├── P_EditForm.cshtml             # Modal sửa tin tức
+├── P_ViewModal.cshtml            # Modal xem chi tiết
+└── README.md                     # Tài liệu này
 ```
 
-## Các file JavaScript
+## Assets được sử dụng
 
-```
-wwwroot/js/
-└── news-management.js    # File JavaScript chính cho quản lý tin tức
-```
+### CSS Files
 
-## Mô tả các file
+- `~/template/dashmin-1.0.0/css/bootstrap.min.css`
+- `~/template/dashmin-1.0.0/css/style.css`
 
-### 1. Index.cshtml
+### JavaScript Files
 
-- **Chức năng**: Trang chính hiển thị danh sách tin tức với DataTable
-- **Tính năng**:
-  - Tìm kiếm và lọc tin tức
-  - Hiển thị danh sách với phân trang
-  - Nút thêm tin tức mới
-  - Các nút thao tác (xem, sửa, xóa)
+- `~/template/dashmin-1.0.0/js/main.js`
+- `~/template/dashmin-1.0.0/lib/chart/chart.min.js`
 
-### 2. P_AddForm.cshtml
+### Libraries
 
-- **Chức năng**: Modal form thêm tin tức mới
-- **Tính năng**:
-  - Form nhập thông tin tin tức
-  - Tích hợp CKEditor cho nội dung
-  - Select2 cho danh mục
-  - DatePicker cho ngày đăng
-  - Upload hình ảnh
+- Font Awesome 5.10.0
+- Bootstrap Icons 1.4.1
+- Google Fonts (Heebo)
 
-### 3. P_EditForm.cshtml
+## Tính năng chính
 
-- **Chức năng**: Modal form chỉnh sửa tin tức
-- **Tính năng**:
-  - Tương tự form thêm nhưng có thêm hidden field cho ID
-  - Hiển thị hình ảnh hiện tại
-  - Tự động điền dữ liệu khi mở modal
+### 1. Navigation
 
-### 4. P_ViewModal.cshtml
+- Sidebar với menu quản lý
+- Active state cho trang hiện tại
+- Collapsible sidebar
 
-- **Chức năng**: Modal xem chi tiết tin tức
-- **Tính năng**:
-  - Hiển thị đầy đủ thông tin tin tức
-  - Layout responsive
-  - Chỉ xem, không chỉnh sửa
+### 2. Data Display
 
-### 5. news-management.js
+- Responsive table với sorting
+- Image thumbnails
+- Status badges
+- Action buttons với tooltips
 
-- **Chức năng**: File JavaScript chính
-- **Tính năng**:
-  - Khởi tạo các component (DataTable, Select2, CKEditor, DatePicker)
-  - Xử lý các sự kiện (thêm, sửa, xóa, tìm kiếm)
-  - Gọi API và xử lý response
-  - Hiển thị thông báo (IziToast)
+### 3. Search & Filter
 
-## API Endpoints
+- Keyword search
+- Category filter với Select2
+- Date range picker
+- Reset functionality
 
-### Controller: NewController
+### 4. Modal Forms
 
-1. **GET /New/GetCategories**
+- Large modals (xl) cho better UX
+- Color-coded headers
+- Form validation
+- File upload support
 
-   - Lấy danh sách danh mục tin tức
-   - Response: `{ result: 1, data: [categories] }`
+## Responsive Design
 
-2. **GET /New/GetListByStatus**
+- **Desktop**: Full sidebar và content area
+- **Tablet**: Collapsible sidebar
+- **Mobile**: Stacked layout với mobile-friendly buttons
 
-   - Lấy danh sách tin tức theo trạng thái
-   - Parameters: `status` (default: 1)
-   - Response: `{ result: 1, data: [news], dataCount: number }`
+## Browser Support
 
-3. **GET /New/GetById/{id}**
+- Chrome/Edge (recommended)
+- Firefox
+- Safari
+- Mobile browsers
 
-   - Lấy chi tiết tin tức theo ID
-   - Response: `{ result: 1, data: news }`
+## Performance
 
-4. **POST /New/Save**
+- Lazy loading cho images
+- Minified CSS/JS files
+- Optimized Bootstrap components
+- Efficient DOM manipulation
 
-   - Lưu hoặc cập nhật tin tức
-   - Body: News object
-   - Response: `{ result: 1, message: "success" }`
+## Customization
 
-5. **DELETE /New/Delete/{id}**
-   - Xóa tin tức theo ID
-   - Response: `{ result: 1, message: "success" }`
+### Colors
 
-## Cách sử dụng
+- Primary: Bootstrap primary blue
+- Success: Green for published status
+- Warning: Orange for pending status
+- Danger: Red for hot news
+- Info: Blue for view counts
 
-### 1. Thêm tin tức mới
+### Icons
 
-```javascript
-// Mở modal thêm tin tức
-$("#addNewsModal").modal("show");
+- Plus: Add new news
+- Edit: Edit existing news
+- Eye: View details
+- Trash: Delete news
+- Fire: Hot news indicator
+- Search: Search functionality
 
-// Hoặc click nút "Thêm tin tức mới"
-```
+## Next Steps
 
-### 2. Chỉnh sửa tin tức
-
-```javascript
-// Gọi function editNews với ID
-editNews(newsId);
-```
-
-### 3. Xem chi tiết tin tức
-
-```javascript
-// Gọi function viewNews với ID
-viewNews(newsId);
-```
-
-### 4. Xóa tin tức
-
-```javascript
-// Gọi function deleteNews với ID
-deleteNews(newsId);
-```
-
-## Dependencies
-
-### CSS Libraries
-
-- Bootstrap 5
-- DataTables Bootstrap 4
-- Select2
-- Bootstrap DatePicker
-- IziToast
-
-### JavaScript Libraries
-
-- jQuery
-- DataTables
-- Select2
-- Bootstrap DatePicker
-- CKEditor
-- IziToast
-
-## Lưu ý
-
-1. **CKEditor**: Có xử lý suppress security warning
-2. **Select2**: Hỗ trợ tiếng Việt
-3. **DatePicker**: Format dd/mm/yyyy
-4. **DataTable**: Responsive và có phân trang
-5. **API**: Có fallback mock data khi API fail
+1. **API Integration**: Connect với backend APIs
+2. **Real Data**: Replace sample data với real data
+3. **Pagination**: Implement server-side pagination
+4. **Export**: Add export functionality (PDF, Excel)
+5. **Bulk Actions**: Multi-select và bulk operations
+6. **Advanced Filters**: More filter options
+7. **Real-time Updates**: WebSocket cho live updates
 
 ## Troubleshooting
 
-### 1. Categories không hiển thị
+### Common Issues
 
-- Kiểm tra console log
-- Kiểm tra API endpoint `/New/GetCategories`
-- Kiểm tra network tab trong browser
+1. **Layout not loading**: Check file paths và CSS/JS references
+2. **Icons not showing**: Verify Font Awesome CDN
+3. **Modal not working**: Check Bootstrap JS inclusion
+4. **Responsive issues**: Test trên different screen sizes
 
-### 2. CKEditor không load
+### Debug Tips
 
-- Kiểm tra đường dẫn file CKEditor
-- Kiểm tra console error
-- Có fallback về textarea
+- Check browser console cho JavaScript errors
+- Verify all asset files are accessible
+- Test với different browsers
+- Validate HTML structure
 
-### 3. DataTable không hiển thị dữ liệu
+## Credits
 
-- Kiểm tra API endpoint `/New/GetListByStatus`
-- Kiểm tra response format
-- Kiểm tra console log
-
-### 4. Modal không mở
-
-- Kiểm tra Bootstrap JS
-- Kiểm tra ID của modal
-- Kiểm tra console error
+- **Template**: Dashmin Bootstrap Admin Template
+- **Icons**: Font Awesome
+- **Framework**: Bootstrap 5
+- **Editor**: CKEditor
+- **Tables**: DataTables
+- **Date Picker**: Bootstrap Datepicker

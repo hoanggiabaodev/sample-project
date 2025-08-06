@@ -1,4 +1,3 @@
-// News Management JavaScript
 let newsDataTable;
 let newsEditor;
 let editNewsEditor;
@@ -11,14 +10,21 @@ $(document).ready(function () {
 });
 
 function initializeComponents() {
-    // Initialize Select2
-    $('.select2').select2({
-        placeholder: "Chọn một tùy chọn",
+    $('#categoryFilter').select2({
+        placeholder: "Chọn danh mục",
         allowClear: true,
         language: 'vi'
     });
 
-    // Initialize DatePicker
+    $('#addNewsModal, #editNewsModal').on('shown.bs.modal', function () {
+        $(this).find('.select2').select2({
+            dropdownParent: $(this),
+            placeholder: "Chọn một tùy chọn",
+            allowClear: true,
+            language: 'vi'
+        });
+    });
+
     $('.datepicker').datepicker({
         format: 'dd/mm/yyyy',
         language: 'vi',
@@ -26,7 +32,6 @@ function initializeComponents() {
         todayHighlight: true
     });
 
-    // Initialize CKEditor for add form
     initializeCKEditor('newsContent', 'newsEditor');
 }
 
@@ -46,7 +51,7 @@ function initializeCKEditor(elementId, editorVariable) {
                         message.includes('4.22.1') && message.includes('not secure') ||
                         message.includes('license key is missing') ||
                         message.includes('LTS version'))) {
-                    return; // Suppress CKEditor warnings
+                    return;
                 }
                 originalWarn.apply(window.console, arguments);
             };
@@ -56,9 +61,7 @@ function initializeCKEditor(elementId, editorVariable) {
             height: 300,
             language: 'vi',
             filebrowserUploadUrl: '/upload-image',
-            // Disable license check
             removePlugins: 'elementspath,resize',
-            // Use basic toolbar to avoid license issues
             toolbar: [
                 { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
                 { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
@@ -86,7 +89,7 @@ function bindEvents() {
 
     $('#btnReset').click(function () {
         $('#searchKeyword').val('');
-        $('#categoryFilter').val('').trigger('change');
+        $('#categoryFilter').val('').trigger('change.select2');
         $('#dateFrom').val('');
         $('#dateTo').val('');
         newsDataTable.ajax.reload();
@@ -138,7 +141,7 @@ function loadCategories() {
                     $('#newsCategory, #editNewsCategory').append(`<option value="${category.id}">${category.name}</option>`);
                 });
 
-                $('#categoryFilter, #newsCategory, #editNewsCategory').trigger('change');
+                $('#categoryFilter').trigger('change.select2');
 
                 console.log('Categories loaded successfully:', response.data.length, 'categories');
             } else {
@@ -268,7 +271,6 @@ function initializeDataTable() {
     });
 }
 
-// News CRUD Functions
 function viewNews(id) {
     $.ajax({
         url: `/New/GetById/${id}`,
@@ -330,19 +332,17 @@ function editNews(id) {
                 const news = response.data;
                 $('#editNewsId').val(news.id);
                 $('#editNewsTitle').val(news.name);
-                $('#editNewsCategory').val(news.newsCategoryId).trigger('change');
+                $('#editNewsCategory').val(news.newsCategoryId).trigger('change.select2');
                 $('#editNewsDescription').val(news.description);
                 $('#editNewsPublishedDate').val(formatDate(news.publishedAt));
                 $('#editNewsIsHot').prop('checked', news.isHot);
 
-                // Populate meta fields
                 $('#editNewsMetaKeywords').val(news.metaKeywords || "");
                 $('#editNewsMetaDescription').val(news.metaDescription || news.description || "");
                 $('#editNewsMetaTitle').val(news.metaTitle || news.name || "");
                 $('#editNewsMetaImagePreview').val(news.metaImagePreview || "");
                 $('#editNewsImageId').val(news.imageId || 0);
 
-                // Show current image if exists
                 if (news.imageObj?.relativeUrl) {
                     $('#currentImagePreview').html(`<img src="${news.imageObj.relativeUrl}" class="img-thumbnail" style="max-width: 200px;">`);
                 } else {
@@ -416,16 +416,14 @@ function saveNews() {
         detail = $('#newsContent').val();
     }
 
-    // Parse date from dd/mm/yyyy to ISO format
     let publishedDate = $('#newsPublishedDate').val();
     let parsedDate = new Date();
 
     if (publishedDate) {
-        // Parse dd/mm/yyyy format
         const dateParts = publishedDate.split('/');
         if (dateParts.length === 3) {
             const day = parseInt(dateParts[0]);
-            const month = parseInt(dateParts[1]) - 1; // Month is 0-based
+            const month = parseInt(dateParts[1]) - 1;
             const year = parseInt(dateParts[2]);
             parsedDate = new Date(year, month, day);
         }
@@ -447,7 +445,6 @@ function saveNews() {
         status: 1
     };
 
-    // Validate form
     if (!formData.name) {
         showToast('error', 'Lỗi', 'Vui lòng nhập tiêu đề tin tức.');
         return;
@@ -458,7 +455,6 @@ function saveNews() {
         return;
     }
 
-    // Save news
     $.ajax({
         url: '/New/Save',
         type: 'POST',
@@ -494,16 +490,14 @@ function updateNews() {
         detail = $('#editNewsContent').val();
     }
 
-    // Parse date from dd/mm/yyyy to ISO format
     let publishedDate = $('#editNewsPublishedDate').val();
     let parsedDate = new Date();
 
     if (publishedDate) {
-        // Parse dd/mm/yyyy format
         const dateParts = publishedDate.split('/');
         if (dateParts.length === 3) {
             const day = parseInt(dateParts[0]);
-            const month = parseInt(dateParts[1]) - 1; // Month is 0-based
+            const month = parseInt(dateParts[1]) - 1;
             const year = parseInt(dateParts[2]);
             parsedDate = new Date(year, month, day);
         }
@@ -526,8 +520,6 @@ function updateNews() {
         status: 1
     };
 
-    console.log(5133512165)
-    // Validate form
     if (!formData.name) {
         showToast('error', 'Lỗi', 'Vui lòng nhập tiêu đề tin tức.');
         return;
@@ -538,7 +530,6 @@ function updateNews() {
         return;
     }
 
-    // Update news using the new Update endpoint
     $.ajax({
         url: '/New/Update',
         type: 'POST',
@@ -566,7 +557,9 @@ function updateNews() {
 
 function resetAddForm() {
     $('#newsForm')[0].reset();
-    $('#newsCategory').val('').trigger('change');
+
+    $('#newsCategory').val('').trigger('change.select2');
+
     try {
         if (newsEditor && newsEditor.setData) {
             newsEditor.setData('');
@@ -579,9 +572,9 @@ function resetAddForm() {
 
 function resetEditForm() {
     $('#editNewsForm')[0].reset();
-    $('#editNewsCategory').val('').trigger('change');
 
-    // Reset hidden fields
+    $('#editNewsCategory').val('').trigger('change.select2');
+
     $('#editNewsMetaKeywords').val('');
     $('#editNewsMetaDescription').val('');
     $('#editNewsMetaTitle').val('');
@@ -599,7 +592,6 @@ function resetEditForm() {
     }
 }
 
-// Utility Functions
 function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);

@@ -114,7 +114,7 @@ namespace Web_ProjectName.Controllers
 
         [HttpPost]
         [Consumes("application/json")]
-        public JsonResult Save([FromBody] Models.EM_News_API news)
+        public async Task<JsonResult> Save([FromBody] Models.EM_News_API news)
         {
             System.Diagnostics.Debug.WriteLine($"Save method called with news: {System.Text.Json.JsonSerializer.Serialize(news)}");
             try
@@ -174,12 +174,42 @@ namespace Web_ProjectName.Controllers
                 if (news.imageId == null)
                     news.imageId = 0;
 
-                return Json(new
+                // Convert EM_News_API to EM_News for service call
+                var newsForService = new Models.EM_News
                 {
-                    result = 1,
-                    message = news.id == 0 ? "Đã tạo tin tức thành công" : "Đã cập nhật tin tức thành công",
-                    data = news
-                });
+                    id = news.id,
+                    name = news.name ?? "",
+                    newsCategoryId = news.newsCategoryId,
+                    supplierId = news.supplierId,
+                    description = news.description ?? "",
+                    detail = news.detail,
+                    isHot = news.isHot,
+                    viewNumber = news.viewNumber,
+                    publishedAt = news.publishedAt,
+                    imageId = news.imageId,
+                    metaKeywords = news.metaKeywords,
+                    metaDescription = news.metaDescription,
+                    metaTitle = news.metaTitle,
+                    metaUrl = news.metaUrl,
+                    metaImagePreview = news.metaImagePreview,
+                    status = news.status ?? 1
+                };
+
+                var res = await _s_News.Create("", newsForService, "", "0");
+                if (res.result == 1)
+                {
+                    return Json(new { result = 1, message = "Đã tạo tin tức thành công", data = res.data });
+                }
+                else
+                {
+                    return Json(new { result = 0, error = res.error?.message ?? "Có lỗi xảy ra khi tạo tin tức" });
+                }
+                // return Json(new
+                // {
+                //     result = 1,
+                //     message = news.id == 0 ? "Đã tạo tin tức thành công" : "Đã cập nhật tin tức thành công",
+                //     data = news
+                // });
             }
             catch (Exception ex)
             {
@@ -281,7 +311,7 @@ namespace Web_ProjectName.Controllers
                 };
 
                 // Call the service to update
-                var res = await _s_News.Update("", newsForService, "", "system");
+                var res = await _s_News.Update("", newsForService, "", "0");
 
                 if (res.result == 1)
                 {
