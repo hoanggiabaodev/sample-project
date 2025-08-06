@@ -33,7 +33,7 @@ namespace Web_ProjectName.Controllers
         [HttpGet]
         public async Task GetListNews()
         {
-            var res = await _s_News.GetListByPaging("1", _supplierId, null, "", 1, 10);
+            var res = await _s_News.GetListByPaging("0,1", _supplierId, null, "", 1, 10);
 
             if (res.result == 1 && res.data != null)
             {
@@ -56,8 +56,8 @@ namespace Web_ProjectName.Controllers
         [HttpGet]
         public async Task<JsonResult> GetListNewsByAjax(int page = 1, int record = 10, int? newsCategoryId = null, string? keyword = null, string dateFrom = null, string dateTo = null)
         {
-            var res = await _s_News.GetListByPaging("1", _supplierId, newsCategoryId, keyword, page, record);
-            return Json(res.data);
+            var res = await _s_News.GetListByPaging("0,1", _supplierId, newsCategoryId, keyword, page, record);
+            return Json(new { result = 1, res.data });
         }
 
         [HttpGet]
@@ -334,7 +334,7 @@ namespace Web_ProjectName.Controllers
 
                 if (res.result == 1 && res.data != null)
                 {
-                    return Json(new { result = 1, data = res.data });
+                    return Json(new { result = 1, res.data });
                 }
                 else
                 {

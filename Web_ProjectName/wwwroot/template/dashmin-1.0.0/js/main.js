@@ -27,20 +27,26 @@
         return false;
     });
 
-    $('.pg-bar').waypoint(function () {
-        $('.progress .progress-bar').each(function () {
-            $(this).css("width", $(this).attr("aria-valuenow") + '%');
-        });
-    }, { offset: '80%' });
+    // Check if waypoint is available before using it
+    if (typeof $.fn.waypoint !== 'undefined') {
+        $('.pg-bar').waypoint(function () {
+            $('.progress .progress-bar').each(function () {
+                $(this).css("width", $(this).attr("aria-valuenow") + '%');
+            });
+        }, { offset: '80%' });
+    }
 
-    $(".testimonial-carousel").owlCarousel({
-        autoplay: true,
-        smartSpeed: 1000,
-        items: 1,
-        dots: true,
-        loop: true,
-        nav: false
-    });
+    // Check if owlCarousel is available before using it
+    if (typeof $.fn.owlCarousel !== 'undefined') {
+        $(".testimonial-carousel").owlCarousel({
+            autoplay: true,
+            smartSpeed: 1000,
+            items: 1,
+            dots: true,
+            loop: true,
+            nav: false
+        });
+    }
 
 })(jQuery);
 

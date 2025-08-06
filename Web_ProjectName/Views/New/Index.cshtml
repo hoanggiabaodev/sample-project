@@ -205,41 +205,31 @@
     </div>
 </div>
 
-<!-- Include Partial Views -->
 @await Html.PartialAsync("P_AddForm")
 @await Html.PartialAsync("P_EditForm")
 @await Html.PartialAsync("P_ViewModal")
 
 @section Scripts {
-    <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/datatables.min.css">
     <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/responsive.dataTables.min.css">
 
-    <!-- Select2 CSS -->
     <link rel="stylesheet" type="text/css" href="~/lib/select2/css/select2.min.css">
 
-    <!-- DatePicker CSS -->
     <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
 
-    <!-- CKEditor -->
     <script src="~/lib/ckeditor/ckeditor.js"></script>
 
-    <!-- DataTables JS -->
     <script type="text/javascript" src="~/lib/datatable/js/datatables.min.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/datatables.bootstrap4.min.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/dataTables.responsive.min.js"></script>
 
-    <!-- Select2 JS -->
     <script src="~/lib/select2/js/select2.min.js"></script>
 
-    <!-- DatePicker JS -->
     <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/dist/js/il8n/vi.js"></script>
 
-    <!-- IziToast CSS & JS -->
     <link rel="stylesheet" href="~/lib/izi-toast-mater/css/iziToast.min.css">
     <script src="~/lib/izi-toast-mater/iziToast.min.js"></script>
-
-    <!-- Custom News Management JavaScript -->
+    <script src="~/js/call-api.js"></script>
     <script src="~/js/news-management.js"></script>
 }

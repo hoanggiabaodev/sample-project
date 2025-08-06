@@ -10,6 +10,12 @@ $(document).ready(function () {
 });
 
 function initializeComponents() {
+    initializeSelect2();
+    initializeDatepicker();
+    initializeCKEditor('newsContent', 'newsEditor');
+}
+
+function initializeSelect2() {
     $('#categoryFilter').select2({
         placeholder: "Chọn danh mục",
         allowClear: true,
@@ -24,15 +30,15 @@ function initializeComponents() {
             language: 'vi'
         });
     });
+}
 
+function initializeDatepicker() {
     $('.datepicker').datepicker({
         format: 'dd/mm/yyyy',
         language: 'vi',
         autoclose: true,
         todayHighlight: true
     });
-
-    initializeCKEditor('newsContent', 'newsEditor');
 }
 
 function initializeCKEditor(elementId, editorVariable) {
@@ -40,23 +46,7 @@ function initializeCKEditor(elementId, editorVariable) {
         if (CKEDITOR.instances[elementId]) {
             CKEDITOR.instances[elementId].destroy();
         }
-
-        if (window.console && window.console.warn) {
-            const originalWarn = window.console.warn;
-            window.console.warn = function (message) {
-                if (message && typeof message === 'string' &&
-                    (message.includes('CKEditor') && message.includes('license') ||
-                        message.includes('CKEditor') && message.includes('not secure') ||
-                        message.includes('This CKEditor') && message.includes('version is not secure') ||
-                        message.includes('4.22.1') && message.includes('not secure') ||
-                        message.includes('license key is missing') ||
-                        message.includes('LTS version'))) {
-                    return;
-                }
-                originalWarn.apply(window.console, arguments);
-            };
-        }
-
+        suppressCKEditorWarnings();
         window[editorVariable] = CKEDITOR.replace(elementId, {
             height: 300,
             language: 'vi',
@@ -81,6 +71,24 @@ function initializeCKEditor(elementId, editorVariable) {
     }
 }
 
+function suppressCKEditorWarnings() {
+    if (window.console && window.console.warn) {
+        const originalWarn = window.console.warn;
+        window.console.warn = function (message) {
+            if (message && typeof message === 'string' &&
+                (message.includes('CKEditor') && message.includes('license') ||
+                    message.includes('CKEditor') && message.includes('not secure') ||
+                    message.includes('This CKEditor') && message.includes('version is not secure') ||
+                    message.includes('4.22.1') && message.includes('not secure') ||
+                    message.includes('license key is missing') ||
+                    message.includes('LTS version'))) {
+                return;
+            }
+            originalWarn.apply(window.console, arguments);
+        };
+    }
+}
+
 function bindEvents() {
     $('#btnSearch').click(function () {
         newsDataTable.ajax.reload();
@@ -88,74 +96,64 @@ function bindEvents() {
     });
 
     $('#btnReset').click(function () {
-        $('#searchKeyword').val('');
-        $('#categoryFilter').val('').trigger('change.select2');
-        $('#dateFrom').val('');
-        $('#dateTo').val('');
-        newsDataTable.ajax.reload();
-        showToast('info', 'Đã làm mới', 'Đã xóa tất cả bộ lọc.');
+        resetFilters();
     });
 
-    $('#btnSaveNews').click(function () {
-        console.log('Save button clicked');
-        saveNews();
-    });
+    $('#btnSaveNews').click(saveNews);
+    $('#btnUpdateNews').click(updateNews);
 
-    $('#btnUpdateNews').click(function () {
-        updateNews();
-    });
-
-    $('#addNewsModal').on('hidden.bs.modal', function () {
-        resetAddForm();
-    });
-
-    $('#editNewsModal').on('hidden.bs.modal', function () {
-        resetEditForm();
-    });
-
+    $('#addNewsModal').on('hidden.bs.modal', resetAddForm);
+    $('#editNewsModal').on('hidden.bs.modal', resetEditForm);
     $('#addNewsModal').on('shown.bs.modal', function () {
-        initializeCKEditor('newsContent', 'newsEditor');
+        setTimeout(function () {
+            initializeCKEditor('newsContent', 'newsEditor');
+        }, 100);
     });
-
     $('#editNewsModal').on('shown.bs.modal', function () {
-        initializeCKEditor('editNewsContent', 'editNewsEditor');
+        setTimeout(function () {
+            // Destroy existing instance if any
+            if (CKEDITOR.instances['editNewsContent']) {
+                CKEDITOR.instances['editNewsContent'].destroy();
+            }
+            initializeCKEditor('editNewsContent', 'editNewsEditor');
+        }, 100);
     });
 }
 
-function loadCategories() {
-    console.log('Loading categories...');
-    $.ajax({
-        url: '/New/GetCategories',
-        type: 'GET',
-        success: function (response) {
-            console.log('Categories API response:', response);
-            if (response.result === 1 && response.data) {
-                $('#categoryFilter, #newsCategory, #editNewsCategory').empty();
+function resetFilters() {
+    $('#searchKeyword').val('');
+    $('#categoryFilter').val('').trigger('change.select2');
+    $('#dateFrom').val('');
+    $('#dateTo').val('');
+    newsDataTable.ajax.reload();
+    showToast('info', 'Đã làm mới', 'Đã xóa tất cả bộ lọc.');
+}
 
-                $('#categoryFilter').append('<option value="">Tất cả danh mục</option>');
-                $('#newsCategory, #editNewsCategory').append('<option value="">Chọn danh mục</option>');
+async function loadCategories() {
+    try {
+        const response = await NewsApi.getCategories();
+        const result = ApiUtils.handleResponse(response, null, 'Không thể tải danh mục tin tức');
 
-                response.data.forEach(function (category) {
-                    console.log('Adding category:', category);
-                    $('#categoryFilter').append(`<option value="${category.id}">${category.name}</option>`);
-                    $('#newsCategory, #editNewsCategory').append(`<option value="${category.id}">${category.name}</option>`);
-                });
-
-                $('#categoryFilter').trigger('change.select2');
-
-                console.log('Categories loaded successfully:', response.data.length, 'categories');
-            } else {
-                console.error('Failed to load categories:', response.error);
-                showToast('error', 'Lỗi', 'Không thể tải danh mục tin tức: ' + (response.error || 'Unknown error'));
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error loading categories:', error);
-            console.error('XHR status:', xhr.status);
-            console.error('XHR response:', xhr.responseText);
-            showToast('error', 'Lỗi', 'Không thể kết nối đến máy chủ để tải danh mục.');
+        if (result.success) {
+            populateCategoryDropdowns(result.data);
         }
+    } catch (error) {
+        ApiUtils.handleError(error, 'Không thể kết nối đến máy chủ để tải danh mục.');
+    }
+}
+
+function populateCategoryDropdowns(categories) {
+    $('#categoryFilter, #newsCategory, #editNewsCategory').empty();
+
+    $('#categoryFilter').append('<option value="">Tất cả danh mục</option>');
+    $('#newsCategory, #editNewsCategory').append('<option value="">Chọn danh mục</option>');
+
+    categories.forEach(function (category) {
+        $('#categoryFilter').append(`<option value="${category.id}">${category.name}</option>`);
+        $('#newsCategory, #editNewsCategory').append(`<option value="${category.id}">${category.name}</option>`);
     });
+
+    $('#categoryFilter').trigger('change.select2');
 }
 
 function initializeDataTable() {
@@ -227,10 +225,10 @@ function initializeDataTable() {
                 }
             },
             {
-                data: 'id',
+                data: 'status',
                 width: '8%',
                 render: function (data, type, row) {
-                    return `<span class="badge bg-success">Hoạt động</span>`;
+                    return data == 1 ? `<span class="badge bg-success">Hoạt động</span>` : `<span class="badge bg-danger">Không hoạt động</span>`;
                 }
             },
             {
@@ -271,102 +269,121 @@ function initializeDataTable() {
     });
 }
 
-function viewNews(id) {
-    $.ajax({
-        url: `/New/GetById/${id}`,
-        type: 'GET',
-        success: function (response) {
-            if (response.result === 1 && response.data) {
-                const news = response.data;
-                let content = `
-                    <div class="row">
-                        <div class="col-md-4">
-                            ${news.imageObj?.relativeUrl
-                        ? `<img src="${news.imageObj.relativeUrl}" class="img-fluid rounded" alt="${news.name}">`
-                        : '<div class="bg-light text-center p-4"><i class="fas fa-image fa-3x text-muted"></i></div>'
-                    }
-                        </div>
-                        <div class="col-md-8">
-                            <h4>${news.name}</h4>
-                            <p class="text-muted">${news.description || 'Không có mô tả'}</p>
-                            <div class="mb-3">
-                                <strong>Danh mục:</strong> ${news.newsCategoryObj?.name || 'Không có'}
-                            </div>
-                            <div class="mb-3">
-                                <strong>Ngày đăng:</strong> ${formatDate(news.publishedAt)}
-                            </div>
-                            <div class="mb-3">
-                                <strong>Lượt xem:</strong> ${news.viewNumber || 0}
-                            </div>
-                            <div class="mb-3">
-                                <strong>Trạng thái:</strong> ${news.isHot ? '<span class="badge bg-danger">Hot</span>' : '<span class="badge bg-secondary">Bình thường</span>'}
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="mt-3">
-                        <h5>Nội dung chi tiết:</h5>
-                        <div class="border p-3 bg-light">
-                            ${news.detail || 'Không có nội dung chi tiết'}
-                        </div>
-                    </div>
-                `;
-                $('#viewNewsContent').html(content);
-                $('#viewNewsModal').modal('show');
-            } else {
-                showToast('error', 'Lỗi', 'Không thể tải thông tin tin tức.');
-            }
-        },
-        error: function () {
-            showToast('error', 'Lỗi', 'Không thể kết nối đến máy chủ.');
+async function viewNews(id) {
+    try {
+        const response = await NewsApi.getById(id);
+        const result = ApiUtils.handleResponse(response, null, 'Không thể tải thông tin tin tức.');
+
+        if (result.success) {
+            displayNewsDetails(result.data);
         }
-    });
+    } catch (error) {
+        ApiUtils.handleError(error, 'Không thể kết nối đến máy chủ.');
+    }
 }
 
-function editNews(id) {
-    $.ajax({
-        url: `/New/GetById/${id}`,
-        type: 'GET',
-        success: function (response) {
-            if (response.result === 1 && response.data) {
-                const news = response.data;
-                $('#editNewsId').val(news.id);
-                $('#editNewsTitle').val(news.name);
-                $('#editNewsCategory').val(news.newsCategoryId).trigger('change.select2');
-                $('#editNewsDescription').val(news.description);
-                $('#editNewsPublishedDate').val(formatDate(news.publishedAt));
-                $('#editNewsIsHot').prop('checked', news.isHot);
+function displayNewsDetails(news) {
+    let content = `
+        <div class="row">
+            <div class="col-md-4">
+                ${news.imageObj?.relativeUrl
+            ? `<img src="${news.imageObj.relativeUrl}" class="img-fluid rounded" alt="${news.name}">`
+            : '<div class="bg-light text-center p-4"><i class="fas fa-image fa-3x text-muted"></i></div>'
+        }
+            </div>
+            <div class="col-md-8">
+                <h4>${news.name}</h4>
+                <p class="text-muted">${news.description || 'Không có mô tả'}</p>
+                <div class="mb-3">
+                    <strong>Danh mục:</strong> ${news.newsCategoryObj?.name || 'Không có'}
+                </div>
+                <div class="mb-3">
+                    <strong>Ngày đăng:</strong> ${formatDate(news.publishedAt)}
+                </div>
+                <div class="mb-3">
+                    <strong>Lượt xem:</strong> ${news.viewNumber || 0}
+                </div>
+                <div class="mb-3">
+                    <strong>Trạng thái:</strong> ${news.status == 1 ? '<span class="badge bg-success">Hoạt động</span>' : '<span class="badge bg-danger">Không hoạt động</span>'}
+                </div>
+                <div class="mb-3">
+                    <strong>Tin nổi bật:</strong> ${news.isHot ? '<span class="badge bg-danger">Hot</span>' : '<span class="badge bg-secondary">Bình thường</span>'}
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="mt-3">
+            <h5>Nội dung chi tiết:</h5>
+            <div class="border p-3 bg-light">
+                ${news.detail || 'Không có nội dung chi tiết'}
+            </div>
+        </div>
+    `;
+    $('#viewNewsContent').html(content);
+    $('#viewNewsModal').modal('show');
+}
 
-                $('#editNewsMetaKeywords').val(news.metaKeywords || "");
-                $('#editNewsMetaDescription').val(news.metaDescription || news.description || "");
-                $('#editNewsMetaTitle').val(news.metaTitle || news.name || "");
-                $('#editNewsMetaImagePreview').val(news.metaImagePreview || "");
-                $('#editNewsImageId').val(news.imageId || 0);
+async function editNews(id) {
+    try {
+        const response = await NewsApi.getById(id);
+        const result = ApiUtils.handleResponse(response, null, 'Không thể tải thông tin tin tức.');
 
-                if (news.imageObj?.relativeUrl) {
-                    $('#currentImagePreview').html(`<img src="${news.imageObj.relativeUrl}" class="img-thumbnail" style="max-width: 200px;">`);
+        if (result.success) {
+            populateEditForm(result.data);
+            $('#editNewsModal').modal('show');
+        }
+    } catch (error) {
+        ApiUtils.handleError(error, 'Không thể kết nối đến máy chủ.');
+    }
+}
+
+function populateEditForm(news) {
+    $('#editNewsId').val(news.id);
+    $('#editNewsTitle').val(news.name);
+    $('#editNewsCategory').val(news.newsCategoryId).trigger('change.select2');
+    $('#editNewsDescription').val(news.description);
+    $('#editNewsPublishedDate').val(formatDate(news.publishedAt));
+    $('#editNewsIsHot').prop('checked', news.isHot);
+
+    $('#editNewsMetaKeywords').val(news.metaKeywords || "");
+    $('#editNewsMetaDescription').val(news.metaDescription || news.description || "");
+    $('#editNewsMetaTitle').val(news.metaTitle || news.name || "");
+    $('#editNewsMetaImagePreview').val(news.metaImagePreview || "");
+    $('#editNewsImageId').val(news.imageId || 0);
+
+    if (news.imageObj?.relativeUrl) {
+        $('#currentImagePreview').html(`<img src="${news.imageObj.relativeUrl}" class="img-thumbnail" style="max-width: 200px;">`);
+    } else {
+        $('#currentImagePreview').html('<p class="text-muted">Không có hình ảnh</p>');
+    }
+
+    // Set CKEditor content with retry mechanism
+    let retryCount = 0;
+    const maxRetries = 5;
+
+    function setCKEditorContent() {
+        try {
+            if (editNewsEditor && editNewsEditor.setData) {
+                editNewsEditor.setData(news.detail || '');
+                console.log('CKEditor data set successfully');
+            } else {
+                console.log('CKEditor not ready, retrying...', retryCount);
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    setTimeout(setCKEditorContent, 300);
                 } else {
-                    $('#currentImagePreview').html('<p class="text-muted">Không có hình ảnh</p>');
-                }
-
-                try {
-                    if (editNewsEditor && editNewsEditor.setData) {
-                        editNewsEditor.setData(news.detail || '');
-                    }
-                } catch (error) {
-                    console.error('Error setting CKEditor data:', error);
+                    console.log('CKEditor not available, setting textarea value');
                     $('#editNewsContent').val(news.detail || '');
                 }
-
-                $('#editNewsModal').modal('show');
-            } else {
-                showToast('error', 'Lỗi', 'Không thể tải thông tin tin tức.');
             }
-        },
-        error: function () {
-            showToast('error', 'Lỗi', 'Không thể kết nối đến máy chủ.');
+        } catch (error) {
+            console.error('Error setting CKEditor data:', error);
+            $('#editNewsContent').val(news.detail || '');
         }
-    });
+    }
+
+    // Start the retry mechanism
+    setTimeout(setCKEditorContent, 100);
 }
 
 function deleteNews(id) {
@@ -381,22 +398,17 @@ function deleteNews(id) {
         message: 'Bạn có chắc chắn muốn xóa tin tức này?',
         position: 'center',
         buttons: [
-            ['<button><b>Đồng ý</b></button>', function (instance, toast) {
-                $.ajax({
-                    url: `/New/Delete/${id}`,
-                    type: 'DELETE',
-                    success: function (response) {
-                        if (response.result === 1) {
-                            showToast('success', 'Thành công', 'Đã xóa tin tức thành công.');
-                            newsDataTable.ajax.reload();
-                        } else {
-                            showToast('error', 'Lỗi', response.error || 'Không thể xóa tin tức.');
-                        }
-                    },
-                    error: function () {
-                        showToast('error', 'Lỗi', 'Không thể kết nối đến máy chủ.');
+            ['<button><b>Đồng ý</b></button>', async function (instance, toast) {
+                try {
+                    const response = await NewsApi.delete(id);
+                    const result = ApiUtils.handleResponse(response, 'Đã xóa tin tức thành công.', 'Không thể xóa tin tức.');
+
+                    if (result.success) {
+                        newsDataTable.ajax.reload();
                     }
-                });
+                } catch (error) {
+                    ApiUtils.handleError(error, 'Không thể kết nối đến máy chủ.');
+                }
                 instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
             }, true],
             ['<button>Hủy</button>', function (instance, toast) {
@@ -406,8 +418,49 @@ function deleteNews(id) {
     });
 }
 
-function saveNews() {
-    console.log('saveNews function called');
+async function saveNews() {
+    const formData = buildAddFormData();
+
+    if (!validateNewsForm(formData)) {
+        return;
+    }
+
+    try {
+        const response = await NewsApi.save(formData);
+        const result = ApiUtils.handleResponse(response, 'Đã lưu tin tức thành công.', 'Không thể lưu tin tức.');
+
+        if (result.success) {
+            $('#addNewsModal').modal('hide');
+            newsDataTable.ajax.reload();
+            resetAddForm();
+        }
+    } catch (error) {
+        ApiUtils.handleError(error, 'Không thể kết nối đến máy chủ.');
+    }
+}
+
+async function updateNews() {
+    const formData = buildEditFormData();
+
+    if (!validateNewsForm(formData)) {
+        return;
+    }
+
+    try {
+        const response = await NewsApi.update(formData);
+        const result = ApiUtils.handleResponse(response, 'Đã cập nhật tin tức thành công.', 'Không thể cập nhật tin tức.');
+
+        if (result.success) {
+            $('#editNewsModal').modal('hide');
+            newsDataTable.ajax.reload();
+            resetEditForm();
+        }
+    } catch (error) {
+        ApiUtils.handleError(error, 'Không thể kết nối đến máy chủ.');
+    }
+}
+
+function buildAddFormData() {
     let detail = '';
     try {
         detail = newsEditor && newsEditor.getData ? newsEditor.getData() : $('#newsContent').val();
@@ -445,43 +498,10 @@ function saveNews() {
         status: 1
     };
 
-    if (!formData.name) {
-        showToast('error', 'Lỗi', 'Vui lòng nhập tiêu đề tin tức.');
-        return;
-    }
-
-    if (!formData.newsCategoryId) {
-        showToast('error', 'Lỗi', 'Vui lòng chọn danh mục.');
-        return;
-    }
-
-    $.ajax({
-        url: '/New/Save',
-        type: 'POST',
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        data: JSON.stringify(formData),
-        success: function (response) {
-            if (response.result === 1) {
-                showToast('success', 'Thành công', 'Đã lưu tin tức thành công.');
-                $('#addNewsModal').modal('hide');
-                newsDataTable.ajax.reload();
-                resetAddForm();
-            } else {
-                showToast('error', 'Lỗi', response.error || 'Không thể lưu tin tức.');
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Save error:', xhr.responseText);
-            console.error('Status:', xhr.status);
-            console.error('StatusText:', xhr.statusText);
-            showToast('error', 'Lỗi', 'Không thể kết nối đến máy chủ.');
-        }
-    });
+    return formData;
 }
 
-function updateNews() {
-    console.log('updateNews function called');
+function buildEditFormData() {
     let detail = '';
     try {
         detail = editNewsEditor && editNewsEditor.getData ? editNewsEditor.getData() : $('#editNewsContent').val();
@@ -503,8 +523,11 @@ function updateNews() {
         }
     }
 
+    const editId = parseInt($('#editNewsId').val());
+    console.log('Edit ID found:', editId);
+
     const formData = {
-        id: parseInt($('#editNewsId').val()),
+        id: editId,
         name: $('#editNewsTitle').val(),
         newsCategoryId: parseInt($('#editNewsCategory').val()),
         description: $('#editNewsDescription').val(),
@@ -520,44 +543,25 @@ function updateNews() {
         status: 1
     };
 
-    if (!formData.name) {
+    return formData;
+}
+
+function validateNewsForm(formData) {
+    if (!formData.name || formData.name.trim() === '') {
         showToast('error', 'Lỗi', 'Vui lòng nhập tiêu đề tin tức.');
-        return;
+        return false;
     }
 
-    if (!formData.newsCategoryId) {
+    if (!formData.newsCategoryId || formData.newsCategoryId === 0) {
         showToast('error', 'Lỗi', 'Vui lòng chọn danh mục.');
-        return;
+        return false;
     }
 
-    $.ajax({
-        url: '/New/Update',
-        type: 'POST',
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        data: JSON.stringify(formData),
-        success: function (response) {
-            if (response.result === 1) {
-                showToast('success', 'Thành công', 'Đã cập nhật tin tức thành công.');
-                $('#editNewsModal').modal('hide');
-                newsDataTable.ajax.reload();
-                resetEditForm();
-            } else {
-                showToast('error', 'Lỗi', response.error || 'Không thể cập nhật tin tức.');
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Update error:', xhr.responseText);
-            console.error('Status:', xhr.status);
-            console.error('StatusText:', xhr.statusText);
-            showToast('error', 'Lỗi', 'Không thể kết nối đến máy chủ.');
-        }
-    });
+    return true;
 }
 
 function resetAddForm() {
     $('#newsForm')[0].reset();
-
     $('#newsCategory').val('').trigger('change.select2');
 
     try {
@@ -572,7 +576,6 @@ function resetAddForm() {
 
 function resetEditForm() {
     $('#editNewsForm')[0].reset();
-
     $('#editNewsCategory').val('').trigger('change.select2');
 
     $('#editNewsMetaKeywords').val('');
@@ -582,6 +585,7 @@ function resetEditForm() {
     $('#editNewsImageId').val('');
 
     $('#currentImagePreview').empty();
+
     try {
         if (editNewsEditor && editNewsEditor.setData) {
             editNewsEditor.setData('');
