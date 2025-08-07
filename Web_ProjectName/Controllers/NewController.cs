@@ -49,12 +49,11 @@ namespace Web_ProjectName.Controllers
             else
             {
                 ViewBag.ListNews = new List<Models.M_News>();
-                // System.Diagnostics.Debug.WriteLine("No data returned from API");
             }
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetListNewsByAjax(int page = 1, int record = 10, int? newsCategoryId = null, string? keyword = null, string dateFrom = null, string dateTo = null)
+        public async Task<JsonResult> GetListNewsByAjax(int page = 1, int record = 10, int? newsCategoryId = null, string? keyword = null, string? dateFrom = null, string? dateTo = null)
         {
             var res = await _s_News.GetListByPaging("0,1", _supplierId, newsCategoryId, keyword, page, record);
             return Json(new { result = 1, res.data });
@@ -481,6 +480,28 @@ namespace Web_ProjectName.Controllers
                     isMockData = true,
                     exception = ex.Message
                 });
+            }
+        }
+
+        // get featured news only 4 items
+        [HttpGet]
+        public async Task<JsonResult> GetFeaturedNews(int count = 4)
+        {
+            try
+            {
+                var res = await _s_News.GetListByStatus(1);
+                if (res.result == 1 && res.data != null)
+                {
+                    return Json(new { result = 1, data = res.data, dataCount = res.data.Count });
+                }
+                else
+                {
+                    return Json(new { result = 0, error = "Không có tin tức nổi bật" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = 0, error = ex.Message });
             }
         }
 

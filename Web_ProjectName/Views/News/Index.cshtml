@@ -5,18 +5,85 @@
 }
 
 <!-- Trending Area Start -->
-<div class="trending-area fix">
-    <div class="container">
-        <div class="trending-main">
-            <div class="row">
-                <div class="col-lg-8">
+<style>
+    @@keyframes float {
+        0% { transform: translateX(-100px); }
+        100% { transform: translateX(100px); }
+    }
+    
+    .trending-area::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(from 0deg, transparent 340deg, rgba(255,255,255,0.1) 360deg);
+        animation: rotate 30s linear infinite;
+    }
+    
+    @@keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Fix hover effect for "Xem Nhiều Nhất" section */
+    .most-recent-cap h4 a {
+        color: #2c3e50 !important;
+        text-decoration: none !important;
+        transition: color 0.3s ease !important;
+    }
+    
+    .most-recent-cap h4 a:hover {
+        color: #007bff !important;
+    }
+    
+    .most-recent:hover {
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    
+    .most-recent {
+        border-radius: 8px;
+        padding: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .most-recent:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="trending-area fix" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden;">
+    <!-- Background Pattern -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 1px, transparent 1px), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 100px 100px; animation: float 20s linear infinite;"></div>
+    
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="trending-main py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-12">
                     <!-- Trending Top -->
-                    <div class="trending-top mb-30">
-                        <div class="trend-top-img">
-                            <img src="~/template/aznews-master/assets/img/trending/trending_top.jpg" alt="">
-                            <div class="trend-top-cap">
-                                <span class="color1">Tin tức mới nhất</span>
-                                <h4>Tin tức nổi bật trong ngày</h4>
+                    <div class="trending-top">
+                        <div class="trend-top-img" style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));">
+                            <img src="~/images/OIP.webp" alt="Tin tức nổi bật" style="width: 100%; height: 400px; object-fit: cover; filter: brightness(0.8);">
+                            
+                            <!-- Overlay Content -->
+                            <div class="trend-top-cap" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%); padding: 40px 30px; color: white;">
+                                <span style="display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 8px 20px; border-radius: 25px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(255,107,107,0.3);">
+                                    🔥 Tin tức mới nhất
+                                </span>
+                                <h4 style="font-size: 28px; font-weight: 800; line-height: 1.3; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                                    Tin tức nổi bật trong ngày
+                                </h4>
+                                <p style="font-size: 16px; opacity: 0.9; margin: 10px 0 0 0; font-weight: 300;">
+                                    Cập nhật những thông tin mới nhất và quan trọng nhất
+                                </p>
+                            </div>
+                            
+                            <!-- Decorative Elements -->
+                            <div style="position: absolute; top: 20px; right: 20px; width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-newspaper" style="font-size: 24px; color: white;"></i>
                             </div>
                         </div>
                     </div>
@@ -42,50 +109,18 @@
                 {
                     <div class="mb-4">
                         <h5>Danh mục:</h5>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach (var category in ViewBag.Categories)
-                            {
-                                <a href="/tin-tuc/danh-muc/@category.id" class="btn btn-outline-primary btn-sm">
-                                    @category.name
-                                </a>
-                            }
+                        <div id="category-list" class="d-flex flex-wrap gap-2">
                         </div>
                     </div>
                 }
 
                 <!-- News List -->
-                @if (ViewBag.NewsList != null)
-                {
-                    foreach (var news in ViewBag.NewsList)
-                    {
-                        <div class="single-what-news mb-100">
-                            <div class="what-img">
-                                <img src="@(news.imageObj?.relativeUrl ?? "~/template/aznews-master/assets/img/news/whatNews1.jpg")" 
-                                     alt="@news.name">
-                            </div>
-                            <div class="what-cap">
-                                <span class="color1">@(news.newsCategoryObj?.name ?? "Tin tức")</span>
-                                <h4><a href="/tin-tuc/@news.metaUrl">@news.name</a></h4>
-                                <p>@(news.description?.Length > 150 ? news.description.Substring(0, 150) + "..." : news.description)</p>
-                                <div class="news-meta">
-                                    <span class="color1"><i class="fas fa-calendar"></i> @news.publishedAt?.ToString("dd/MM/yyyy")</span>
-                                    <span class="color1"><i class="fas fa-eye"></i> @(news.viewNumber ?? 0) lượt xem</span>
-                                    @if (news.isHot)
-                                    {
-                                        <span class="color1"><i class="fas fa-fire"></i> Hot</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
+                <div id="news-list">
+                    <!-- Content will be loaded via JavaScript -->
                     <div class="text-center">
-                        <h4>Chưa có tin tức nào</h4>
-                        <p>Vui lòng quay lại sau.</p>
+                        <i class="fas fa-spinner fa-spin"></i> Đang tải tin tức...
                     </div>
-                }
+                </div>
 
                 <!-- Pagination -->
                 @if (ViewBag.TotalPages > 1)
@@ -132,16 +167,26 @@
 
             <!-- Right Sidebar -->
             <div class="col-lg-4">
-                <!-- Section Tittle -->
-                <div class="section-tittle mb-40">
-                    <h3>Tin Nổi Bật</h3>
+                <!-- Trending Top -->
+                <div class="trending-top mb-30">
+                    <div class="section-tittle mb-30">
+                        <h3>Tin Nổi Bật</h3>
+                    </div>
+                    <!-- Featured News Area - Dynamic Content -->
+                    <div id="featured-news-container">
+                        <!-- Content will be loaded via JavaScript -->
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải tin nổi bật...
+                        </div>
+                    </div>
                 </div>
-                <!-- Flow Socail -->
-                <div class="single-follow mb-23">
+                
+                <!-- Follow Social Area -->
+                <div class="single-follow mb-45">
                     <div class="single-box">
                         <div class="follow-us d-flex align-items-center">
                             <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-fb.png" alt=""></a>
+                                <a href="#"><i class="fab fa-facebook-f"></i></a>
                             </div>
                             <div class="follow-count">
                                 <span>8,045</span>
@@ -150,47 +195,98 @@
                         </div>
                         <div class="follow-us d-flex align-items-center">
                             <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-tw.png" alt=""></a>
+                                <a href="#"><i class="fab fa-twitter"></i></a>
                             </div>
                             <div class="follow-count">
                                 <span>9,532</span>
-                                <p>Fans</p>
+                                <p>Followers</p>
                             </div>
                         </div>
                         <div class="follow-us d-flex align-items-center">
                             <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-ins.png" alt=""></a>
+                                <a href="#"><i class="fab fa-instagram"></i></a>
                             </div>
                             <div class="follow-count">
                                 <span>7,541</span>
-                                <p>Fans</p>
+                                <p>Followers</p>
                             </div>
                         </div>
                         <div class="follow-us d-flex align-items-center">
                             <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-yo.png" alt=""></a>
+                                <a href="#"><i class="fab fa-youtube"></i></a>
                             </div>
                             <div class="follow-count">
                                 <span>9,532</span>
-                                <p>Fans</p>
+                                <p>Subscriber</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- New Poster -->
-                <div class="news-poster d-flex align-items-center">
-                    <div class="poster--thumb">
-                        <a href="#"><img src="~/template/aznews-master/assets/img/news/news_card.jpg" alt=""></a>
+                
+                <!-- Most Recent Area -->
+                <div class="most-recent-area">
+                    <!-- Section Tittle -->
+                    <div class="small-tittle mb-20">
+                        <h4>Xem Nhiều Nhất</h4>
                     </div>
-                    <div class="poster--content">
-                        <a href="#">
-                            <h5>Giải thưởng tin tức hàng năm</h5>
-                        </a>
-                        <p>@DateTime.Now.ToString("dd MMM yyyy")</p>
+                    <!-- Details -->
+                    <div class="most-recent mb-40">
+                        <div class="most-recent-img">
+                            <img src="~/images/OIP.webp" alt="">
+                            <div class="most-recent-cap">
+                                <span class="bgbeg">01</span>
+                                <h4><a href="#">Tin tức nổi bật nhất tuần</a></h4>
+                                <p>@DateTime.Now.ToString("dd MMM yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="most-recent mb-40">
+                        <div class="most-recent-img">
+                            <img src="~/images/OIP.webp" alt="">
+                            <div class="most-recent-cap">
+                                <span class="bgbeg">02</span>
+                                <h4><a href="#">Thông tin kinh tế mới nhất</a></h4>
+                                <p>@DateTime.Now.ToString("dd MMM yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="most-recent mb-40">
+                        <div class="most-recent-img">
+                            <img src="~/images/OIP.webp" alt="">
+                            <div class="most-recent-cap">
+                                <span class="bgbeg">03</span>
+                                <h4><a href="#">Tin thể thao hấp dẫn</a></h4>
+                                <p>@DateTime.Now.ToString("dd MMM yyyy")</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-<!-- Whats New End -->
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/responsive.dataTables.min.css">
+
+    <link rel="stylesheet" type="text/css" href="~/lib/select2/css/select2.min.css">
+
+    <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+
+    <script src="~/lib/ckeditor/ckeditor.js"></script>
+
+    <script type="text/javascript" src="~/lib/datatable/js/datatables.min.js"></script>
+    <script type="text/javascript" src="~/lib/datatable/js/datatables.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="~/lib/datatable/js/dataTables.responsive.min.js"></script>
+
+    <script src="~/lib/select2/js/select2.min.js"></script>
+
+    <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/dist/js/il8n/vi.js"></script>
+
+    <link rel="stylesheet" href="~/lib/izi-toast-mater/css/iziToast.min.css">
+    <script src="~/lib/izi-toast-mater/iziToast.min.js"></script>
+    <script src="~/js/call-api.js"></script>
+    <script src="~/controllers/new.js"></script>
+}

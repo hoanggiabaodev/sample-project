@@ -1,5 +1,245 @@
 @model Web_ProjectName.Models.M_News
 
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f8fafc;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        padding: 40px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        background-color: #fafafa;
+    }
+
+    .upload-area:hover {
+        border-color: #9ca3af;
+        background-color: #f3f4f6;
+    }
+
+    .upload-area.drag-active {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+
+    .upload-area.has-file {
+        border-color: #10b981;
+        background-color: #f0fdf4;
+    }
+
+    .upload-icon {
+        width: 48px;
+        height: 48px;
+        background-color: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        transition: all 0.3s ease;
+    }
+
+    .upload-area.drag-active .upload-icon {
+        background-color: #dbeafe;
+    }
+
+    .upload-area.has-file .upload-icon {
+        background-color: #dcfce7;
+    }
+
+    .upload-icon i {
+        font-size: 20px;
+        color: #6b7280;
+    }
+
+    .upload-area.drag-active .upload-icon i {
+        color: #3b82f6;
+    }
+
+    .upload-area.has-file .upload-icon i {
+        color: #10b981;
+    }
+
+    .upload-text {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .upload-subtext {
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+
+    .upload-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .upload-link:hover {
+        color: #2563eb;
+    }
+
+    .file-info {
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    .hidden-input {
+        display: none;
+    }
+
+    .file-details {
+        display: none;
+        margin-top: 16px;
+    }
+
+    .file-details.show {
+        display: block;
+    }
+
+    .file-item {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .file-info-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .file-name {
+        font-weight: 500;
+        color: #1f2937;
+        font-size: 13px;
+    }
+
+    .file-size {
+        color: #6b7280;
+        font-size: 11px;
+    }
+
+    .file-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn:hover {
+        background-color: #f9fafb;
+    }
+
+    .btn-danger:hover {
+        background-color: #fef2f2;
+    }
+
+    .preview-section {
+        margin-top: 20px;
+    }
+
+    .preview-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .image-preview {
+        position: relative;
+        display: inline-block;
+    }
+
+    .preview-image {
+        max-width: 200px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .remove-preview {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 20px;
+        height: 20px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .alert {
+        background-color: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .alert i {
+        color: #3b82f6;
+    }
+
+    .alert-text {
+        color: #1e40af;
+        font-size: 13px;
+    }
+
+    .current-image-section {
+        margin-top: 16px;
+        padding: 12px;
+        background-color: #f9fafb;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+</style>
+
 <div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsModalLabel" aria-hidden="true"
     style="z-index: 1050;">
     <div class="modal-dialog modal-xl">
@@ -38,26 +278,14 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="editNewsPublishedDate" class="form-label fw-bold">Ngày đăng</label>
                                 <input type="text" class="form-control datepicker" id="editNewsPublishedDate"
                                     name="publishedAt">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="editNewsIsHot" name="isHot">
-                                    <label class="form-check-label fw-bold" for="editNewsIsHot">
-                                        <i class="fas fa-fire me-2 text-danger"></i>Tin nổi bật
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="editNewsStatus" class="form-label fw-bold">Trạng thái <span
                                         class="text-danger">*</span></label>
@@ -69,22 +297,86 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">                        
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editNewsIsHot" name="isHot">
+                                    <label class="form-check-label fw-bold" for="editNewsIsHot">
+                                        <i class="fas fa-fire me-2 text-danger"></i>Tin nổi bật
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label for="editNewsDescription" class="form-label fw-bold">Mô tả ngắn</label>
                         <textarea class="form-control" id="editNewsDescription" name="description" rows="3"
-                            placeholder="Nhập mô tả ngắn cho tin tức..."></textarea>
+                        placeholder="Nhập mô tả ngắn cho tin tức..."></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="editNewsContent" class="form-label fw-bold">Nội dung chi tiết</label>
-                        <textarea id="editNewsContent" name="detail"></textarea>
+                        <textarea class="form-control" id="editNewsContent" name="detail" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editNewsImage" class="form-label fw-bold">Hình ảnh</label>
-                        <input type="file" class="form-control" id="editNewsImage" accept="image/*">
-                        <div class="form-text">Chọn hình ảnh mới cho tin tức (JPG, PNG, GIF)</div>
-                        <div id="currentImagePreview" class="mt-2">
-                            <div class="alert alert-info">
-                                <i class="fas fa-image me-2"></i>Hình ảnh hiện tại sẽ được hiển thị khi tải dữ liệu
+                        <label class="form-label">Hình ảnh</label>
+
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" class="hidden-input" id="fileInput" accept="image/*">
+
+                            <div class="upload-content" id="uploadContent">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="upload-text">Kéo thả hình ảnh vào đây</div>
+                                <div class="upload-subtext">
+                                    hoặc <a href="#" class="upload-link" id="browseLink">chọn từ máy tính</a>
+                                </div>
+                                <div class="file-info">Hỗ trợ: JPG, PNG, GIF (tối đa 10MB)</div>
+                            </div>
+                        </div>
+
+                        <div class="file-details" id="fileDetails">
+                            <div class="file-item">
+                                <div class="file-info-left">
+                                    <i class="fas fa-image" style="color: #10b981;"></i>
+                                    <div>
+                                        <div class="file-name" id="fileName"></div>
+                                        <div class="file-size" id="fileSize"></div>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <button class="btn" id="changeBtn">Thay đổi</button>
+                                    <button class="btn btn-danger" id="removeBtn">
+                                        <i class="fas fa-times"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-section" id="newPreviewSection" style="display: none;">
+                            <div class="preview-title">Xem trước hình ảnh mới:</div>
+                            <div class="image-preview">
+                                <img id="newPreviewImage" class="preview-image" src="/placeholder.svg" alt="Preview">
+                                <button class="remove-preview" id="removeNewPreview">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="alert" id="currentImageAlert">
+                            <i class="fas fa-image"></i>
+                            <span class="alert-text">Hình ảnh hiện tại sẽ được hiển thị khi tải dữ liệu</span>
+                        </div>
+
+                        <div class="current-image-section" id="currentImageSection">
+                            <div class="preview-title">Hình ảnh hiện tại:</div>
+                            <div class="image-preview">
+                                <img src="/placeholder.svg?height=120&width=200&text=Current+News+Image"
+                                    class="preview-image" alt="Current image">
+                                <button class="remove-preview" id="removeCurrentImage">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -101,3 +393,157 @@
         </div>
     </div>
 </div>
+
+<script>
+    class ImageUploader {
+        constructor() {
+            this.uploadArea = document.getElementById('uploadArea');
+            this.fileInput = document.getElementById('fileInput');
+            this.fileDetails = document.getElementById('fileDetails');
+            this.uploadContent = document.getElementById('uploadContent');
+            this.newPreviewSection = document.getElementById('newPreviewSection');
+            this.currentImageAlert = document.getElementById('currentImageAlert');
+            this.currentImageSection = document.getElementById('currentImageSection');
+
+            this.selectedFile = null;
+            this.hasCurrentImage = true;
+
+            this.initEventListeners();
+        }
+
+        initEventListeners() {
+            // Drag and drop events
+            this.uploadArea.addEventListener('dragenter', this.handleDragEnter.bind(this));
+            this.uploadArea.addEventListener('dragover', this.handleDragOver.bind(this));
+            this.uploadArea.addEventListener('dragleave', this.handleDragLeave.bind(this));
+            this.uploadArea.addEventListener('drop', this.handleDrop.bind(this));
+
+            // Click events
+            this.uploadArea.addEventListener('click', () => this.fileInput.click());
+            document.getElementById('browseLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                this.fileInput.click();
+            });
+
+            // File input change
+            this.fileInput.addEventListener('change', this.handleFileSelect.bind(this));
+
+            // Button events
+            document.getElementById('changeBtn').addEventListener('click', () => this.fileInput.click());
+            document.getElementById('removeBtn').addEventListener('click', this.removeFile.bind(this));
+            document.getElementById('removeNewPreview').addEventListener('click', this.removeFile.bind(this));
+            document.getElementById('removeCurrentImage').addEventListener('click', this.removeCurrentImage.bind(this));
+        }
+
+        handleDragEnter(e) {
+            e.preventDefault();
+            this.uploadArea.classList.add('drag-active');
+        }
+
+        handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        handleDragLeave(e) {
+            e.preventDefault();
+            if (!this.uploadArea.contains(e.relatedTarget)) {
+                this.uploadArea.classList.remove('drag-active');
+            }
+        }
+
+        handleDrop(e) {
+            e.preventDefault();
+            this.uploadArea.classList.remove('drag-active');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.handleFile(files[0]);
+            }
+        }
+
+        handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                this.handleFile(files[0]);
+            }
+        }
+
+        handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Vui lòng chọn file hình ảnh!');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                alert('File quá lớn! Vui lòng chọn file nhỏ hơn 10MB.');
+                return;
+            }
+
+            this.selectedFile = file;
+            this.updateUI();
+            this.showPreview(file);
+        }
+
+        updateUI() {
+            if (this.selectedFile) {
+                // Show file details
+                this.uploadContent.style.display = 'none';
+                this.fileDetails.classList.add('show');
+                this.uploadArea.classList.add('has-file');
+
+                // Update file info
+                document.getElementById('fileName').textContent = this.selectedFile.name;
+                document.getElementById('fileSize').textContent = this.formatFileSize(this.selectedFile.size);
+
+                // Hide current image alert
+                this.currentImageAlert.style.display = 'none';
+            } else {
+                // Show upload content
+                this.uploadContent.style.display = 'block';
+                this.fileDetails.classList.remove('show');
+                this.uploadArea.classList.remove('has-file');
+                this.newPreviewSection.style.display = 'none';
+
+                // Show current image alert if no current image
+                if (!this.hasCurrentImage) {
+                    this.currentImageAlert.style.display = 'flex';
+                }
+            }
+        }
+
+        showPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('newPreviewImage').src = e.target.result;
+                this.newPreviewSection.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        removeFile() {
+            this.selectedFile = null;
+            this.fileInput.value = '';
+            this.updateUI();
+        }
+
+        removeCurrentImage() {
+            this.hasCurrentImage = false;
+            this.currentImageSection.style.display = 'none';
+            if (!this.selectedFile) {
+                this.currentImageAlert.style.display = 'flex';
+            }
+        }
+
+        formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new ImageUploader();
+    });
+</script>
