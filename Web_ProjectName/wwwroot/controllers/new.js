@@ -69,6 +69,8 @@ function waitForJQuery() {
             loadFeaturedNews();
             loadNewsList();
             mostviewed();
+            const currentMetaUrl = getMetaUrlFromPath();
+            loadRelatedNews(currentMetaUrl);
             var metaUrl = getMetaUrlFromPath();
             if (metaUrl) {
                 loadNewsDetail(metaUrl);
@@ -244,7 +246,7 @@ function mostviewed() {
     }
 
     $.ajax({
-        url: '/New/GetMostViewed',
+        url: '/News/GetMostViewed',
         type: 'GET',
         dataType: 'json',
         success: function (response) {
@@ -279,6 +281,61 @@ function mostviewed() {
         },
         error: function (error) {
             console.log('Error loading most viewed news:', error);
+        }
+    });
+}
+
+function loadRelatedNews(metaUrl) {
+    $.ajax({
+        url: '/News/GetRelatedNews',
+        type: 'GET',
+        data: { metaUrl: metaUrl },
+        success: function (res) {
+            if (res.result === 1) {
+                let html = '';
+                res.data.forEach(item => {
+                    html += `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100 related-card" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: box-shadow 0.3s, transform 0.3s;">
+                                <a href="/tin-tuc/${item.metaUrl}" class="related-img-link" style="display:block; overflow:hidden;">
+                                    <img src="${item.imageObj?.mediumUrl || '/images/OIP.webp'}" class="card-img-top related-img" alt="${item.name}" style="height:170px; object-fit:cover; border-radius: 16px 16px 0 0; transition: transform 0.3s;">
+                                </a>
+                                <div class="card-body" style="padding: 16px 14px 12px 14px;">
+                                    <h5 class="card-title mb-0" style="font-size:1.08rem; font-weight:600; line-height:1.4;">
+                                        <a href="/tin-tuc/${item.metaUrl}" class="related-title" style="text-decoration:none; color:#222; transition:color 0.2s;">${item.name}</a>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                // Thêm CSS custom chỉ 1 lần
+                if (!document.getElementById('related-news-custom-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'related-news-custom-style';
+                    style.innerHTML = `
+                        .related-card:hover {
+                            box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+                            transform: translateY(-4px) scale(1.025);
+                        }
+                        .related-img-link:hover .related-img {
+                            transform: scale(1.07);
+                        }
+                        .related-title:hover {
+                            color: #007bff !important;
+                        }
+                        .related-card {
+                            background: #fff;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                $('#related-news-container').html(html);
+            } else {
+                console.log('No related news found or API result != 1');
+            }
+        },
+        error: function (err) {
+            console.log('Error when calling /News/GetRelatedNews:', err);
         }
     });
 }

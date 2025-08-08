@@ -69,6 +69,32 @@ namespace Web_ProjectName.Controllers
                 data = mostViewed
             });
         }
+        [HttpGet]
+        public async Task<IActionResult> GetRelatedNews(string metaUrl)
+        {
+            var res = await _s_News.GetListByStatus(1);
+            var newsDetail = res.data?.FirstOrDefault(x => x.metaUrl == metaUrl);
+
+            if (newsDetail == null || res.data == null)
+            {
+                return Json(new
+                {
+                    result = 0,
+                    message = "Không tìm thấy bài viết"
+                });
+            }
+
+            var relatedNews = res.data
+                .Where(x => x.newsCategoryId == newsDetail.newsCategoryId && x.id != newsDetail.id)
+                // .Take(2)
+                .ToList();
+
+            return Json(new
+            {
+                result = 1,
+                data = relatedNews
+            });
+        }
 
     }
 }
