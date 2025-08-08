@@ -1,5 +1,5 @@
 function getMetaUrlFromPath() {
-    var path = window.location.pathname; // "/tin-tuc/some-meta-url"
+    var path = window.location.pathname; 
     var parts = path.split('/');
     if (parts.length > 2 && parts[1] === 'tin-tuc') {
         return parts[2];
@@ -81,8 +81,6 @@ function waitForJQuery() {
     }
 }
 
-waitForJQuery();
-
 function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -149,7 +147,7 @@ function loadFeaturedNews() {
                 
                 limitedNews.forEach(function(news, index) {
                     var colorClass = colorClasses[index] || 'color1';
-                    var imageUrl = '/images/OIP.webp';  
+                    var imageUrl = '/images/demo_images.webp';  
                     
                     var newsHtml = '<div class="trand-right-single d-flex mb-3 p-2" style="border-radius: 8px; background-color: #f8f9fa;">' +
                                    '<div class="trand-right-img me-5">' +
@@ -202,7 +200,7 @@ function loadNewsList() {
             
             if (response && response.result === 1 && response.data && Array.isArray(response.data)) {
                 response.data.forEach(function(news) {
-                    var imageUrl = '/images/OIP.webp';  
+                    var imageUrl = '/images/demo_images.webp';  
                     var categoryName = (news.newsCategoryObj && news.newsCategoryObj.name) ? news.newsCategoryObj.name : 'Tin tức';
                     var hotBadge = news.isHot ? '<span class="badge bg-danger ms-2" style="font-size: 10px;">Hot</span>' : '';
                     var publishedDate = news.publishedAt ? formatDate(news.publishedAt) : '';
@@ -257,7 +255,7 @@ function mostviewed() {
                 container.find('.most-recent').remove(); // Xóa cũ
 
                 const top3 = response.data.slice(0, 3);
-                const imageUrl = '/images/OIP.webp'; // dùng chung ảnh hoặc lấy từ news.image nếu có
+                const imageUrl = '/images/demo_images.webp'; // dùng chung ảnh hoặc lấy từ news.image nếu có
 
                 top3.forEach((news, index) => {
                     const rank = String(index + 1).padStart(2, '0');
@@ -298,7 +296,7 @@ function loadRelatedNews(metaUrl) {
                         <div class="col-md-6 col-lg-4">
                             <div class="card h-100 related-card" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: box-shadow 0.3s, transform 0.3s;">
                                 <a href="/tin-tuc/${item.metaUrl}" class="related-img-link" style="display:block; overflow:hidden;">
-                                    <img src="/images/OIP.webp" class="card-img-top related-img" alt="${item.name}" style="height:170px; object-fit:cover; border-radius: 16px 16px 0 0; transition: transform 0.3s;">
+                                    <img src="/images/demo_images.webp" class="card-img-top related-img" alt="${item.name}" style="height:170px; object-fit:cover; border-radius: 16px 16px 0 0; transition: transform 0.3s;">
                                 </a>
                                 <div class="card-body" style="padding: 16px 14px 12px 14px;">
                                     <h5 class="card-title mb-0" style="font-size:1.08rem; font-weight:600; line-height:1.4;">
@@ -339,3 +337,5 @@ function loadRelatedNews(metaUrl) {
         }
     });
 }
+
+waitForJQuery();
