@@ -1,5 +1,5 @@
 function getMetaUrlFromPath() {
-    var path = window.location.pathname; 
+    var path = window.location.pathname;
     var parts = path.split('/');
     if (parts.length > 2 && parts[1] === 'tin-tuc') {
         return parts[2];
@@ -12,7 +12,7 @@ function loadCategories() {
         console.error('jQuery is not loaded yet');
         return;
     }
-    
+
     $.ajax({
         url: '/NewCategory/GetListByStatus',
         type: 'GET',
@@ -23,32 +23,32 @@ function loadCategories() {
         dataType: 'json',
         success: function (response) {
             console.log('Categories response:', response);
-            
+
             $('#category-list').empty();
-            
+
             if (response && response.result === 1 && response.data && Array.isArray(response.data)) {
                 var limitedCategories = response.data.slice(0, 3);
                 var gradientColors = [
                     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
+                    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                     'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
                 ];
-                
-                limitedCategories.forEach(function(category, index) {
+
+                limitedCategories.forEach(function (category, index) {
                     var gradient = gradientColors[index] || gradientColors[0];
                     var categoryHtml = '<a href="/tin-tuc/danh-muc/' + category.id + '" ' +
-                                     'style="display: inline-block; background: ' + gradient + '; ' +
-                                     'color: white; text-decoration: none; padding: 12px 24px; ' +
-                                     'border-radius: 25px; font-size: 14px; font-weight: 600; ' +
-                                     'margin: 0 10px 12px 0; text-transform: uppercase; ' +
-                                     'letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); ' +
-                                     'transition: all 0.3s ease; border: none;" ' +
-                                     'onmouseover="this.style.transform=\'translateY(-3px)\'; this.style.boxShadow=\'0 6px 20px rgba(0,0,0,0.2)\';" ' +
-                                     'onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 15px rgba(0,0,0,0.15)\';">' + 
-                                     category.name + '</a>';
+                        'style="display: inline-block; background: ' + gradient + '; ' +
+                        'color: white; text-decoration: none; padding: 12px 24px; ' +
+                        'border-radius: 25px; font-size: 14px; font-weight: 600; ' +
+                        'margin: 0 10px 12px 0; text-transform: uppercase; ' +
+                        'letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); ' +
+                        'transition: all 0.3s ease; border: none;" ' +
+                        'onmouseover="this.style.transform=\'translateY(-3px)\'; this.style.boxShadow=\'0 6px 20px rgba(0,0,0,0.2)\';" ' +
+                        'onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 15px rgba(0,0,0,0.15)\';">' +
+                        category.name + '</a>';
                     $('#category-list').append(categoryHtml);
                 });
-                
+
                 console.log('Loaded ' + limitedCategories.length + ' categories (limited to 3)');
             } else {
                 console.log('No categories found or invalid response structure');
@@ -64,7 +64,7 @@ function loadCategories() {
 
 function waitForJQuery() {
     if (typeof $ !== 'undefined') {
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadCategories();
             loadFeaturedNews();
             loadNewsList();
@@ -131,55 +131,76 @@ function loadFeaturedNews() {
         console.error('jQuery is not loaded yet');
         return;
     }
-    
+
     $.ajax({
         url: '/New/GetFeaturedNews',
         type: 'GET',
         dataType: 'json',
         success: function (response) {
             console.log('Featured news response:', response);
-            
+
             $('#featured-news-container').empty();
-            
-            if (response && response.result === 1 && response.data && Array.isArray(response.data)) {
+
+            if (response && response.result === 1 && Array.isArray(response.data)) {
                 var limitedNews = response.data.slice(0, 3);
-                var colorClasses = ['color1', 'color2', 'color3'];
-                
-                limitedNews.forEach(function(news, index) {
-                    var colorClass = colorClasses[index] || 'color1';
-                    var imageUrl = '/images/demo_images.webp';  
-                    
-                    var newsHtml = '<div class="trand-right-single d-flex mb-3 p-2" style="border-radius: 8px; background-color: #f8f9fa;">' +
-                                   '<div class="trand-right-img me-5">' +
-                                   '<img src="' + imageUrl + '" alt="' + news.name + '" style="width: 70px; height: 50px; object-fit: cover; border-radius: 6px;">' +
-                                   '</div>' +
-                                   '<div class="trand-right-cap flex-grow-1" style="padding-left: 8px;">' +
-                                   '<span class="' + colorClass + '" style="font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">' + (news.newsCategoryObj?.name || 'Tin tức') + '</span>' +
-                                   '<h6 style="font-size: 13px; font-weight: 600; line-height: 1.3; margin: 2px 0 0 0;"><a href="/tin-tuc/' + news.metaUrl + '" style="text-decoration: none; color: #333; transition: color 0.2s;" onmouseover="this.style.color=\'#0056b3\'" onmouseout="this.style.color=\'#333\'">' + news.name + '</a></h6>' +
-                                   '</div>' +
-                                   '</div>';
+                var badgeColors = ['#0d6efd', '#198754', '#ffc107'];
+
+                limitedNews.forEach(function (news, index) {
+                    var badgeColor = badgeColors[index] || '#6c757d';
+                    var imageUrl = '/images/demo_images.webp';
+
+                    var newsHtml = `
+                        <div style="display: flex; align-items: center; background: #fff; border-radius: 8px; 
+                                    box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 8px; margin-bottom: 10px;
+                                    transition: transform 0.2s ease, box-shadow 0.2s ease;"
+                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)';"
+                             onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)';">
+                            
+                            <div style="flex-shrink: 0;">
+                                <img src="${imageUrl}" alt="${news.name}" 
+                                     style="width: 70px; height: 50px; object-fit: cover; border-radius: 6px;">
+                            </div>
+
+                            <div style="flex-grow: 1; padding-left: 10px;">
+                                <span style="display: inline-block; font-size: 11px; font-weight: 500; 
+                                             text-transform: uppercase; letter-spacing: 0.5px; color: white; 
+                                             background: ${badgeColor}; border-radius: 4px; padding: 2px 6px;">
+                                    ${news.newsCategoryObj?.name || 'Tin tức'}
+                                </span>
+                                <h6 style="font-size: 13px; font-weight: 600; line-height: 1.3; margin: 4px 0 0;">
+                                    <a href="/tin-tuc/${news.metaUrl}" 
+                                       style="text-decoration: none; color: #333; transition: color 0.2s;"
+                                       onmouseover="this.style.color='#0d6efd'" 
+                                       onmouseout="this.style.color='#333'">
+                                        ${news.name}
+                                    </a>
+                                </h6>
+                            </div>
+                        </div>
+                    `;
+
                     $('#featured-news-container').append(newsHtml);
                 });
-                
-                console.log('Loaded ' + limitedNews.length + ' featured news items');
+
+                console.log(`Loaded ${limitedNews.length} featured news items`);
             } else {
-                console.log('Không có tin tức nổi bật nào hoặc cấu trúc phản hồi không hợp lệ');
-                $('#featured-news-container').html('<div class="text-center"><p class="text-muted">Không có tin tức nổi bật nào</p></div>');
+                $('#featured-news-container').html('<div class="text-center text-muted" style="font-size: 14px;">Không có tin tức nổi bật nào</div>');
             }
         },
         error: function (error) {
-            console.log('Error loading featured news:', error);
-            $('#featured-news-container').html('<div class="text-center"><p class="text-danger">Lỗi tải tin tức nổi bật</p></div>');
+            console.error('Error loading featured news:', error);
+            $('#featured-news-container').html('<div class="text-center text-danger" style="font-size: 14px;">Lỗi tải tin tức nổi bật</div>');
         }
     });
 }
+
 
 function loadNewsList() {
     if (typeof $ === 'undefined') {
         console.error('jQuery is not loaded yet');
         return;
     }
-    
+
     $.ajax({
         url: '/New/GetListByStatus',
         type: 'GET',
@@ -195,31 +216,31 @@ function loadNewsList() {
         dataType: 'json',
         success: function (response) {
             console.log('News list response:', response);
-            
+
             $('#news-list').empty();
-            
+
             if (response && response.result === 1 && response.data && Array.isArray(response.data)) {
-                response.data.forEach(function(news) {
-                    var imageUrl = '/images/demo_images.webp';  
+                response.data.forEach(function (news) {
+                    var imageUrl = '/images/demo_images.webp';
                     var categoryName = (news.newsCategoryObj && news.newsCategoryObj.name) ? news.newsCategoryObj.name : 'Tin tức';
                     var hotBadge = news.isHot ? '<span class="badge bg-danger ms-2" style="font-size: 10px;">Hot</span>' : '';
                     var publishedDate = news.publishedAt ? formatDate(news.publishedAt) : '';
                     var viewCount = news.viewNumber || 0;
-                    
+
                     var newsHtml = '<div class="single-what-news mb-4" style="border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s ease;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 15px rgba(0,0,0,0.12)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 2px 8px rgba(0,0,0,0.08)\';">' +
-                                   '<div class="what-img" style="position: relative; overflow: hidden; height: 250px;">' +
-                                   '<img src="' + imageUrl + '" alt="' + (news.name || 'Tin tức') + '" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform=\'scale(1.05)\';" onmouseout="this.style.transform=\'scale(1)\';">' +
-                                   '<div style="position: absolute; bottom: 15px; left: 15px; background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 8px 16px; border-radius: 25px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; box-shadow: 0 4px 12px rgba(0,123,255,0.3); backdrop-filter: blur(10px);">' + categoryName + '</div>' +
-                                   '</div>' +
-                                   '<div class="what-cap" style="padding: 25px 20px 20px 20px;">' +
-                                   '<h4 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 700; line-height: 1.4;"><a href="/tin-tuc/' + (news.metaUrl || news.id) + '" style="text-decoration: none; color: #2c3e50; transition: color 0.2s ease;" onmouseover="this.style.color=\'#007bff\';" onmouseout="this.style.color=\'#2c3e50\';">' + (news.name || 'Tin tức') + '</a>' + hotBadge + '</h4>' +
-                                   '<p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin: 0 0 15px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">' + (news.description || news.summary || '') + '</p>' +
-                                   '<div class="whats-date" style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f1f3f4; font-size: 13px; color: #6c757d;">' +
-                                   '<span style="display: flex; align-items: center;"><i class="fas fa-calendar" style="color: #007bff; margin-right: 8px;"></i>' + publishedDate + '</span>' +
-                                   '<span style="display: flex; align-items: center;"><i class="fas fa-eye" style="color: #007bff; margin-right: 8px;"></i>' + viewCount + ' lượt xem</span>' +
-                                   '</div>' +
-                                   '</div>' +
-                                   '</div>';
+                        '<div class="what-img" style="position: relative; overflow: hidden; height: 250px;">' +
+                        '<img src="' + imageUrl + '" alt="' + (news.name || 'Tin tức') + '" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform=\'scale(1.05)\';" onmouseout="this.style.transform=\'scale(1)\';">' +
+                        '<div style="position: absolute; bottom: 15px; left: 15px; background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 8px 16px; border-radius: 25px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; box-shadow: 0 4px 12px rgba(0,123,255,0.3); backdrop-filter: blur(10px);">' + categoryName + '</div>' +
+                        '</div>' +
+                        '<div class="what-cap" style="padding: 25px 20px 20px 20px;">' +
+                        '<h4 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 700; line-height: 1.4;"><a href="/tin-tuc/' + (news.metaUrl || news.id) + '" style="text-decoration: none; color: #2c3e50; transition: color 0.2s ease;" onmouseover="this.style.color=\'#007bff\';" onmouseout="this.style.color=\'#2c3e50\';">' + (news.name || 'Tin tức') + '</a>' + hotBadge + '</h4>' +
+                        '<p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin: 0 0 15px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">' + (news.description || news.summary || '') + '</p>' +
+                        '<div class="whats-date" style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f1f3f4; font-size: 13px; color: #6c757d;">' +
+                        '<span style="display: flex; align-items: center;"><i class="fas fa-calendar" style="color: #007bff; margin-right: 8px;"></i>' + publishedDate + '</span>' +
+                        '<span style="display: flex; align-items: center;"><i class="fas fa-eye" style="color: #007bff; margin-right: 8px;"></i>' + viewCount + ' lượt xem</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
                     $('#news-list').append(newsHtml);
                 });
                 console.log('Loaded ' + response.data.length + ' news items (full data)');
@@ -233,7 +254,7 @@ function loadNewsList() {
             console.log('XHR status:', status);
             console.log('XHR response:', xhr.responseText);
             $('#news-list').html('<p class="text-danger">Lỗi tải tin tức</p>');
-        }   
+        }
     });
 }
 

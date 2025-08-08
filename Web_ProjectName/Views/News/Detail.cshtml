@@ -10,26 +10,50 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-9 col-md-11">
-                <div class="news-detail-hero position-relative mb-4" style="border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07); background: #fff;">
+                <div class="news-detail-hero position-relative mb-4"
+                    style="border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07); background: #fff;">
                     @if (Model != null)
                     {
-                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80" alt="@Model.name" style="width:100%; height:340px; object-fit:cover; display:block;">
+                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80"
+                            alt="@Model.name" style="width:100%; height:340px; object-fit:cover; display:block;">
                     }
                     else
                     {
-                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80" alt="Chi tiết tin tức" style="width:100%; height:340px; object-fit:cover; display:block;">
+                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80"
+                            alt="Chi tiết tin tức" style="width:100%; height:340px; object-fit:cover; display:block;">
                     }
                     <div class="p-4 pb-3">
-                        <span class="badge bg-primary mb-2 px-3 py-1" style="font-size:1rem;">@(Model?.newsCategoryObj?.name ?? "Tin tức")</span>
-                        <h1 class="fw-bold mb-2" style="font-size:2.1rem; color:#222;">@Model?.name ?? "Chi tiết tin tức"</h1>
-                        <div class="d-flex flex-wrap align-items-center gap-3 mb-2" style="font-size:1rem; color:#888;">
-                            <span><i class="fas fa-calendar-alt"></i> @Model?.publishedAt?.ToString("dd/MM/yyyy HH:mm")</span>
-                            <span><i class="fas fa-eye"></i> @(Model?.viewNumber ?? 0) lượt xem</span>
+                        <span class="badge bg-primary mb-2 px-3 py-1"
+                            style="font-size:1rem;">@(Model?.newsCategoryObj?.name ?? "Tin tức")</span>
+                        <h1 class="fw-bold mb-2" style="font-size:2.1rem; color:#222;">@Model?.name ?? "Chi tiết tin
+                            tức"</h1>
+                        <div class="d-flex flex-wrap align-items-center mb-2"
+                            style="font-size: 0.95rem; color: #555; gap: 16px;">
+
+                            <!-- Ngày đăng -->
+                            <span style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-calendar-alt" style="color: #888;"></i>
+                                @Model?.publishedAt?.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+
+                            <!-- Lượt xem -->
+                            <span style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-eye" style="color: #888;"></i>
+                                @(Model?.viewNumber ?? 0) lượt xem
+                            </span>
+
+                            <!-- Badge Hot -->
                             @if (Model?.isHot == true)
                             {
-                                <span class="badge bg-danger"><i class="fas fa-fire"></i> Hot</span>
+                                <span style="display: inline-flex; align-items: center; gap: 6px;
+                         background: #dc3545;
+                         color: white; padding: 4px 10px; border-radius: 20px;
+                         font-size: 0.85rem; font-weight: 600;">
+                                    <i class="fas fa-fire"></i> Hot
+                                </span>
                             }
                         </div>
+
                         @if (!string.IsNullOrEmpty(Model?.description))
                         {
                             <div class="text-secondary mb-1" style="font-size:1.1rem;">@Model.description</div>
@@ -49,7 +73,8 @@
             <div class="col-lg-8">
                 @if (Model != null)
                 {
-                    <div class="news-content mb-4 p-4" style="background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); font-size:1.13rem; color:#222; line-height:1.7;">
+                    <div class="news-content mb-4 p-4"
+                        style="background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); font-size:1.13rem; color:#222; line-height:1.7;">
                         @Html.Raw(Model.detail ?? "Nội dung chi tiết sẽ được cập nhật sớm.")
                     </div>
                     <!-- Related news (Modern) -->
@@ -63,13 +88,46 @@
 
                     </div>
                     <!-- Social share -->
-                    <div class="d-flex align-items-center gap-2 mb-4">
-                        <span class="me-2">Chia sẻ:</span>
-                        <a href="#" title="Instagram"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width:28px;"></a>
-                        <a href="#" title="Facebook"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" style="width:28px;"></a>
-                        <a href="#" title="Twitter"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" style="width:28px;"></a>
-                        <a href="#" title="YouTube"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" style="width:28px;"></a>
+                    <div class="d-flex align-items-center gap-2 mb-4" style="flex-wrap: wrap;">
+                        <span class="me-2" style="font-weight: 500; color: #333;">Chia sẻ:</span>
+
+                        <a href="#" title="Instagram" style="display: inline-flex; align-items: center; justify-content: center; 
+                  width: 32px; height: 32px; border-radius: 50%; overflow: hidden; 
+                  background: #f8f9fa; transition: all 0.2s ease;"
+                            onmouseover="this.style.transform='scale(1.1)'; this.style.background='#ffe5ec';"
+                            onmouseout="this.style.transform='scale(1)'; this.style.background='#f8f9fa';">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram"
+                                style="width:20px;">
+                        </a>
+
+                        <a href="#" title="Facebook" style="display: inline-flex; align-items: center; justify-content: center; 
+                  width: 32px; height: 32px; border-radius: 50%; overflow: hidden; 
+                  background: #f8f9fa; transition: all 0.2s ease;"
+                            onmouseover="this.style.transform='scale(1.1)'; this.style.background='#e7f1ff';"
+                            onmouseout="this.style.transform='scale(1)'; this.style.background='#f8f9fa';">
+                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"
+                                style="width:20px;">
+                        </a>
+
+                        <a href="#" title="Twitter" style="display: inline-flex; align-items: center; justify-content: center; 
+                  width: 32px; height: 32px; border-radius: 50%; overflow: hidden; 
+                  background: #f8f9fa; transition: all 0.2s ease;"
+                            onmouseover="this.style.transform='scale(1.1)'; this.style.background='#e5f6ff';"
+                            onmouseout="this.style.transform='scale(1)'; this.style.background='#f8f9fa';">
+                            <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter"
+                                style="width:20px;">
+                        </a>
+
+                        <a href="#" title="YouTube" style="display: inline-flex; align-items: center; justify-content: center; 
+                  width: 32px; height: 32px; border-radius: 50%; overflow: hidden; 
+                  background: #f8f9fa; transition: all 0.2s ease;"
+                            onmouseover="this.style.transform='scale(1.1)'; this.style.background='#ffe5e5';"
+                            onmouseout="this.style.transform='scale(1)'; this.style.background='#f8f9fa';">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube"
+                                style="width:20px;">
+                        </a>
                     </div>
+
                 }
                 else
                 {
@@ -80,22 +138,19 @@
                     </div>
                 }
             </div>
-            <!-- Right Sidebar (Modern) -->
             <div class="col-lg-4">
                 <div class="trending-top mb-30"></div>
-                    <div class="section-tittle mb-30">
-                        <h3>Tin Nổi Bật</h3>
-                    </div>
-                    <!-- Featured News Area - Dynamic Content -->
-                    <div id="featured-news-container">
-                        <!-- Content will be loaded via JavaScript -->
-                        <div class="text-center">
-                            <i class="fas fa-spinner fa-spin"></i> Đang tải tin nổi bật...
-                        </div>
+                <div class="section-tittle mb-30">
+                    <h3>Tin Nổi Bật</h3>
+                </div>
+                <div id="featured-news-container">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin"></i> Đang tải tin nổi bật...
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </section>
 
