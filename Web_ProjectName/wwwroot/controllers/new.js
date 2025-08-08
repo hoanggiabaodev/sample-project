@@ -244,7 +244,7 @@ function mostviewed() {
     }
 
     $.ajax({
-        url: '/News/GetMostViewed',
+        url: '/New/GetMostViewed',
         type: 'GET',
         dataType: 'json',
         success: function (response) {
