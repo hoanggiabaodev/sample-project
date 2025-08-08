@@ -1,6 +1,7 @@
+@model Web_ProjectName.Models.M_News
 @{
-    ViewData["Title"] = ViewBag.NewsDetail?.name ?? "Chi tiết tin tức";
-    ViewData["Description"] = ViewBag.NewsDetail?.description ?? "Chi tiết tin tức";
+    ViewData["Title"] = Model?.name ?? "Chi tiết tin tức";
+    ViewData["Description"] = Model?.description ?? "Chi tiết tin tức";
     Layout = "_LayoutNews";
 }
 
@@ -13,13 +14,13 @@
                     <!-- Trending Top -->
                     <div class="trending-top mb-30">
                         <div class="trend-top-img">
-                            @if (ViewBag.NewsDetail != null)
+                            @if (Model != null)
                             {
-                                <img src="@(ViewBag.NewsDetail.imageObj?.relativeUrl ?? "~/template/aznews-master/assets/img/trending/trending_top.jpg")"
-                                    alt="@ViewBag.NewsDetail.name">
+                                <img src="@(Model.imageObj?.relativeUrl ?? "~/template/aznews-master/assets/img/trending/trending_top.jpg")"
+                                    alt="@Model.name">
                                 <div class="trend-top-cap">
-                                    <span class="color1">@(ViewBag.NewsDetail.newsCategoryObj?.name ?? "Tin tức")</span>
-                                    <h4>@ViewBag.NewsDetail.name</h4>
+                                    <span class="color1">@(Model.newsCategoryObj?.name ?? "Tin tức")</span>
+                                    <h4>@Model.name</h4>
                                 </div>
                             }
                             else
@@ -45,33 +46,32 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-                @if (ViewBag.NewsDetail != null)
+                @if (Model != null)
                 {
                     <div class="single-news mb-100">
                         <div class="news-img">
-                            <img src="@(ViewBag.NewsDetail.imageObj?.relativeUrl ?? "~/template/aznews-master/assets/img/news/whatNews1.jpg")"
-                                alt="@ViewBag.NewsDetail.name">
+                            <img src="@(Model.imageObj?.relativeUrl ?? "~/images/OIP.webp")"
+                                alt="@Model.name">
                         </div>
                         <div class="news-caption">
-                            <h3>@ViewBag.NewsDetail.name</h3>
+                            <h3>@Model.name</h3>
                             <div class="news-meta">
-                                <span class="color1">@(ViewBag.NewsDetail.newsCategoryObj?.name ?? "Tin tức")</span>
-                                <span class="color1">@ViewBag.NewsDetail.publishedAt?.ToString("dd/MM/yyyy HH:mm")</span>
-                                <span class="color1"><i class="fas fa-eye"></i> @(ViewBag.NewsDetail.viewNumber ?? 0) lượt
-                                    xem</span>
-                                @if (ViewBag.NewsDetail.isHot)
+                                <span class="color1">@(Model.newsCategoryObj?.name ?? "Tin tức")</span>
+                                <span class="color1">@Model.publishedAt?.ToString("dd/MM/yyyy HH:mm")</span>
+                                <span class="color1"><i class="fas fa-eye"></i> @(Model.viewNumber ?? 0) lượt xem</span>
+                                @if (Model.isHot)
                                 {
                                     <span class="color1"><i class="fas fa-fire"></i> Hot</span>
                                 }
                             </div>
-                            @if (!string.IsNullOrEmpty(ViewBag.NewsDetail.description))
+                            @if (!string.IsNullOrEmpty(Model.description))
                             {
                                 <div class="news-description mb-4">
-                                    <p class="lead">@ViewBag.NewsDetail.description</p>
+                                    <p class="lead">@Model.description</p>
                                 </div>
                             }
                             <div class="news-content">
-                                @Html.Raw(ViewBag.NewsDetail.detail ?? "Nội dung chi tiết sẽ được cập nhật sớm.")
+                                @Html.Raw(Model.detail ?? "Nội dung chi tiết sẽ được cập nhật sớm.")
                             </div>
                         </div>
                     </div>
@@ -198,4 +198,3 @@
         </div>
     </div>
 </section>
-<!-- Whats New End -->

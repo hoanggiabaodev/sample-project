@@ -22,7 +22,16 @@ namespace Web_ProjectName.Controllers
 
         public async Task<IActionResult> Detail(string metaUrl)
         {
-            return View();
+            if (string.IsNullOrEmpty(metaUrl))
+                return View(null);
+
+            var res = await _s_News.GetListByStatus(1);
+            var newsDetail = res.data?.FirstOrDefault(x => x.metaUrl == metaUrl);
+            var detail = await _s_News.GetById(null,newsDetail?.id ?? 0);
+            if (res == null || res.result != 1 || res.data == null)
+                return View(null);
+
+            return View(detail.data);
         }
 
         public async Task<IActionResult> Category(int id, int page = 1)

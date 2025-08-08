@@ -1,3 +1,12 @@
+function getMetaUrlFromPath() {
+    var path = window.location.pathname; // "/tin-tuc/some-meta-url"
+    var parts = path.split('/');
+    if (parts.length > 2 && parts[1] === 'tin-tuc') {
+        return parts[2];
+    }
+    return null;
+}
+
 function loadCategories() {
     if (typeof $ === 'undefined') {
         console.error('jQuery is not loaded yet');
@@ -58,7 +67,11 @@ function waitForJQuery() {
         $(document).ready(function() {
             loadCategories();
             loadFeaturedNews();
-            loadNewsList();  // Thêm dòng này
+            loadNewsList();
+            var metaUrl = getMetaUrlFromPath();
+            if (metaUrl) {
+                loadNewsDetail(metaUrl);
+            }
         });
     } else {
         setTimeout(waitForJQuery, 100);
@@ -67,12 +80,51 @@ function waitForJQuery() {
 
 waitForJQuery();
 
-// Helper function to format date
 function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN');
 }
+
+function loadNewsDetail(metaUrl) {
+    if (typeof $ === 'undefined') {
+        console.error('jQuery is not loaded yet');
+        return;
+    }
+
+    $.ajax({
+        url: '/New/GetDetail',
+        type: 'GET',
+        data: { metaUrl: metaUrl }, // truyền metaUrl thay vì id
+        dataType: 'json',
+        success: function (response) {
+            console.log('News detail response:', response);
+            $('#news-detail-container').empty();
+            if (response && response.result === 1 && response.data) {
+                var news = response.data;
+                var html = `
+                    <div class="news-detail">
+                        <h1>${news.name || ''}</h1>
+                        <div class="meta">
+                            <span>Ngày đăng: ${formatDate(news.publishedAt)}</span>
+                            <span style="margin-left: 16px;">Lượt xem: ${news.viewNumber || 0}</span>
+                        </div>
+                        <div class="description" style="margin: 16px 0; color: #555; font-size: 16px;">${news.description || ''}</div>
+                        <div class="content">${news.content || ''}</div>
+                    </div>
+                `;
+                $('#news-detail-container').html(html);
+            } else {
+                $('#news-detail-container').html('<p class="text-muted">Không tìm thấy tin tức</p>');
+            }
+        },
+        error: function (error) {
+            console.log('Error loading news detail:', error);
+            $('#news-detail-container').html('<p class="text-danger">Lỗi tải chi tiết tin tức</p>');
+        }
+    });
+}
+
 function loadFeaturedNews() {
     if (typeof $ === 'undefined') {
         console.error('jQuery is not loaded yet');
@@ -147,7 +199,7 @@ function loadNewsList() {
             
             if (response && response.result === 1 && response.data && Array.isArray(response.data)) {
                 response.data.forEach(function(news) {
-                    var imageUrl = '/images/OIP.webp';  // Đường dẫn tuyệt đối
+                    var imageUrl = '/images/OIP.webp';  
                     var categoryName = (news.newsCategoryObj && news.newsCategoryObj.name) ? news.newsCategoryObj.name : 'Tin tức';
                     var hotBadge = news.isHot ? '<span class="badge bg-danger ms-2" style="font-size: 10px;">Hot</span>' : '';
                     var publishedDate = news.publishedAt ? formatDate(news.publishedAt) : '';

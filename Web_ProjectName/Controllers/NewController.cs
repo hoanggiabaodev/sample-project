@@ -555,5 +555,23 @@ namespace Web_ProjectName.Controllers
                 return Json(new { uploaded = 0, error = new { message = "Lỗi khi upload file: " + ex.Message } });
             }
         }
+
+        [HttpGet]
+        public async Task<JsonResult> GetDetail(string metaUrl)
+        {
+            if (string.IsNullOrEmpty(metaUrl))
+                return Json(new { result = 0, message = "metaUrl is required" });
+
+            var res = await _s_News.GetListByStatus(1);
+            var filteredData = res.data?.FirstOrDefault(x => x.metaUrl == metaUrl);
+            if (filteredData != null)
+            {
+                return Json(new { result = 1, data = filteredData });
+            }
+            else
+            {
+                return Json(new { result = 0, message = "Not found" });
+            }
+        }
     }
 }
