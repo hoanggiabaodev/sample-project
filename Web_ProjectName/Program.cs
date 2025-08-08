@@ -91,6 +91,7 @@ builder.Services.AddSingleton<IS_NewsCategory, S_NewsCategory>();
 builder.Services.AddSingleton<IS_PartnerList, S_PartnerList>();
 builder.Services.AddSingleton<IS_Banner, S_Banner>();
 builder.Services.AddSingleton<IS_GoogleReCAPTCHA, S_GoogleReCAPTCHA>();
+builder.Services.AddScoped<IS_School, S_School>();
 
 builder.Services.Configure<Config_ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 builder.Services.Configure<Config_MetaSEO>(builder.Configuration.GetSection("MetaSEO"));
@@ -173,6 +174,11 @@ app.UseEndpoints(endpoints =>
         name: "New Category",
         pattern: "new-category",
         defaults: new { controller = "NewCategory", action = "Index" });
+
+    endpoints.MapControllerRoute(
+        name: "School Details",
+        pattern: "cong-ty/{id}",
+        defaults: new { controller = "School", action = "GetById" });
 
     endpoints.MapControllerRoute(
        name: "Error page",
