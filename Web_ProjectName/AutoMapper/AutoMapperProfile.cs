@@ -13,6 +13,7 @@ namespace Web_ProjectName.AutoMapper
         {
             #region Home
             CreateMap<M_SupplierOffice, EM_Supplier>();
+            CreateMap<M_News, EM_News>();
             CreateMap<M_Supplier, EM_Supplier>()
                 .ForMember(destination => destination.name,
                 options => options.MapFrom(source => source.addressObj.countryObj.name))

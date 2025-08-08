@@ -151,7 +151,7 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapControllerRoute(
         name: "News List",
-        pattern: "tin-tuc",
+        pattern: "/",
         defaults: new { controller = "News", action = "Index" });
 
     endpoints.MapControllerRoute(

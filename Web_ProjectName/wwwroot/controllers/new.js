@@ -298,7 +298,7 @@ function loadRelatedNews(metaUrl) {
                         <div class="col-md-6 col-lg-4">
                             <div class="card h-100 related-card" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: box-shadow 0.3s, transform 0.3s;">
                                 <a href="/tin-tuc/${item.metaUrl}" class="related-img-link" style="display:block; overflow:hidden;">
-                                    <img src="${item.imageObj?.mediumUrl || '/images/OIP.webp'}" class="card-img-top related-img" alt="${item.name}" style="height:170px; object-fit:cover; border-radius: 16px 16px 0 0; transition: transform 0.3s;">
+                                    <img src="/images/OIP.webp" class="card-img-top related-img" alt="${item.name}" style="height:170px; object-fit:cover; border-radius: 16px 16px 0 0; transition: transform 0.3s;">
                                 </a>
                                 <div class="card-body" style="padding: 16px 14px 12px 14px;">
                                     <h5 class="card-title mb-0" style="font-size:1.08rem; font-weight:600; line-height:1.4;">

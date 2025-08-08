@@ -75,7 +75,7 @@
                     <a href="/" class="nav-item nav-link @(Context.Request.Path == "/" ? "active" : "")"><i
                             class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                     <a href="/new"
-                        class="nav-item nav-link @((Context.Request.Path.StartsWithSegments("/tin-tuc") || Context.Request.Path.StartsWithSegments("/new")) ? "active" : "")"><i
+                        class="nav-item nav-link @((Context.Request.Path.StartsWithSegments("/new") || Context.Request.Path.StartsWithSegments("/new")) ? "active" : "")"><i
                             class="fa fa-newspaper me-2"></i>Tin tức</a>
                     <a href="/new-category"
                         class="nav-item nav-link @(Context.Request.Path.StartsWithSegments("/new-category") ? "active" : "")"><i
