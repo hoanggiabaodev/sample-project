@@ -5,34 +5,35 @@
     Layout = "_LayoutNews";
 }
 
-<!-- Trending Area Start -->
-<div class="trending-area fix">
+<!-- Trending Area Start (Modern, Clean) -->
+<div class="trending-area fix" style="background: #f6f8fa; padding: 0 0 30px 0;">
     <div class="container">
-        <div class="trending-main">
-            <div class="row">
-                <div class="col-lg-8">
-                    <!-- Trending Top -->
-                    <div class="trending-top mb-30">
-                        <div class="trend-top-img">
-                            @if (Model != null)
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-11">
+                <div class="news-detail-hero position-relative mb-4" style="border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07); background: #fff;">
+                    @if (Model != null)
+                    {
+                        <img src="@(Model.imageObj?.relativeUrl ?? "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80")" alt="@Model.name" style="width:100%; height:340px; object-fit:cover; display:block;">
+                    }
+                    else
+                    {
+                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80" alt="Chi tiết tin tức" style="width:100%; height:340px; object-fit:cover; display:block;">
+                    }
+                    <div class="p-4 pb-3">
+                        <span class="badge bg-primary mb-2 px-3 py-1" style="font-size:1rem;">@(Model?.newsCategoryObj?.name ?? "Tin tức")</span>
+                        <h1 class="fw-bold mb-2" style="font-size:2.1rem; color:#222;">@Model?.name ?? "Chi tiết tin tức"</h1>
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-2" style="font-size:1rem; color:#888;">
+                            <span><i class="fas fa-calendar-alt"></i> @Model?.publishedAt?.ToString("dd/MM/yyyy HH:mm")</span>
+                            <span><i class="fas fa-eye"></i> @(Model?.viewNumber ?? 0) lượt xem</span>
+                            @if (Model?.isHot == true)
                             {
-                                <img src="@(Model.imageObj?.relativeUrl ?? "~/template/aznews-master/assets/img/trending/trending_top.jpg")"
-                                    alt="@Model.name">
-                                <div class="trend-top-cap">
-                                    <span class="color1">@(Model.newsCategoryObj?.name ?? "Tin tức")</span>
-                                    <h4>@Model.name</h4>
-                                </div>
-                            }
-                            else
-                            {
-                                <img src="~/template/aznews-master/assets/img/trending/trending_top.jpg"
-                                    alt="Chi tiết tin tức">
-                                <div class="trend-top-cap">
-                                    <span class="color1">Tin tức</span>
-                                    <h4>Chi tiết tin tức</h4>
-                                </div>
+                                <span class="badge bg-danger"><i class="fas fa-fire"></i> Hot</span>
                             }
                         </div>
+                        @if (!string.IsNullOrEmpty(Model?.description))
+                        {
+                            <div class="text-secondary mb-1" style="font-size:1.1rem;">@Model.description</div>
+                        }
                     </div>
                 </div>
             </div>
@@ -42,156 +43,100 @@
 <!-- Trending Area End -->
 
 <!-- Whats New Start -->
-<section class="whats-news-area pt-50 pb-20">
+<section class="whats-news-area pt-2 pb-4">
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
                 @if (Model != null)
                 {
-                    <div class="single-news mb-100">
-                        <div class="news-img">
-                            <img src="@(Model.imageObj?.relativeUrl ?? "~/images/OIP.webp")"
-                                alt="@Model.name">
-                        </div>
-                        <div class="news-caption">
-                            <h3>@Model.name</h3>
-                            <div class="news-meta">
-                                <span class="color1">@(Model.newsCategoryObj?.name ?? "Tin tức")</span>
-                                <span class="color1">@Model.publishedAt?.ToString("dd/MM/yyyy HH:mm")</span>
-                                <span class="color1"><i class="fas fa-eye"></i> @(Model.viewNumber ?? 0) lượt xem</span>
-                                @if (Model.isHot)
-                                {
-                                    <span class="color1"><i class="fas fa-fire"></i> Hot</span>
-                                }
-                            </div>
-                            @if (!string.IsNullOrEmpty(Model.description))
-                            {
-                                <div class="news-description mb-4">
-                                    <p class="lead">@Model.description</p>
-                                </div>
-                            }
-                            <div class="news-content">
-                                @Html.Raw(Model.detail ?? "Nội dung chi tiết sẽ được cập nhật sớm.")
-                            </div>
-                        </div>
+                    <div class="news-content mb-4 p-4" style="background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); font-size:1.13rem; color:#222; line-height:1.7;">
+                        @Html.Raw(Model.detail ?? "Nội dung chi tiết sẽ được cập nhật sớm.")
                     </div>
-
-                    <!-- Share buttons -->
-                    <div class="social-share pt-30">
-                        <div class="section-tittle">
-                            <h3 class="mr-20">Chia sẻ bài viết:</h3>
-                            <ul>
-                                <li><a href="#"><img src="~/template/aznews-master/assets/img/news/icon-ins.png" alt=""></a>
-                                </li>
-                                <li><a href="#"><img src="~/template/aznews-master/assets/img/news/icon-fb.png" alt=""></a>
-                                </li>
-                                <li><a href="#"><img src="~/template/aznews-master/assets/img/news/icon-tw.png" alt=""></a>
-                                </li>
-                                <li><a href="#"><img src="~/template/aznews-master/assets/img/news/icon-yo.png" alt=""></a>
-                                </li>
-                            </ul>
+                    <!-- Related news (Modern) -->
+                    <div class="related-news mb-4">
+                        <div class="section-tittle mb-3">
+                            <h4 class="fw-bold">Tin tức liên quan</h4>
                         </div>
-                    </div>
-
-                    <!-- Related news -->
-                    <div class="related-news">
-                        <div class="section-tittle mb-30">
-                            <h3>Tin tức liên quan</h3>
-                        </div>
-                        <div class="row">
-                            <!-- Placeholder for related news -->
+                        <div class="row g-3">
                             <div class="col-md-6">
-                                <div class="single-what-news mb-100">
-                                    <div class="what-img">
-                                        <img src="~/template/aznews-master/assets/img/news/whatNews2.jpg" alt="">
-                                    </div>
-                                    <div class="what-cap">
-                                        <span class="color1">Tin tức</span>
-                                        <h4><a href="#">Tin tức liên quan 1</a></h4>
+                                <div class="card border-0 shadow-sm h-100" style="border-radius:12px;">
+                                    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="card-img-top" alt="Tin tức liên quan 1" style="border-radius:12px 12px 0 0; height:160px; object-fit:cover;">
+                                    <div class="card-body p-2">
+                                        <span class="badge bg-info mb-1">Tin tức</span>
+                                        <h6 class="card-title mb-0"><a href="#" class="text-decoration-none">Tin tức liên quan 1</a></h6>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="single-what-news mb-100">
-                                    <div class="what-img">
-                                        <img src="~/template/aznews-master/assets/img/news/whatNews3.jpg" alt="">
-                                    </div>
-                                    <div class="what-cap">
-                                        <span class="color1">Tin tức</span>
-                                        <h4><a href="#">Tin tức liên quan 2</a></h4>
+                                <div class="card border-0 shadow-sm h-100" style="border-radius:12px;">
+                                    <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=400&q=80" class="card-img-top" alt="Tin tức liên quan 2" style="border-radius:12px 12px 0 0; height:160px; object-fit:cover;">
+                                    <div class="card-body p-2">
+                                        <span class="badge bg-info mb-1">Tin tức</span>
+                                        <h6 class="card-title mb-0"><a href="#" class="text-decoration-none">Tin tức liên quan 2</a></h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <!-- Social share -->
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <span class="me-2">Chia sẻ:</span>
+                        <a href="#" title="Instagram"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width:28px;"></a>
+                        <a href="#" title="Facebook"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" style="width:28px;"></a>
+                        <a href="#" title="Twitter"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" style="width:28px;"></a>
+                        <a href="#" title="YouTube"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" style="width:28px;"></a>
                     </div>
                 }
                 else
                 {
-                    <div class="text-center">
-                        <h3>Không tìm thấy tin tức</h3>
-                        <p>Tin tức bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+                    <div class="alert alert-warning text-center p-5">
+                        <h3 class="mb-3">Không tìm thấy tin tức</h3>
+                        <p class="mb-4">Tin tức bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
                         <a href="/tin-tuc" class="btn btn-primary">Quay lại trang tin tức</a>
                     </div>
                 }
             </div>
-
-            <!-- Right Sidebar -->
+            <!-- Right Sidebar (Modern) -->
             <div class="col-lg-4">
-                <!-- Section Tittle -->
-                <div class="section-tittle mb-40">
-                    <h3>Tin Nổi Bật</h3>
-                </div>
-                <!-- Flow Socail -->
-                <div class="single-follow mb-23">
-                    <div class="single-box">
-                        <div class="follow-us d-flex align-items-center">
-                            <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-fb.png" alt=""></a>
-                            </div>
-                            <div class="follow-count">
-                                <span>8,045</span>
-                                <p>Fans</p>
-                            </div>
-                        </div>
-                        <div class="follow-us d-flex align-items-center">
-                            <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-tw.png" alt=""></a>
-                            </div>
-                            <div class="follow-count">
-                                <span>9,532</span>
-                                <p>Fans</p>
-                            </div>
-                        </div>
-                        <div class="follow-us d-flex align-items-center">
-                            <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-ins.png" alt=""></a>
-                            </div>
-                            <div class="follow-count">
-                                <span>7,541</span>
-                                <p>Fans</p>
-                            </div>
-                        </div>
-                        <div class="follow-us d-flex align-items-center">
-                            <div class="follow-social">
-                                <a href="#"><img src="~/template/aznews-master/assets/img/news/icon-yo.png" alt=""></a>
-                            </div>
-                            <div class="follow-count">
-                                <span>9,532</span>
-                                <p>Fans</p>
+                <div class="sticky-top" style="top:90px;">
+                    <div class="section-tittle mb-3">
+                        <h4 class="fw-bold">Tin Nổi Bật</h4>
+                    </div>
+                    <div class="card mb-3 border-0 shadow-sm" style="border-radius:12px;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=80&q=80" class="rounded-circle" style="width:54px;height:54px;object-fit:cover;" alt="Hot News">
+                            <div>
+                                <div class="fw-bold">Tin Nổi Bật 1</div>
+                                <div class="text-muted small">08/08/2025</div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- New Poster -->
-                <div class="news-poster d-flex align-items-center">
-                    <div class="poster--thumb">
-                        <a href="#"><img src="~/template/aznews-master/assets/img/news/news_card.jpg" alt=""></a>
+                    <div class="card mb-3 border-0 shadow-sm" style="border-radius:12px;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=80&q=80" class="rounded-circle" style="width:54px;height:54px;object-fit:cover;" alt="Hot News">
+                            <div>
+                                <div class="fw-bold">Tin Nổi Bật 2</div>
+                                <div class="text-muted small">07/08/2025</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="poster--content">
-                        <a href="#">
-                            <h5>Giải thưởng tin tức hàng năm</h5>
-                        </a>
-                        <p>@DateTime.Now.ToString("dd MMM yyyy")</p>
+                    <div class="card border-0 shadow-sm" style="border-radius:12px;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=80&q=80" class="rounded-circle" style="width:54px;height:54px;object-fit:cover;" alt="Hot News">
+                            <div>
+                                <div class="fw-bold">Tin Nổi Bật 3</div>
+                                <div class="text-muted small">06/08/2025</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mt-4 border-0 shadow-sm" style="border-radius:12px;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=80&q=80" class="rounded-circle" style="width:54px;height:54px;object-fit:cover;" alt="Hot News">
+                            <div>
+                                <div class="fw-bold">Tin Nổi Bật 4</div>
+                                <div class="text-muted small">05/08/2025</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

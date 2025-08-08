@@ -68,6 +68,7 @@ function waitForJQuery() {
             loadCategories();
             loadFeaturedNews();
             loadNewsList();
+            mostviewed();
             var metaUrl = getMetaUrlFromPath();
             if (metaUrl) {
                 loadNewsDetail(metaUrl);
@@ -233,5 +234,51 @@ function loadNewsList() {
             console.log('XHR response:', xhr.responseText);
             $('#news-list').html('<p class="text-danger">Lỗi tải tin tức</p>');
         }   
+    });
+}
+
+function mostviewed() {
+    if (typeof $ === 'undefined') {
+        console.error('jQuery is not loaded yet');
+        return;
+    }
+
+    $.ajax({
+        url: '/News/GetMostViewed',
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+            console.log('Most viewed response:', response);
+
+            if (response && response.result === 1 && Array.isArray(response.data)) {
+                const container = $('.most-recent-area');
+                container.find('.most-recent').remove(); // Xóa cũ
+
+                const top3 = response.data.slice(0, 3);
+                const imageUrl = '/images/OIP.webp'; // dùng chung ảnh hoặc lấy từ news.image nếu có
+
+                top3.forEach((news, index) => {
+                    const rank = String(index + 1).padStart(2, '0');
+                    const date = formatDate(news.publishedAt);
+                    const html = `
+                        <div class="most-recent mb-40">
+                            <div class="most-recent-img">
+                                <img src="${imageUrl}" alt="${news.name}">
+                                <div class="most-recent-cap">
+                                    <span class="bgbeg">${rank}</span>
+                                    <h4><a href="/tin-tuc/${news.metaUrl}">${news.name}</a></h4>
+                                    <p>${date}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    container.append(html);
+                });
+            } else {
+                console.log('Không có dữ liệu tin tức xem nhiều');
+            }
+        },
+        error: function (error) {
+            console.log('Error loading most viewed news:', error);
+        }
     });
 }

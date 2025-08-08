@@ -27,7 +27,7 @@ namespace Web_ProjectName.Controllers
 
             var res = await _s_News.GetListByStatus(1);
             var newsDetail = res.data?.FirstOrDefault(x => x.metaUrl == metaUrl);
-            var detail = await _s_News.GetById(null,newsDetail?.id ?? 0);
+            var detail = await _s_News.GetById(null, newsDetail?.id ?? 0);
             if (res == null || res.result != 1 || res.data == null)
                 return View(null);
 
@@ -43,5 +43,32 @@ namespace Web_ProjectName.Controllers
         {
             return View();
         }
+        // top 3 view most
+        [HttpGet]
+        public async Task<IActionResult> GetMostViewed()
+        {
+            var res = await _s_News.GetListByStatus(1);
+
+            if (res == null || res.result != 1 || res.data == null)
+            {
+                return Json(new
+                {
+                    result = 0,
+                    message = "Không lấy được dữ liệu"
+                });
+            }
+
+            var mostViewed = res.data
+                .OrderByDescending(x => x.viewNumber)
+                .Take(3)
+                .ToList();
+
+            return Json(new
+            {
+                result = 1,
+                data = mostViewed
+            });
+        }
+
     }
-} 
+}
