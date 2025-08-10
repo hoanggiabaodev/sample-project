@@ -5,13 +5,14 @@ namespace Web_ProjectName.Services
 {
     public interface IS_Contact
     {
-        Task<ResponseData<List<M_Contact>>> GetListBySequenceStatusSupplierIdProductIdFdateTdate(string accessToken, string sequenceStatus, string supplierId, int? productId, DateTime? fdate, DateTime? tdate);
-        Task<ResponseData<M_Contact>> GetById(string accessToken, int id);
-        Task<ResponseData<M_Contact>> Create(EM_Contact model, string createdBy);
-        Task<ResponseData<M_Contact>> Update(string accessToken, EM_Contact model, string updatedBy);
-        Task<ResponseData<M_Contact>> Delete(string accessToken, int id, string updatedBy);
-        Task<ResponseData<M_Contact>> UpdateStatus(string accessToken, int id, int status, string updatedBy);
-        Task<ResponseData<List<M_Contact>>> UpdateStatusList(string accessToken, string sequenceIds, int status, string updatedBy);
+    Task<ResponseData<List<M_Contact>>> GetListByStatusSchoolIdFdateTdate(string accessToken, int? status, int? schoolId, DateTime? fdate, DateTime? tdate);
+    Task<ResponseData<List<M_Contact>>> GetListBySequenceStatusSupplierIdProductIdFdateTdate(string accessToken, string sequenceStatus, string supplierId, int? productId, DateTime? fdate, DateTime? tdate);
+    Task<ResponseData<M_Contact>> GetById(string accessToken, int id);
+    Task<ResponseData<M_Contact>> Create(EM_Contact model, string createdBy);
+    Task<ResponseData<M_Contact>> Update(string accessToken, EM_Contact model, string updatedBy);
+    Task<ResponseData<M_Contact>> Delete(string accessToken, int id, string updatedBy);
+    Task<ResponseData<M_Contact>> UpdateStatus(string accessToken, int id, int status, string updatedBy);
+    Task<ResponseData<List<M_Contact>>> UpdateStatusList(string accessToken, string sequenceIds, int status, string updatedBy);
     }
     public class S_Contact : IS_Contact
     {
@@ -21,13 +22,24 @@ namespace Web_ProjectName.Services
             _callApi = callApi;
         }
 
+        public async Task<ResponseData<List<M_Contact>>> GetListByStatusSchoolIdFdateTdate(string accessToken, int? status, int? schoolId, DateTime? fdate, DateTime? tdate)
+        {
+            Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
+            {
+                {"status", status},
+                {"schoolId", schoolId},
+                {"fdate", fdate?.ToString("O")},
+                {"tdate", tdate?.ToString("O")},
+            };
+            return await _callApi.GetResponseDataAsync<List<M_Contact>>("Contact/GetListByStatusSchoolIdFdateTdate", dictPars, accessToken);
+        }
         public async Task<ResponseData<List<M_Contact>>> GetListBySequenceStatusSupplierIdProductIdFdateTdate(string accessToken, string sequenceStatus, string supplierId, int? productId, DateTime? fdate, DateTime? tdate)
         {
             Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
             {
                 {"sequenceStatus", sequenceStatus},
                 {"supplierId", supplierId},
-                {"productId", productId}, //-2: load all contact product; 0: load contact page; null: all
+                {"productId", productId},
                 {"fdate", fdate?.ToString("O")},
                 {"tdate", tdate?.ToString("O")},
             };
@@ -46,16 +58,16 @@ namespace Web_ProjectName.Services
             model = CleanXSSHelper.CleanXSSObject(model); //Clean XSS
             Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
             {
-                {"supplierId", model.supplierId},
-                {"productId", model.productId ?? 0},
-                {"name", model.name},
-                {"email", model.email},
-                {"phone", model.phone},
-                {"title", model.title},
-                {"detail", model.detail},
-                {"remark", model.remark},
-                {"status", model.status},
-                {"createdBy", string.IsNullOrEmpty(createdBy) ? 0 : createdBy},
+                {"Id", model.Id},
+                {"SchoolId", model.SchoolId},
+                {"Name", model.Name},
+                {"Email", model.Email},
+                {"Phone", model.Phone},
+                {"Title", model.Title},
+                {"Detail", model.Detail},
+                {"Remark", "ok"},
+                {"Status", 1},
+                {"createdBy", 1},
             };
             return await _callApi.PostResponseDataAsync<M_Contact>("Contact/Create", dictPars);
         }
@@ -64,17 +76,16 @@ namespace Web_ProjectName.Services
             model = CleanXSSHelper.CleanXSSObject(model); //Clean XSS
             Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
             {
-                {"id", model.id},
-                {"supplierId", model.supplierId},
-                {"productId", model.productId ?? 0},
-                {"name", model.name},
-                {"email", model.email},
-                {"phone", model.phone},
-                {"title", model.title},
-                {"detail", model.detail},
-                {"remark", model.remark},
-                {"status", model.status},
-                {"updatedBy", updatedBy},
+                {"Id", model.Id},
+                {"SchoolId", model.SchoolId},
+                {"Name", model.Name},
+                {"Email", model.Email},
+                {"Phone", model.Phone},
+                {"Title", model.Title},
+                {"Detail", model.Detail},
+                {"Remark", "ok"},
+                {"Status", 1},
+                {"updatedBy", 1},
             };
             return await _callApi.PutResponseDataAsync<M_Contact>("Contact/Update", dictPars, accessToken);
         }

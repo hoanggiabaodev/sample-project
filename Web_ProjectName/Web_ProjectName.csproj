@@ -25,4 +25,8 @@
 		<PackageReference Include="HtmlSanitizer" Version="8.0.865" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Views\NewFolder\" />
+	</ItemGroup>
+
 </Project>

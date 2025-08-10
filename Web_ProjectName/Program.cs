@@ -179,6 +179,11 @@ app.UseEndpoints(endpoints =>
         name: "School Details",
         pattern: "cong-ty/{id}",
         defaults: new { controller = "School", action = "GetById" });
+    
+    endpoints.MapControllerRoute(
+        name: "About",
+        pattern: "about",
+        defaults: new { controller = "School", action = "About" });
 
     endpoints.MapControllerRoute(
        name: "Error page",

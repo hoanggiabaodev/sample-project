@@ -1,4 +1,6 @@
-﻿namespace Web_ProjectName.Models.Common
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+#nullable disable
+namespace Web_ProjectName.Models.Common
 {
     public class M_BaseModel
     {
@@ -10,7 +12,9 @@
             public DateTime? updatedAt { get; set; }
             public int? updatedBy { get; set; }
             public DateTime? timer { get; set; }
+            [ValidateNever]
             public M_Account createdByObj { get; set; }
+            [ValidateNever]
             public M_Account updatedByObj { get; set; }
         }
         public class ImageCustom

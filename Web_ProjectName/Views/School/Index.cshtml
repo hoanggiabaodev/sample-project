@@ -5,7 +5,43 @@
 
 <!-- Add Bootstrap Icons CDN if not already included -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
+<style>
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    .text-purple {
+        color: #6f42c1 !important;
+    }
+    
+    .bg-outline-secondary {
+        background-color: transparent !important;
+        border: 1px solid #6c757d !important;
+    }
+    
+    .text-warning-emphasis {
+        color: #997404 !important;
+    }
+    
+    .text-info-emphasis {
+        color: #055160 !important;
+    }
+    
+    @@media (max-width: 768px) {
+        .display-6 {
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+    }
+</style>
 <div class="container mt-4 mb-5">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
@@ -202,41 +238,139 @@
         </div>
     </div>
 </div>
+<!-- Contact Form -->
+<div class="row mt-4">
+    <div class="col-12 col-xl-10 offset-xl-1">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0 d-flex align-items-center">
+                    <i class="bi bi-envelope-paper text-primary me-2"></i>
+                    Liên hệ ngay
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="contactForm">
+                    <input type="hidden" name="schoolId" value="@Model.id" />
 
-<style>
-    .card {
-        transition: all 0.3s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-    }
-    
-    .text-purple {
-        color: #6f42c1 !important;
-    }
-    
-    .bg-outline-secondary {
-        background-color: transparent !important;
-        border: 1px solid #6c757d !important;
-    }
-    
-    .text-warning-emphasis {
-        color: #997404 !important;
-    }
-    
-    .text-info-emphasis {
-        color: #055160 !important;
-    }
-    
-    @@media (max-width: 768px) {
-        .display-6 {
-            font-size: 1.5rem;
+                    <input type="hidden" name="Remark" value="" />
+                    <input type="hidden" name="Status" value="1" />
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" placeholder="Nhập họ và tên" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="Nhập email">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="Nhập số điện thoại">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tiêu đề</label>
+                        <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung chi tiết</label>
+                        <textarea name="detail" rows="4" class="form-control" placeholder="Nhập nội dung liên hệ"></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i> Gửi liên hệ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@* <script>
+$(function () {
+    $("#contactForm").on("submit", function (e) {
+        e.preventDefault();
+
+        let form = $(this);
+
+        // Lấy dữ liệu từ form, với các trường không có thì gán mặc định
+        let params = {
+            Id: "0", // bạn có thể thay bằng giá trị phù hợp
+            SchoolId: form.find("[name='schoolId']").val() || "1",
+            Name: form.find("[name='name']").val() || "",
+            Email: form.find("[name='email']").val() || "",
+            Phone: form.find("[name='phone']").val() || "",
+            Title: form.find("[name='title']").val() || "",
+            Detail: form.find("[name='detail']").val() || "",
+            Remark: "",    // form không có input remark nên để rỗng
+            Status: "1"   // mặc định status = 1
+        };
+
+        // Chuyển params thành query string encode đúng
+        let queryString = $.param(params);
+
+        let apiUrl = "https://api-intern-test.ecotech2a.com/Contact/Create?" + queryString;
+
+        $.ajax({
+            url: apiUrl,
+            type: "POST", // API đang dùng GET với query params
+            dataType: "json",
+            success: function (res) {
+                if (res.result === 1) {
+                    alert(res.error.message || "Gửi liên hệ thành công!");
+                    form[0].reset();
+                } else {
+                    alert("Lỗi từ API: " + (res.error?.message || "Không xác định"));
+                }
+            },
+            error: function () {
+                alert("Có lỗi xảy ra khi gửi dữ liệu!");
+            }
+        });
+    });
+});
+</script> *@
+<script>
+$(function () {
+    $("#contactForm").on("submit", function (e) {
+        e.preventDefault();
+
+        let form = $(this);
+        let formData = form.serialize(); // serialize form inputs
+
+    // Chỉ bổ sung các trường cần thiết
+    let extraQuery = $.param({ Remark: "", Status: "1" });
+
+        // Nếu formData có dữ liệu thì nối thêm &, nếu không thì chỉ gán extraQuery
+        if (formData.length > 0) {
+            formData += "&" + extraQuery;
+        } else {
+            formData = extraQuery;
         }
-        
-        .card-body {
-            padding: 1rem;
-        }
-    }
-</style>
+
+        $.ajax({
+            url: "/School/Create",
+            type: "POST",
+            data: formData,
+            success: function (res) {
+                alert("Gửi thành công!");
+                form[0].reset();
+            },
+            error: function (xhr) {
+                let message = "Có lỗi xảy ra khi gửi dữ liệu!";
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    message = "Lỗi validation:\n" + xhr.responseJSON.errors.join("\n");
+                } else if (xhr.responseText) {
+                    message = "Lỗi server: " + xhr.responseText;
+                }
+                alert(message);
+            }
+        });
+    });
+});
+</script>
+

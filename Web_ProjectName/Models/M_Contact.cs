@@ -5,38 +5,65 @@ namespace Web_ProjectName.Models
 {
     public class M_Contact : M_BaseModel.BaseCustom
     {
-        public int? id { get; set; }
-        public int? supplierId { get; set; }
-        public int? productId { get; set; }
-        public string name { get; set; }
-        public string email { get; set; }
-        public string phone { get; set; }
-        public string title { get; set; }
-        public string detail { get; set; }
-        public string remark { get; set; }
-        public M_Product productObj { get; set; }
+        // New schema (PascalCase)
+        public int? Id { get; set; }
+        public int? SchoolId { get; set; }
+        public int? ProductId { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Title { get; set; }
+        public string Detail { get; set; }
+        public string Remark { get; set; }
+        public int? Status { get; set; }
+
+        // Backward-compatible aliases (camelCase/legacy names)
+        public int? id { get => Id; set => Id = value; }
+        public int? supplierId { get => SchoolId; set => SchoolId = value; }
+        public int? productId { get => ProductId; set => ProductId = value; }
+        public string name { get => Name; set => Name = value; }
+        public string email { get => Email; set => Email = value; }
+        public string phone { get => Phone; set => Phone = value; }
+        public string title { get => Title; set => Title = value; }
+        public string detail { get => Detail; set => Detail = value; }
+        public string remark { get => Remark; set => Remark = value; }
+        public int? status { get => Status; set => Status = value; }
     }
+
     public class EM_Contact : M_BaseModel.BaseCustom
     {
-        public int? id { get; set; }
-        public int? supplierId { get; set; }
-        public int? productId { get; set; }
+        // New schema (PascalCase)
+        public int? Id { get; set; }
+        public int? SchoolId { get; set; }
+        public int? ProductId { get; set; }
         [Required(ErrorMessage = "Tên không được để trống!")]
         [StringLength(50, ErrorMessage = "Tên tối đa 50 ký tự!")]
-        public string name { get; set; }
+        public string? Name { get; set; }
         [DataType(DataType.EmailAddress)]
         [StringLength(100, ErrorMessage = "Email tối đa 100 ký tự!")]
-        public string email { get; set; }
+        public string? Email { get; set; }
         [Required(ErrorMessage = "Điện thoại không được để trống!")]
         [StringLength(20, ErrorMessage = "Điện thoại tối đa 20 ký tự!")]
-        public string phone { get; set; }
+        public string? Phone { get; set; }
         [StringLength(100, ErrorMessage = "Tiêu đề tối đa 100 ký tự!")]
-        public string title { get; set; }
+        public string? Title { get; set; }
         [Required(ErrorMessage = "Nội dung không được để trống!")]
         [StringLength(500, ErrorMessage = "Nội dung tối đa 500 ký tự!")]
-        public string detail { get; set; }
+        public string? Detail { get; set; }
         [StringLength(150, ErrorMessage = "Ghi chú tối đa 150 ký tự!")]
-        public string remark { get; set; }
-        public M_Product productObj { get; set; }
+        public string? Remark { get; set; }
+        public int? Status { get; set; }
+
+        // Backward-compatible aliases (camelCase/legacy names)
+        public int? id { get => Id; set => Id = value; }
+        public int? supplierId { get => SchoolId; set => SchoolId = value; }
+        public int? productId { get => ProductId; set => ProductId = value; }
+        public string name { get => Name; set => Name = value; }
+        public string email { get => Email; set => Email = value; }
+        public string phone { get => Phone; set => Phone = value; }
+        public string title { get => Title; set => Title = value; }
+        public string detail { get => Detail; set => Detail = value; }
+        public string remark { get => Remark; set => Remark = value; }
+        public int? status { get => Status; set => Status = value; }
     }
 }
