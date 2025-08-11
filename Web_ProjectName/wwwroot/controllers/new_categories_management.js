@@ -276,7 +276,7 @@ function displayCategoryDetails(category) {
         <div class="card-header d-flex align-items-center bg-inverse bg-opacity-10 fw-400">
           Thông tin
           <div class="ms-auto">
-            <a href="javascript:void(0)" class="text-decoration-none text-danger fw-bold ms-2" onclick="confirmDeleteCategory(${
+            <a href="javascript:void(0)" class="text-decoration-none text-danger fw-bold ms-2" onclick="deleteCategory(${
               category.id
             })">
               Xóa <i class="fas fa-fw me-1 fa-trash"></i>
@@ -378,6 +378,7 @@ function confirmDelete() {
       if (response.result === 1) {
         showToast("success", "Thành công", "Đã xóa danh mục thành công");
         $("#deleteCategoryModal").modal("hide");
+        $("#viewCategoryModal").modal("hide");
         categoriesDataTable.ajax.reload();
       } else {
         showToast(
