@@ -194,36 +194,35 @@
 
 <div class="mt-4 bg-gray-50 min-h-[calc(100vh-120px)]">
     <div class="bg-white rounded-lg p-6">
-        <div class="filter-section d-flex flex-wrap align-items-end">
-            <div class="d-flex flex-column flex-grow-1">
-                <label class="filter-label mb-1">Danh mục</label>
-                <select class="form-select" id="categoryFilter">
-                    <option value="">Danh mục tin tức</option>
-                    <option value="1">Quân sự</option>
-                    <option value="0">Giải trí</option>
-                </select>
-            </div>
+        <div class="filter-section d-flex flex-wrap align-items-end" style="gap: 8px;">
+    <div class="d-flex flex-column" style="min-width: 150px;">
+        <label class="filter-label mb-1">Danh mục</label>
+        <select class="form-select" id="categoryFilter">
+            <option value="">Danh mục tin tức</option>
+            <option value="1">Quân sự</option>
+            <option value="0">Giải trí</option>
+        </select>
+    </div>
+    <div class="d-flex flex-column" style="min-width: 220px;">
+        <label class="filter-label mb-1">Trạng thái</label>
+        <select class="form-select" id="statusFilter">
+            <option value="">Tất cả trạng thái</option>
+            <option value="1">Hoạt động</option>
+            <option value="0">Không hoạt động</option>
+        </select>
+    </div>
+    <div class="d-flex flex-column justify-content-end">
+        <button type="button" class="btn rounded-2 px-2 d-flex align-items-center gap-2"
+            id="btnSearch"
+            style="font-size: 14px; height: 38px; transition: all 0.3s ease; background-color: #fff; color: #198754; border: 1px solid #198754;"
+            onmouseover="this.style.backgroundColor='#198754'; this.style.color='#fff'; this.style.borderColor='#198754';"
+            onmouseout="this.style.backgroundColor='#fff'; this.style.color='#198754'; this.style.borderColor='#198754';">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</div>
 
-            <div class="d-flex flex-column flex-grow-1">
-                <label class="filter-label mb-1">Trạng thái</label>
-                <select class="form-select" id="statusFilter">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="1">Hoạt động</option>
-                    <option value="0">Không hoạt động</option>
-                </select>
-            </div>
 
-            <div>
-                <button type="button" class="btn btn-success rounded-2 px-4 py-1 d-flex align-items-center gap-2"
-                    id="btnSearch"
-                    style="font-size: 14px; transition: all 0.3s ease; background-color: #fff; color: #198754; border: 1px solid #198754;"
-                    onmouseover="this.style.backgroundColor='#198754'; this.style.color='#fff'; this.style.borderColor='#198754';"
-                    onmouseout="this.style.backgroundColor='#fff'; this.style.color='#198754'; this.style.borderColor='#198754';">
-                    <i class="fa fa-search"></i>
-                </button>
-
-            </div>
-        </div>
 
         <div class="table-wrapper rounded border overflow-hidden p-3">
             <table class="table-custom" id="categoriesDataTable">
@@ -367,7 +366,7 @@
             year: 'numeric'
         });
 
-        const timePart = now.toLocaleTimeString('en-US', {  
+        const timePart = now.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
