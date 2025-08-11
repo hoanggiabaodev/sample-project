@@ -1,3 +1,21 @@
+function showEditForm() {
+  $("#div_view_panel").hide();
+  $("#div_edit_panel").show();
+}
+
+function hideEditForm() {
+  $("#div_edit_panel").hide();
+  $("#div_view_panel").show();
+}
+
+$(document).on("submit", "#div_edit_panel #editCategoryForm", function (e) {
+  e.preventDefault();
+  hideEditForm();
+});
+
+$(document).on("click", "#div_edit_panel .btn-secondary", function () {
+  hideEditForm();
+});
 let categoriesDataTable;
 let currentDeleteId = null;
 
@@ -20,7 +38,9 @@ async function loadCategoryFilter() {
       var $cat = $("#categoryFilter");
       $cat.empty().append('<option value="">Tất cả danh mục</option>');
       response.data.forEach(function (item) {
-        $cat.append('<option value="' + item.id + '">' + item.name + "</option>");
+        $cat.append(
+          '<option value="' + item.id + '">' + item.name + "</option>"
+        );
       });
       $cat.trigger("change");
     }
@@ -96,11 +116,14 @@ function bindEvents() {
   });
 
   $("#categoryFilter").change(function () {
-      var selectedText = $(this).find('option:selected').text();
+    var selectedText = $(this).find("option:selected").text();
     if (!$(this).val()) {
-      categoriesDataTable.column(2).search('').draw();
+      categoriesDataTable.column(2).search("").draw();
     } else {
-      categoriesDataTable.column(2).search('^' + selectedText + '$', true, false).draw();
+      categoriesDataTable
+        .column(2)
+        .search("^" + selectedText + "$", true, false)
+        .draw();
     }
   });
 }
@@ -248,53 +271,75 @@ async function viewCategory(id) {
 
 function displayCategoryDetails(category) {
   let content = `
-        <div class="row">
-            <div class="col-md-8">
-                <h4>${category.name}</h4>
-                <div class="mb-3">
-                    <strong>URL Meta:</strong> <code>${
-                      category.metaUrl || generateMetaUrl(category.name)
-                    }</code>
-                </div>
-                <div class="mb-3">
-                    <strong>Trạng thái:</strong> ${getStatusBadge(
-                      category.status
-                    )}
-                </div>
-                <div class="mb-3">
-                    <strong>Ngày tạo:</strong> ${formatDate(category.createdAt)}
-                </div>
-                <div class="mb-3">
-                    <strong>Cập nhật lần cuối:</strong> ${formatDate(
-                      category.updatedAt
-                    )}
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">Thống kê</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-2">
-                            <span>Số tin tức:</span>
-                            <span class="badge bg-primary float-end">0</span>
-                        </div>
-                        <div class="mb-2">
-                            <span>Tổng lượt xem:</span>
-                            <span class="badge bg-info float-end">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div id="categoryDetailContainer">
+      <div class="card mb-4">
+        <div class="card-header d-flex align-items-center bg-inverse bg-opacity-10 fw-400">
+          Thông tin
+          <div class="ms-auto">
+            <a href="javascript:void(0)" class="text-decoration-none text-danger fw-bold ms-2" onclick="confirmDeleteCategory(${
+              category.id
+            })">
+              Xóa <i class="fas fa-fw me-1 fa-trash"></i>
+            </a>
+            <a href="javascript:void(0)" class="text-decoration-none text-success fw-bold ms-2" onclick="editCategory(${
+              category.id
+            })">
+              Sửa <i class="fas fa-fw me-1 fa-edit"></i>
+            </a>
+          </div>
         </div>
-    `;
+        <div class="card-body">
+          <table class="table table-borderless table-striped table-sm m-0">
+            <tbody>
+              <tr>
+                <td class="w-150px fw-bold">Tên danh mục</td>
+                <td>${category.name}</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">URL Meta</td>
+                <td>${category.metaUrl || generateMetaUrl(category.name)}</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Trạng thái</td>
+                <td>${getStatusBadge(category.status)}</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Ngày tạo</td>
+                <td>${formatDate(category.createdAt)}</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Cập nhật lần cuối</td>
+                <td>${formatDate(category.updatedAt)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header d-flex align-items-center bg-inverse bg-opacity-10 fw-400">
+          Thống kê
+        </div>
+        <div class="card-body">
+          <div class="mb-2">
+            <span>Số tin tức:</span>
+            <span class="badge bg-primary float-end" id="stat_newsCount">0</span>
+          </div>
+          <div class="mb-2">
+            <span>Tổng lượt xem:</span>
+            <span class="badge bg-info float-end" id="stat_viewCount">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
   $("#viewCategoryContent").html(content);
   $("#viewCategoryModal").modal("show");
 }
 
 async function editCategory(id) {
+  window._currentEditingCategoryId = id;
   try {
+    $("#viewCategoryModal").modal("hide");
     const response = await CategoryApi.getById(id);
     const result = ApiUtils.handleResponse(
       response,
@@ -392,10 +437,29 @@ async function updateCategory() {
       $("#editCategoryModal").modal("hide");
       categoriesDataTable.ajax.reload();
       resetEditForm();
+      // Show detail modal again with updated data
+      if (window._currentEditingCategoryId) {
+        setTimeout(function () {
+          viewCategory(window._currentEditingCategoryId);
+        }, 400);
+      }
     }
   } catch (error) {
     ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
   }
+  // Handle cancel button in edit modal: close edit modal and reopen detail modal
+  $(document).ready(function () {
+    $("#editCategoryModal .btn-secondary")
+      .off("click.editCancel")
+      .on("click.editCancel", function () {
+        $("#editCategoryModal").modal("hide");
+        if (window._currentEditingCategoryId) {
+          setTimeout(function () {
+            viewCategory(window._currentEditingCategoryId);
+          }, 400);
+        }
+      });
+  });
 }
 
 function buildAddFormData() {
