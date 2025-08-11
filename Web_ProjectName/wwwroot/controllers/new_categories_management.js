@@ -8,13 +8,25 @@ $(document).ready(function () {
 });
 
 function initializeComponents() {
-  // Check if Select2 is available before initializing
-  if (typeof $.fn.select2 !== "undefined") {
-    initializeSelect2();
-  } else {
-    console.warn("Select2 not loaded, skipping Select2 initialization");
-  }
+  initializeSelect2();
   initializeDatepicker();
+  loadCategoryFilter();
+}
+
+async function loadCategoryFilter() {
+  try {
+    const response = await CategoryApi.getList();
+    if (response && response.result === 1 && Array.isArray(response.data)) {
+      var $cat = $("#categoryFilter");
+      $cat.empty().append('<option value="">Tất cả danh mục</option>');
+      response.data.forEach(function (item) {
+        $cat.append('<option value="' + item.id + '">' + item.name + "</option>");
+      });
+      $cat.trigger("change");
+    }
+  } catch (e) {
+    console.error("Không thể load danh mục:", e);
+  }
 }
 
 function initializeSelect2() {
@@ -79,13 +91,17 @@ function bindEvents() {
   $("#addCategoryModal").on("hidden.bs.modal", resetAddForm);
   $("#editCategoryModal").on("hidden.bs.modal", resetEditForm);
 
-  // Status filter change
   $("#statusFilter").change(function () {
     categoriesDataTable.ajax.reload();
   });
 
   $("#categoryFilter").change(function () {
-    categoriesDataTable.ajax.reload();
+      var selectedText = $(this).find('option:selected').text();
+    if (!$(this).val()) {
+      categoriesDataTable.column(2).search('').draw();
+    } else {
+      categoriesDataTable.column(2).search('^' + selectedText + '$', true, false).draw();
+    }
   });
 }
 
@@ -125,8 +141,8 @@ function initializeDataTable() {
       {
         data: "id",
         width: "5%",
-    render: function (data, type, row) {
-      return `<div class="d-flex justify-content-center align-items-center text-center" style="height: 100%;">
+        render: function (data, type, row) {
+          return `<div class="d-flex justify-content-center align-items-center text-center" style="height: 100%;">
           <button type="button" class="btn btn-sm btn-outline-success d-flex justify-content-center align-items-center" onclick="viewCategory(${data})" title="Xem">
             <i class="fas fa-search"></i>
           </button>
@@ -134,19 +150,17 @@ function initializeDataTable() {
         },
       },
       {
-        data: "id",
+        data: null,
         width: "8%",
-        render: function (data) {
-          return `<div class="text-center">${data}</div>`;
-        }
+        render: function (data, type, row, meta) {
+          return `<div class="text-center">${meta.row + 1}</div>`;
+        },
       },
       {
         data: "name",
-        width: "25%",
+        width: "20%",
         render: function (data, type, row) {
-          return `<div class="text-center">
-                        <strong>${data}</strong>
-                    </div>`;
+          return `<div class="text-center">${data}</div>`;
         },
       },
       {
@@ -177,14 +191,18 @@ function initializeDataTable() {
         data: "createdAt",
         width: "15%",
         render: function (data, type, row) {
-          return `<div class="text-center">${data ? formatDate(data) : "-"}</div>`;
+          return `<div class="text-center">${
+            data ? formatDate(data) : "-"
+          }</div>`;
         },
       },
       {
         data: "updatedAt",
         width: "15%",
         render: function (data, type, row) {
-          return `<div class="text-center">${data ? formatDate(data) : "-"}</div>`;
+          return `<div class="text-center">${
+            data ? formatDate(data) : "-"
+          }</div>`;
         },
       },
     ],
