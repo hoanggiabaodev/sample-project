@@ -148,27 +148,27 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllerRoute(
         name: "Product Detail",
         pattern: "san-pham/{metaUrl}",
-        defaults: new { controller = "Product", action = "ViewDetail" });
+        defaults: new { controller = "Product", action = "Detail" });
 
     endpoints.MapControllerRoute(
         name: "News List",
         pattern: "/",
-        defaults: new { controller = "News", action = "Index" });
+        defaults: new { controller = "Home", action = "Index" });
 
     endpoints.MapControllerRoute(
         name: "News Detail",
         pattern: "tin-tuc/{metaUrl}",
-        defaults: new { controller = "News", action = "Detail" });
+        defaults: new { controller = "Home", action = "Detail" });
 
     endpoints.MapControllerRoute(
         name: "News Category",
         pattern: "tin-tuc/danh-muc/{id}",
-        defaults: new { controller = "News", action = "Category" });
+        defaults: new { controller = "Home", action = "Category" });
 
     endpoints.MapControllerRoute(
         name: "News Latest",
         pattern: "tin-tuc/moi-nhat",
-        defaults: new { controller = "News", action = "Latest" });
+        defaults: new { controller = "Home", action = "Latest" });
 
     endpoints.MapControllerRoute(
         name: "New Category",

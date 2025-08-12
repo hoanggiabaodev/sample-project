@@ -265,7 +265,7 @@ function mostviewed() {
     }
 
     $.ajax({
-        url: '/News/GetMostViewed',
+        url: '/Home/GetMostViewed',
         type: 'GET',
         dataType: 'json',
         success: function (response) {
@@ -306,7 +306,7 @@ function mostviewed() {
 
 function loadRelatedNews(metaUrl) {
     $.ajax({
-        url: '/News/GetRelatedNews',
+        url: '/Home/GetRelatedNews',
         type: 'GET',
         data: { metaUrl: metaUrl },
         success: function (res) {
@@ -354,7 +354,7 @@ function loadRelatedNews(metaUrl) {
             }
         },
         error: function (err) {
-            console.log('Error when calling /News/GetRelatedNews:', err);
+            console.log('Error when calling /Home/GetRelatedNews:', err);
         }
     });
 }

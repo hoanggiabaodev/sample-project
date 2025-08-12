@@ -1,49 +1,99 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Web_ProjectName.Models;
+using Microsoft.AspNetCore.Mvc;
 using Web_ProjectName.Services;
-using Web_ProjectName.Lib;
+using Web_ProjectName.Models;
 
 namespace Web_ProjectName.Controllers
 {
     public class HomeController : BaseController<HomeController>
     {
-        private readonly IS_Product _s_Product;
-        private readonly IS_Product _s_News;
-        private readonly IOptions<Config_MetaSEO> _metaSEO;
+        private readonly IS_News _s_News;
+        private readonly IS_NewsCategory _s_NewsCategory;
 
-        public HomeController(IS_Product product, IS_Product news, IOptions<Config_MetaSEO> metaSEO)
+        public HomeController(IS_News s_News, IS_NewsCategory s_NewsCategory)
         {
-            _s_Product = product;
-            _s_News = news;
-            _metaSEO = metaSEO;
+            _s_News = s_News;
+            _s_NewsCategory = s_NewsCategory;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int? categoryId = null, string? keyword = null)
         {
-            Task task1 = GetListProduct();
-            await Task.WhenAll(task1);
-            ExtensionMethods.SetViewDataSEOExtensionMethod.SetViewDataSEODefaultAll(this, _metaSEO.Value.Home);
             return View();
         }
 
-        [HttpGet]
-        public async Task GetListProduct()
+        public async Task<IActionResult> Detail(string metaUrl)
         {
-            var res = await _s_Product.GetListByPaging("1", _supplierId, "1", default, EN_TypeSearchProduct.Hot, 1, 2);
-            if (res.result == 1 && res.data != null)
-            {
-                ViewBag.ListIntroduce = res.data;
-                //Đây là code để mô tả việc mapper, chỉ minh họa
-                //ViewBag.ListIntroduce = res.data != null ? _mapper.Map<List<VM_IntroduceHome>>(res.data) : new List<VM_IntroduceHome>();
-            }
+            if (string.IsNullOrEmpty(metaUrl))
+                return View(null);
+
+            var res = await _s_News.GetListByStatus(1);
+            var newsDetail = res.data?.FirstOrDefault(x => x.metaUrl == metaUrl);
+            var detail = await _s_News.GetById(null, newsDetail?.id ?? 0);
+            if (res == null || res.result != 1 || res.data == null)
+                return View(null);
+
+            return View(detail.data);
         }
 
-        [HttpGet]
-        public async Task<JsonResult> GetListProductByAjax(string supplierId)
+        public async Task<IActionResult> Category(int id, int page = 1)
         {
-            var res = await _s_Product.GetListByPaging("1", _supplierId, "1", default, EN_TypeSearchProduct.Hot, 1, 2);
-            return Json(new M_JResult(res));
+            return View();
         }
+
+        public async Task<IActionResult> Latest(int page = 1)
+        {
+            return View();
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetMostViewed()
+        {
+            var res = await _s_News.GetListByStatus(1);
+
+            if (res == null || res.result != 1 || res.data == null)
+            {
+                return Json(new
+                {
+                    result = 0,
+                    message = "Không lấy được dữ liệu"
+                });
+            }
+
+            var mostViewed = res.data
+                .OrderByDescending(x => x.viewNumber)
+                .Take(3)
+                .ToList();
+
+            return Json(new
+            {
+                result = 1,
+                data = mostViewed
+            });
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetRelatedNews(string metaUrl)
+        {
+            var res = await _s_News.GetListByStatus(1);
+            var newsDetail = res.data?.FirstOrDefault(x => x.metaUrl == metaUrl);
+
+            if (newsDetail == null || res.data == null)
+            {
+                return Json(new
+                {
+                    result = 0,
+                    message = "Không tìm thấy bài viết"
+                });
+            }
+
+            var relatedNews = res.data
+                .Where(x => x.newsCategoryId == newsDetail.newsCategoryId && x.id != newsDetail.id)
+                // .Take(2)
+                .ToList();
+
+            return Json(new
+            {
+                result = 1,
+                data = relatedNews
+            });
+        }
+
     }
 }
