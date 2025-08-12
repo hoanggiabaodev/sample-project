@@ -1,3 +1,78 @@
+<style>
+    #viewNewsModal .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    #viewNewsModal .modal-content {
+        max-height: 90vh;
+    }
+
+    #viewNewsModal .modal-dialog {
+        max-width: 90%;
+        margin: 1.75rem auto;
+    }
+
+    #viewNewsContent {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    #viewNewsModal .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #viewNewsModal .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    #viewNewsModal .modal-body::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+
+    #viewNewsModal .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    #btn-edit:hover {
+        background-color: #2b8ef1;
+    }
+
+    .swal2-cancel {
+        margin-right: 10px;
+    }
+
+    #btnDeleteNew, .swal2-confirm:hover {
+        color: white;
+        background-color: red;
+    }
+
+    #btnClose, .swal2-cancel:hover {
+        background-color: #a8a8a8;
+    }
+
+    /* Đảm bảo modal có z-index cao hơn */
+    #viewNewsModal {
+        z-index: 1055 !important;
+    }
+
+    #viewNewsModal .modal-backdrop {
+        z-index: 1054 !important;
+    }
+
+    /* Đảm bảo iziToast hiển thị trên cùng */
+    .iziToast {
+        z-index: 9999 !important;
+    }
+
+    .iziToast-overlay {
+        z-index: 9998 !important;
+    }
+</style>
+
 <div class="modal fade" id="viewNewsModal" tabindex="-1" aria-labelledby="viewNewsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -14,8 +89,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="btnClose" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>

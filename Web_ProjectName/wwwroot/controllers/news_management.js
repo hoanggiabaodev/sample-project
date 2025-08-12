@@ -244,13 +244,10 @@ function initializeDataTable() {
       {
         data: "imageObj",
         width: "15%",
-        render: function (data, type, row) {
-          if (data && data.relativeUrl) {
-            return `<div class="text-center">
-                            <img src="${data.relativeUrl}" class="img-thumbnail" style="width: 60px; height: 40px; object-fit: cover;">
-                        </div>`;
-          }
-          return '<div class="text-center text-muted">-</div>';
+        render: function () {
+          return `<div class="text-center">
+                    <img src="images/demo_images.webp" class="img-thumbnail" style="width: 60px; height: 40px; object-fit: cover;">
+                  </div>`;
         },
       },
       {
@@ -314,7 +311,7 @@ function initializeDataTable() {
                         <button type="button" class="btn btn-sm btn-outline-warning" onclick="editNews(${data})" title="Chỉnh sửa">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteNews(${data})" title="Xóa">
+                        <button id="btnDeleteNew" type="button" class="btn btn-sm btn-outline-danger" onclick="deleteNews(${data})" title="Xóa">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>`,
@@ -363,12 +360,22 @@ async function viewNews(id) {
 function displayNewsDetails(news) {
   let content = `
         <div class="row">
+            <div class="mt-3 d-flex justify-content-end gap-2">
+              <button id="btn-edit" type="button" class="btn btn-primary" onclick="editNews(${
+                news.id
+              })">
+                  <i class="fas fa-edit"></i> Chỉnh sửa
+              </button>
+              <button id="btnDeleteNew" type="button" class="btn btn-danger" onclick="deleteNews(${
+                news.id
+              })">
+                  <i class="fas fa-trash"></i> Xóa
+              </button>
+            </div>
             <div class="col-md-4">
-                ${
-                  news.imageObj?.relativeUrl
-                    ? `<img src="${news.imageObj.relativeUrl}" class="img-fluid rounded" alt="${news.name}">`
-                    : '<div class="bg-light text-center p-4"><i class="fas fa-image fa-3x text-muted"></i></div>'
-                }
+                <img src="images/demo_images.webp" class="img-fluid rounded" alt="${
+                  news.name
+                }">
             </div>
             <div class="col-md-8">
                 <h4>${news.name}</h4>
@@ -402,6 +409,7 @@ function displayNewsDetails(news) {
                 ${news.detail || "Không có nội dung chi tiết"}
             </div>
         </div>
+        <hr>
     `;
   $("#viewNewsContent").html(content);
   $("#viewNewsModal").modal("show");
@@ -409,6 +417,8 @@ function displayNewsDetails(news) {
 
 async function editNews(id) {
   try {
+    $("#viewNewsModal").modal("hide");
+
     const response = await NewsApi.getById(id);
     const result = ApiUtils.handleResponse(
       response,
@@ -452,7 +462,6 @@ function populateEditForm(news) {
     );
   }
 
-  // Set CKEditor content with retry mechanism
   let retryCount = 0;
   const maxRetries = 5;
 
@@ -477,51 +486,60 @@ function populateEditForm(news) {
     }
   }
 
-  // Start the retry mechanism
   setTimeout(setCKEditorContent, 100);
 }
 
 function deleteNews(id) {
-  iziToast.question({
-    timeout: 20000,
-    close: false,
-    overlay: true,
-    displayMode: "once",
-    id: "question",
-    zindex: 999,
-    title: "Xác nhận",
-    message: "Bạn có chắc chắn muốn xóa tin tức này?",
-    position: "center",
-    buttons: [
-      [
-        "<button><b>Đồng ý</b></button>",
-        async function (instance, toast) {
-          try {
-            const response = await NewsApi.delete(id);
-            const result = ApiUtils.handleResponse(
-              response,
-              "Đã xóa tin tức thành công.",
-              "Không thể xóa tin tức."
-            );
-
-            if (result.success) {
-              newsDataTable.ajax.reload();
-            }
-          } catch (error) {
-            ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
-          }
-          instance.hide({ transitionOut: "fadeOut" }, toast, "button");
-        },
-        true,
-      ],
-      [
-        "<button>Hủy</button>",
-        function (instance, toast) {
-          instance.hide({ transitionOut: "fadeOut" }, toast, "button");
-        },
-      ],
-    ],
+  Swal.fire({
+    icon: 'warning',
+    title: 'Bạn chắc không?',
+    text: 'Bạn có thực sự muốn xóa mục này? Không thể khôi phục sau khi xóa?',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy',
+    reverseButtons: true,
+    customClass: {
+      confirmButton: 'btn btn-danger',
+      cancelButton: 'btn btn-secondary'
+    },
+    buttonsStyling: false
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Thực hiện xóa
+      performDelete(id);
+    }
   });
+}
+
+async function performDelete(id) {
+  try {
+    const response = await NewsApi.delete(id);
+    const result = ApiUtils.handleResponse(
+      response,
+      "Đã xóa tin tức thành công.",
+      "Không thể xóa tin tức."
+    );
+
+    if (result.success) {
+      // Đóng modal chi tiết tin tức nếu đang mở
+      $("#viewNewsModal").modal("hide");
+      // Cập nhật DataTable
+      newsDataTable.ajax.reload();
+      
+      // Hiển thị thông báo thành công
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Tin tức đã được xóa thành công.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+  } catch (error) {
+    ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
+  }
 }
 
 async function saveNews() {
@@ -566,8 +584,30 @@ async function updateNews() {
 
     if (result.success) {
       $("#editNewsModal").modal("hide");
+
       newsDataTable.ajax.reload();
+
       resetEditForm();
+
+      try {
+        const updatedNewsResponse = await NewsApi.getById(formData.id);
+        const updatedNewsResult = ApiUtils.handleResponse(
+          updatedNewsResponse,
+          null,
+          "Không thể tải thông tin tin tức đã cập nhật."
+        );
+
+        if (updatedNewsResult.success) {
+          displayNewsDetails(updatedNewsResult.data);
+        }
+      } catch (error) {
+        console.error("Error loading updated news details:", error);
+        showToast(
+          "success",
+          "Cập nhật thành công",
+          "Tin tức đã được cập nhật thành công."
+        );
+      }
     }
   } catch (error) {
     ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");

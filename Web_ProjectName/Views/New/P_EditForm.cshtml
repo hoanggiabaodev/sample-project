@@ -1,5 +1,11 @@
 @model Web_ProjectName.Models.M_News
 
+<style>
+    #btnUpdateNews:hover {
+        background-color: #2b8ef1;
+    }
+</style>
+
 <div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -123,7 +129,7 @@
                         <div class="current-image-section" id="currentImageSection">
                             <div class="preview-title">Hình ảnh hiện tại:</div>
                             <div class="image-preview">
-                                <img src="/placeholder.svg?height=120&width=200&text=Current+News+Image" class="preview-image" alt="Current image">
+                                <img src="images/demo_images.webp" class="preview-image" alt="Current image">
                                 <button class="remove-preview" id="removeCurrentImage">
                                     <i class="fas fa-times"></i>
                                 </button>
