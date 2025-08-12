@@ -15,12 +15,12 @@ namespace Web_ProjectName.Controllers
 
         public async Task<IActionResult> Index()
         {
-            await GetListCategories();
+            await GetList();
             return View();
         }
 
         [HttpGet]
-        public async Task GetListCategories()
+        public async Task GetList()
         {
             var res = await _s_NewsCategory.GetListByPaging("0,1");
             if (res.result == 1 && res.data != null)
@@ -30,7 +30,7 @@ namespace Web_ProjectName.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetById(int id)
+        public async Task<JsonResult> P_View(int id)
         {
             var res = await _s_NewsCategory.GetById(id);
             if (res.result == 1 && res.data != null)
@@ -40,7 +40,7 @@ namespace Web_ProjectName.Controllers
 
         [HttpPost]
         [Consumes("application/json")]
-        public async Task<JsonResult> Save([FromBody] EM_NewsCategory category)
+        public async Task<JsonResult> P_Add([FromBody] EM_NewsCategory category)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace Web_ProjectName.Controllers
 
         [HttpPost]
         [Consumes("application/json")]
-        public async Task<JsonResult> Update([FromBody] EM_NewsCategory category)
+        public async Task<JsonResult> P_Edit([FromBody] EM_NewsCategory category)
         {
             try
             {

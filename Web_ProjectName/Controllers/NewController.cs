@@ -15,11 +15,11 @@ namespace Web_ProjectName.Controllers
 
         public async Task<IActionResult> Index()
         {
-            await GetListNews();
+            await GetList();
             return View();
         }
 
-        public async Task<IActionResult> ViewDetail(int id)
+        public async Task<IActionResult> P_View(int id)
         {
             var res = await _s_News.GetById(null, id);
             if (res.result == 1 && res.data != null)
@@ -31,7 +31,7 @@ namespace Web_ProjectName.Controllers
         }
 
         [HttpGet]
-        public async Task GetListNews()
+        public async Task GetList()
         {
             var res = await _s_News.GetListByPaging("0,1", _supplierId, null, "", 1, 10);
 
@@ -82,7 +82,7 @@ namespace Web_ProjectName.Controllers
 
         [HttpPost]
         [Consumes("application/json")]
-        public async Task<JsonResult> Save([FromBody] Models.EM_News_API news)
+        public async Task<JsonResult> P_Add([FromBody] Models.EM_News_API news)
         {
             System.Diagnostics.Debug.WriteLine($"Save method called with news: {System.Text.Json.JsonSerializer.Serialize(news)}");
             try
@@ -178,7 +178,7 @@ namespace Web_ProjectName.Controllers
 
         [HttpPost]
         [Consumes("application/json")]
-        public async Task<JsonResult> Update([FromBody] Models.EM_News_API news)
+        public async Task<JsonResult> P_Edit([FromBody] Models.EM_News_API news)
         {
             System.Diagnostics.Debug.WriteLine($"Update method called with news: {System.Text.Json.JsonSerializer.Serialize(news)}");
             try

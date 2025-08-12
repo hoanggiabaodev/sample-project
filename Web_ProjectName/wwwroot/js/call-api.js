@@ -55,11 +55,11 @@ const NewsApi = {
   },
 
   save: function (newsData) {
-    return ApiService.post("/New/Save", newsData);
+    return ApiService.post("/New/P_Add", newsData);
   },
 
   update: function (newsData) {
-    return ApiService.post("/New/Update", newsData);
+    return ApiService.post("/New/P_Edit", newsData);
   },
 
   delete: function (id) {
@@ -77,15 +77,15 @@ const CategoryApi = {
   },
 
   getById: function (id) {
-    return ApiService.get(`/NewCategory/GetById?id=${id}`);
+    return ApiService.get(`/NewCategory/P_View?id=${id}`);
   },
 
   save: function (data) {
-    return ApiService.post("/NewCategory/Save", data);
+    return ApiService.post("/NewCategory/P_Add", data);
   },
 
   update: function (data) {
-    return ApiService.post("/NewCategory/Update", data);
+    return ApiService.post("/NewCategory/P_Edit", data);
   },
 
   delete: function (id) {
