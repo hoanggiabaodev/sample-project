@@ -89,8 +89,8 @@
         border-bottom: 1px solid #f3f4f6;
     }
 
-    .table-custom tbody tr:hover {
-        background: #f9fafb;
+    .table-custom tbody tr {
+        cursor: pointer;
     }
 
     .select2-container--default .select2-selection--single {
@@ -197,6 +197,32 @@
         color: white;
         background-color: red;
     }
+
+    #newsDataTable.dataTable tbody tr:not(.selected):hover {
+        background-color: #f1f3f5 !important;
+    }
+
+    #newsDataTable.dataTable tbody tr.selected,
+    #newsDataTable.dataTable tbody tr.selected:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    #newsDataTable.dataTable tbody tr.selected td,
+    #newsDataTable.dataTable tbody tr.selected:hover td {
+        color: #fff !important;
+    }
+
+    #newsDataTable.dataTable tbody tr.selected a,
+    #newsDataTable.dataTable tbody tr.selected:hover a {
+        color: #fff !important;
+    }
+
+    #newsDataTable.dataTable tbody tr.selected .btn,
+    #newsDataTable.dataTable tbody tr.selected:hover .btn {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.75);
+    }
 </style>
 
 <div class="text-white px-4 py-3" style="background: linear-gradient(135deg, #047857 0%, #059669 100%);">
@@ -287,6 +313,18 @@
         </div>
 
         <div class="table-wrapper overflow-hidden p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <select id="bulkStatusSelect" class="form-select form-select-sm" style="width: 180px;">
+                        <option value="">-- Cập nhật trạng thái --</option>
+                        <option value="1">Mở khóa (Hoạt động)</option>
+                        <option value="0">Khóa (Không hoạt động)</option>
+                    </select>
+                    <button id="btnApplyBulkStatus" type="button" class="btn btn-sm btn-primary">
+                        Áp dụng
+                    </button>
+                </div>
+            </div>
             <table class="table-custom" id="newsDataTable">
                 <thead>
                     <tr>
@@ -318,26 +356,28 @@
     <link rel="stylesheet" type="text/css" href="~/lib/select2/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
     <link rel="stylesheet" href="~/lib/izi-toast-mater/css/iziToast.min.css">
-    
+
     <script src="~/lib/ckeditor/ckeditor.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/datatables.min.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/datatables.bootstrap4.min.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/dataTables.responsive.min.js"></script>
+    <!-- Ensure Select plugin loads after page-level DataTables scripts -->
+    <script src="~/lib/datatables.net-select/js/dataTables.select.min.js"></script>
     <script src="~/lib/select2/js/select2.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/dist/js/il8n/vi.js"></script>
     <script src="~/lib/izi-toast-mater/iziToast.min.js"></script>
     <script src="~/js/call-api.js"></script>
     <script src="~/controllers/news_management.js"></script>
-    
+
     <script>
         // Set current date time
         function updateDateTime() {
             const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
@@ -345,7 +385,7 @@
             };
             document.getElementById('currentDateTime').textContent = now.toLocaleDateString('vi-VN', options);
         }
-        
+
         // Update time every second
         setInterval(updateDateTime, 1000);
         updateDateTime();

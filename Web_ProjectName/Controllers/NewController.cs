@@ -279,6 +279,28 @@ namespace Web_ProjectName.Controllers
             }
         }
 
+        [HttpPost]
+        [Consumes("application/json")]
+        public async Task<JsonResult> P_EditStatus(int id, int status)
+        {
+            try
+            {
+                var res = await _s_News.UpdateStatus("", id, status, "");
+                if (res.result == 1)
+                {
+                    return Json(new { result = 1, message = "Đã cập nhật tin tức thành công", res.data });
+                }
+                else
+                {
+                    return Json(new { result = 0, error = res.error?.message ?? "Có lỗi xảy ra khi cập nhật tin tức" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = 0, error = ex.Message });
+            }
+        }
+
         private string GenerateMetaUrl(string title)
         {
             if (string.IsNullOrEmpty(title)) return "";

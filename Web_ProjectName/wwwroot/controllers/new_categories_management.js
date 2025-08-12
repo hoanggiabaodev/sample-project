@@ -221,6 +221,10 @@ class CategoriesManager {
     this.dataTable = $(CONSTANTS.SELECTORS.CATEGORIES_TABLE).DataTable({
       processing: true,
       serverSide: false,
+      select: {
+        style: "multi",
+        selector: 'td:not(:nth-child(1))',
+      },
       ajax: {
         url: "/NewCategory/GetListByStatus",
         type: "GET",

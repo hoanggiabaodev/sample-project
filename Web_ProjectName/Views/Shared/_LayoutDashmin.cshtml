@@ -28,6 +28,8 @@
     <link href="~/template/dashmin-1.0.0/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
     <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
     <link href="~/lib/datatable/css/dataTables.min.css" rel="stylesheet" />
+    <!-- DataTables Select CSS -->
+    <link href="~/lib/datatables.net-select-bs4/css/select.bootstrap4.min.css" rel="stylesheet" />
 
     <!-- iziToast CSS -->
     <link href="~/lib/izi-toast-mater/iziToast.min.css" rel="stylesheet" />
@@ -57,14 +59,14 @@
         <div class="sidebar pe-4 pb-3">
             <nav class="navbar bg-light navbar-light">
                 <a href="/" class="navbar-brand mx-4 mb-3">
-                    <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>@(supplierInfo?.name ?? "DASHMIN")</h3>
+                    <h3 class="text-primary">DASHMIN</h3>
                 </a>
                 <div class="d-flex align-items-center ms-4 mb-4">
                     <div class="position-relative">
-                        <img class="rounded-circle" src="~/images/user.webp" alt=""
+                        <img class="rounded-circle" src="~/images/demo_images.webp" alt=""
                             style="width: 40px; height: 40px;">
                         <div
-                            class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+                            class="bg-success rounded-circle border-2 border-white position-absolute end-0 bottom-0 p-1">
                         </div>
                     </div>
                     <div class="ms-3">
@@ -88,7 +90,6 @@
             </nav>
         </div>
         <!-- Sidebar End -->
-
 
         <!-- Content Start -->
         <div class="content">
@@ -173,7 +174,8 @@
 
     <!-- DataTables JS -->
     <script src="~/lib/datatable/js/dataTables.min.js"></script>
-    <script src="~/lib/datatable/js/dataTables.min.js"></script>
+    <!-- DataTables Select JS -->
+    <script src="~/lib/datatables.net-select/js/dataTables.select.min.js"></script>
 
     <!-- iziToast JS -->
     <script src="~/lib/izi-toast-mater/iziToast.min.js"></script>

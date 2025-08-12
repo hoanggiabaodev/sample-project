@@ -66,6 +66,10 @@ const NewsApi = {
     return ApiService.delete(`/New/Delete/${id}`);
   },
 
+  updateStatus: function (id, status) {
+    return ApiService.post(`/New/P_EditStatus/${id}?status=${encodeURIComponent(status)}`, {});
+  },
+
   getCategories: function () {
     return ApiService.get("/New/GetCategories");
   },

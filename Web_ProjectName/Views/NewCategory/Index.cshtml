@@ -152,6 +152,36 @@
         color: #fff;
         background-color: #059669;
     }
+
+    .table-custom tbody tr {
+        cursor: pointer;
+    }
+
+    #categoriesDataTable.dataTable tbody tr:not(.selected):hover {
+        background-color: #f1f3f5 !important;
+    }
+
+    #categoriesDataTable.dataTable tbody tr.selected,
+    #categoriesDataTable.dataTable tbody tr.selected:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    #categoriesDataTable.dataTable tbody tr.selected td,
+    #categoriesDataTable.dataTable tbody tr.selected:hover td {
+        color: #fff !important;
+    }
+
+    #categoriesDataTable.dataTable tbody tr.selected a,
+    #categoriesDataTable.dataTable tbody tr.selected:hover a {
+        color: #fff !important;
+    }
+
+    #categoriesDataTable.dataTable tbody tr.selected .btn,
+    #categoriesDataTable.dataTable tbody tr.selected:hover .btn {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.75);
+    }
 </style>
 
 <div class="text-white px-4 py-3" style="background: linear-gradient(135deg, #047857 0%, #059669 100%);">
@@ -408,7 +438,6 @@
     <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/responsive.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="~/lib/select2/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/lib/ckeditor/ckeditor.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/datatables.min.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/datatables.bootstrap4.min.js"></script>
