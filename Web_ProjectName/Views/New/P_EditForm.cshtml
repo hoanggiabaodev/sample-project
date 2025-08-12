@@ -1,35 +1,146 @@
 @model Web_ProjectName.Models.M_News
 
+<div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editNewsModalLabel">Chỉnh sửa tin tức</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editNewsForm">
+                    <input type="hidden" id="editNewsId" name="id">
+                    <input type="hidden" id="editNewsMetaKeywords" name="metaKeywords">
+                    <input type="hidden" id="editNewsMetaDescription" name="metaDescription">
+                    <input type="hidden" id="editNewsMetaTitle" name="metaTitle">
+                    <input type="hidden" id="editNewsMetaImagePreview" name="metaImagePreview">
+                    <input type="hidden" id="editNewsImageId" name="imageId">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="editNewsTitle" class="form-label">Tiêu đề tin tức <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editNewsTitle" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editNewsCategory" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editNewsCategory" name="newsCategoryId" required>
+                                    <option value="">Chọn danh mục</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="editNewsPublishedDate" class="form-label">Ngày đăng</label>
+                                <input type="text" class="form-control datepicker" id="editNewsPublishedDate" name="publishedAt">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editNewsStatus" class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editNewsStatus" name="status" required>
+                                    <option value="">Chọn trạng thái</option>
+                                    <option value="0">Không hoạt động</option>
+                                    <option value="1">Hoạt động</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">                        
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editNewsIsHot" name="isHot">
+                                    <label class="form-check-label" for="editNewsIsHot">
+                                        <i class="fas fa-fire me-2 text-danger"></i>Tin nổi bật
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNewsDescription" class="form-label">Mô tả ngắn</label>
+                        <textarea class="form-control" id="editNewsDescription" name="description" rows="3" placeholder="Nhập mô tả ngắn cho tin tức..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNewsContent" class="form-label">Nội dung chi tiết</label>
+                        <textarea class="form-control" id="editNewsContent" name="detail" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hình ảnh</label>
+
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" class="hidden-input" id="fileInput" accept="image/*">
+
+                            <div class="upload-content" id="uploadContent">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="upload-text">Kéo thả hình ảnh vào đây</div>
+                                <div class="upload-subtext">
+                                    hoặc <a href="#" class="upload-link" id="browseLink">chọn từ máy tính</a>
+                                </div>
+                                <div class="file-info">Hỗ trợ: JPG, PNG, GIF (tối đa 10MB)</div>
+                            </div>
+                        </div>
+
+                        <div class="file-details" id="fileDetails">
+                            <div class="file-item">
+                                <div class="file-info-left">
+                                    <i class="fas fa-image" style="color: #10b981;"></i>
+                                    <div>
+                                        <div class="file-name" id="fileName"></div>
+                                        <div class="file-size" id="fileSize"></div>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <button class="btn" id="changeBtn">Thay đổi</button>
+                                    <button class="btn btn-danger" id="removeBtn">
+                                        <i class="fas fa-times"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-section" id="newPreviewSection" style="display: none;">
+                            <div class="preview-title">Xem trước hình ảnh mới:</div>
+                            <div class="image-preview">
+                                <img id="newPreviewImage" class="preview-image" src="/placeholder.svg" alt="Preview">
+                                <button class="remove-preview" id="removeNewPreview">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="alert" id="currentImageAlert">
+                            <i class="fas fa-image"></i>
+                            <span class="alert-text">Hình ảnh hiện tại sẽ được hiển thị khi tải dữ liệu</span>
+                        </div>
+
+                        <div class="current-image-section" id="currentImageSection">
+                            <div class="preview-title">Hình ảnh hiện tại:</div>
+                            <div class="image-preview">
+                                <img src="/placeholder.svg?height=120&width=200&text=Current+News+Image" class="preview-image" alt="Current image">
+                                <button class="remove-preview" id="removeCurrentImage">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnUpdateNews">Cập nhật tin tức</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background-color: #f8fafc;
-        padding: 20px;
-    }
-
-    .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-label {
-        display: block;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 8px;
-        font-size: 14px;
-    }
-
     .upload-area {
         border: 2px dashed #d1d5db;
         border-radius: 8px;
@@ -239,160 +350,6 @@
         border: 1px solid #e5e7eb;
     }
 </style>
-
-<div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsModalLabel" aria-hidden="true"
-    style="z-index: 1050;">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title" id="editNewsModalLabel">
-                    <i class="fas fa-edit me-2"></i>Chỉnh sửa tin tức
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editNewsForm">
-                    <input type="hidden" id="editNewsId" name="id">
-                    <input type="hidden" id="editNewsMetaKeywords" name="metaKeywords">
-                    <input type="hidden" id="editNewsMetaDescription" name="metaDescription">
-                    <input type="hidden" id="editNewsMetaTitle" name="metaTitle">
-                    <input type="hidden" id="editNewsMetaImagePreview" name="metaImagePreview">
-                    <input type="hidden" id="editNewsImageId" name="imageId">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="editNewsTitle" class="form-label fw-bold">Tiêu đề tin tức <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="editNewsTitle" name="name" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="editNewsCategory" class="form-label fw-bold">Danh mục <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-control select2" id="editNewsCategory" name="newsCategoryId"
-                                    required>
-                                    <option value="">Chọn danh mục</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="editNewsPublishedDate" class="form-label fw-bold">Ngày đăng</label>
-                                <input type="text" class="form-control datepicker" id="editNewsPublishedDate"
-                                    name="publishedAt">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="editNewsStatus" class="form-label fw-bold">Trạng thái <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-control" id="editNewsStatus" name="status" required>
-                                    <option value="">Chọn trạng thái</option>
-                                    <option value="0">Không hoạt động</option>
-                                    <option value="1">Hoạt động</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">                        
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="editNewsIsHot" name="isHot">
-                                    <label class="form-check-label fw-bold" for="editNewsIsHot">
-                                        <i class="fas fa-fire me-2 text-danger"></i>Tin nổi bật
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editNewsDescription" class="form-label fw-bold">Mô tả ngắn</label>
-                        <textarea class="form-control" id="editNewsDescription" name="description" rows="3"
-                        placeholder="Nhập mô tả ngắn cho tin tức..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editNewsContent" class="form-label fw-bold">Nội dung chi tiết</label>
-                        <textarea class="form-control" id="editNewsContent" name="detail" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Hình ảnh</label>
-
-                        <div class="upload-area" id="uploadArea">
-                            <input type="file" class="hidden-input" id="fileInput" accept="image/*">
-
-                            <div class="upload-content" id="uploadContent">
-                                <div class="upload-icon">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                </div>
-                                <div class="upload-text">Kéo thả hình ảnh vào đây</div>
-                                <div class="upload-subtext">
-                                    hoặc <a href="#" class="upload-link" id="browseLink">chọn từ máy tính</a>
-                                </div>
-                                <div class="file-info">Hỗ trợ: JPG, PNG, GIF (tối đa 10MB)</div>
-                            </div>
-                        </div>
-
-                        <div class="file-details" id="fileDetails">
-                            <div class="file-item">
-                                <div class="file-info-left">
-                                    <i class="fas fa-image" style="color: #10b981;"></i>
-                                    <div>
-                                        <div class="file-name" id="fileName"></div>
-                                        <div class="file-size" id="fileSize"></div>
-                                    </div>
-                                </div>
-                                <div class="file-actions">
-                                    <button class="btn" id="changeBtn">Thay đổi</button>
-                                    <button class="btn btn-danger" id="removeBtn">
-                                        <i class="fas fa-times"></i> Xóa
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="preview-section" id="newPreviewSection" style="display: none;">
-                            <div class="preview-title">Xem trước hình ảnh mới:</div>
-                            <div class="image-preview">
-                                <img id="newPreviewImage" class="preview-image" src="/placeholder.svg" alt="Preview">
-                                <button class="remove-preview" id="removeNewPreview">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="alert" id="currentImageAlert">
-                            <i class="fas fa-image"></i>
-                            <span class="alert-text">Hình ảnh hiện tại sẽ được hiển thị khi tải dữ liệu</span>
-                        </div>
-
-                        <div class="current-image-section" id="currentImageSection">
-                            <div class="preview-title">Hình ảnh hiện tại:</div>
-                            <div class="image-preview">
-                                <img src="/placeholder.svg?height=120&width=200&text=Current+News+Image"
-                                    class="preview-image" alt="Current image">
-                                <button class="remove-preview" id="removeCurrentImage">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>Hủy
-                </button>
-                <button type="button" class="btn btn-warning" id="btnUpdateNews">
-                    <i class="fas fa-save me-2"></i>Cập nhật tin tức
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
     class ImageUploader {

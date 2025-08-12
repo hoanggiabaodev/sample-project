@@ -1,127 +1,138 @@
 const ApiService = {
-    callApi: function (url, method, data, contentType = 'application/json') {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: url,
-                method: method,
-                data: contentType === 'application/json' ? JSON.stringify(data) : data,
-                contentType: contentType,
-                dataType: 'json',
-                success: function (response) {
-                    resolve(response);
-                },
-                error: function (xhr, status, error) {
-                    console.error('API Error:', { url, method, status, error, response: xhr.responseText });
-                    reject({ xhr, status, error });
-                }
-            });
-        });
-    },
+  callApi: function (url, method, data, contentType = "application/json") {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: url,
+        method: method,
+        data: contentType === "application/json" ? JSON.stringify(data) : data,
+        contentType: contentType,
+        dataType: "json",
+        success: function (response) {
+          resolve(response);
+        },
+        error: function (xhr, status, error) {
+          console.error("API Error:", {
+            url,
+            method,
+            status,
+            error,
+            response: xhr.responseText,
+          });
+          reject({ xhr, status, error });
+        },
+      });
+    });
+  },
 
-    get: function (url, params = {}) {
-        const queryString = Object.keys(params).length > 0
-            ? '?' + new URLSearchParams(params).toString()
-            : '';
-        return this.callApi(url + queryString, 'GET');
-    },
+  get: function (url, params = {}) {
+    const queryString =
+      Object.keys(params).length > 0
+        ? "?" + new URLSearchParams(params).toString()
+        : "";
+    return this.callApi(url + queryString, "GET");
+  },
 
-    post: function (url, data) {
-        return this.callApi(url, 'POST', data);
-    },
+  post: function (url, data) {
+    return this.callApi(url, "POST", data);
+  },
 
-    put: function (url, data) {
-        return this.callApi(url, 'PUT', data);
-    },
+  put: function (url, data) {
+    return this.callApi(url, "PUT", data);
+  },
 
-    delete: function (url) {
-        return this.callApi(url, 'DELETE');
-    }
+  delete: function (url) {
+    return this.callApi(url, "DELETE");
+  },
 };
 
 const NewsApi = {
-    getList: function (params = {}) {
-        return ApiService.get('/New/GetListByStatus', params);
-    },
+  getList: function (params = {}) {
+    return ApiService.get("/New/GetListByStatus", params);
+  },
 
-    getById: function (id) {
-        return ApiService.get(`/New/GetById/${id}`);
-    },
+  getById: function (id) {
+    return ApiService.get(`/New/GetById/${id}`);
+  },
 
-    save: function (newsData) {
-        return ApiService.post('/New/Save', newsData);
-    },
+  save: function (newsData) {
+    return ApiService.post("/New/Save", newsData);
+  },
 
-    update: function (newsData) {
-        return ApiService.post('/New/Update', newsData);
-    },
+  update: function (newsData) {
+    return ApiService.post("/New/Update", newsData);
+  },
 
-    delete: function (id) {
-        return ApiService.delete(`/New/Delete/${id}`);
-    },
+  delete: function (id) {
+    return ApiService.delete(`/New/Delete/${id}`);
+  },
 
-    getCategories: function () {
-        return ApiService.get('/New/GetCategories');
-    }
+  getCategories: function () {
+    return ApiService.get("/New/GetCategories");
+  },
 };
 
 const CategoryApi = {
-    getList: function (params = {}) {
-        return ApiService.get('/NewCategory/GetListByStatus', params);
-    },
+  getList: function (params = {}) {
+    return ApiService.get("/NewCategory/GetListByStatus", params);
+  },
 
-    getById: function (id) {
-        return ApiService.get(`/NewCategory/GetById?id=${id}`);
-    },
+  getById: function (id) {
+    return ApiService.get(`/NewCategory/GetById?id=${id}`);
+  },
 
-    save: function (data) {
-        return ApiService.post('/NewCategory/Save', data);
-    },
+  save: function (data) {
+    return ApiService.post("/NewCategory/Save", data);
+  },
 
-    update: function (data) {
-        return ApiService.post('/NewCategory/Update', data);
-    },
+  update: function (data) {
+    return ApiService.post("/NewCategory/Update", data);
+  },
 
-    delete: function (id) {
-        return ApiService.delete(`/NewCategory/Delete/${id}`);
-    },
+  delete: function (id) {
+    return ApiService.delete(`/NewCategory/Delete/${id}`);
+  },
 
-    getCategories: function () {
-        return ApiService.get('/New/GetCategories');
-    }
+  getCategories: function () {
+    return ApiService.get("/New/GetCategories");
+  },
 };
 
 const ApiUtils = {
-    handleResponse: function (response, successMessage = 'Thành công', errorMessage = 'Có lỗi xảy ra') {
-        if (response.result === 1) {
-            if (successMessage) {
-                showToast('success', 'Thành công', successMessage);
-            }
-            return { success: true, data: response.data };
-        } else {
-            showToast('error', 'Lỗi', response.error || errorMessage);
-            return { success: false, error: response.error || errorMessage };
-        }
-    },
-
-    handleError: function (error, errorMessage = 'Không thể kết nối đến máy chủ') {
-        console.error('API Error:', error);
-        showToast('error', 'Lỗi', errorMessage);
-        return { success: false, error: errorMessage };
+  handleResponse: function (
+    response,
+    successMessage = "Thành công",
+    errorMessage = "Có lỗi xảy ra"
+  ) {
+    if (response.result === 1) {
+      if (successMessage) {
+        showToast("success", "Thành công", successMessage);
+      }
+      return { success: true, data: response.data };
+    } else {
+      showToast("error", "Lỗi", response.error || errorMessage);
+      return { success: false, error: response.error || errorMessage };
     }
+  },
+
+  handleError: function (
+    error,
+    errorMessage = "Không thể kết nối đến máy chủ"
+  ) {
+    console.error("API Error:", error);
+    showToast("error", "Lỗi", errorMessage);
+    return { success: false, error: errorMessage };
+  },
 };
 
-// Toast notification function
 function showToast(type, title, message) {
-    // Check if iziToast is available
-    if (typeof iziToast !== 'undefined') {
-        iziToast[type]({
-            title: title,
-            message: message,
-            position: 'topRight',
-            timeout: 5000
-        });
-    } else {
-        // Fallback to alert if iziToast is not available
-        alert(`${title}: ${message}`);
-    }
+  if (typeof iziToast !== "undefined") {
+    iziToast[type]({
+      title: title,
+      message: message,
+      position: "topRight",
+      timeout: 5000,
+    });
+  } else {
+    alert(`${title}: ${message}`);
+  }
 }
