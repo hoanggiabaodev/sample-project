@@ -1,12 +1,17 @@
 const ApiService = {
-  callApi: function (url, method, data, contentType = "application/json") {
+  callApi: function (url, method, data = null, {
+    contentType = "application/json",
+    dataType = "json"
+  } = {}) {
     return new Promise((resolve, reject) => {
       $.ajax({
         url: url,
         method: method,
-        data: contentType === "application/json" ? JSON.stringify(data) : data,
+        data: contentType === "application/json" && data !== null
+          ? JSON.stringify(data)
+          : data,
         contentType: contentType,
-        dataType: "json",
+        dataType: dataType,
         success: function (response) {
           resolve(response);
         },
@@ -24,30 +29,45 @@ const ApiService = {
     });
   },
 
-  get: function (url, params = {}) {
+  get: function (url, params = {}, options = {}) {
     const queryString =
       Object.keys(params).length > 0
         ? "?" + new URLSearchParams(params).toString()
         : "";
-    return this.callApi(url + queryString, "GET");
+    return this.callApi(url + queryString, "GET", null, options);
   },
 
-  post: function (url, data) {
-    return this.callApi(url, "POST", data);
+  post: function (url, data, options = {}) {
+    return this.callApi(url, "POST", data, options);
   },
 
-  put: function (url, data) {
-    return this.callApi(url, "PUT", data);
+  put: function (url, data, options = {}) {
+    return this.callApi(url, "PUT", data, options);
   },
 
-  delete: function (url) {
-    return this.callApi(url, "DELETE");
+  delete: function (url, options = {}) {
+    return this.callApi(url, "DELETE", null, options);
   },
 };
 
+const HomeApi = {
+  getList: function (categoryIds = []) {
+    const params = {};
+    if (categoryIds && categoryIds.length > 0) {
+      params.categoryIds = categoryIds.join(',');
+    }
+    return ApiService.get("/Home/GetList", params);
+  },
+
+  mostviewed: function () {
+    return ApiService.get("/Home/GetMostViewed");
+  },
+};
+
+
 const NewsApi = {
   getList: function (params = {}) {
-    return ApiService.get("/New/GetListByStatus", params);
+    return ApiService.get("/New/GetListByStatus", params); // JSON
   },
 
   getById: function (id) {
@@ -67,7 +87,10 @@ const NewsApi = {
   },
 
   updateStatus: function (id, status) {
-    return ApiService.post(`/New/P_EditStatus/${id}?status=${encodeURIComponent(status)}`, {});
+    return ApiService.post(
+      `/New/P_EditStatus/${id}?status=${encodeURIComponent(status)}`,
+      {}
+    );
   },
 
   getCategories: function () {

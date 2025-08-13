@@ -64,6 +64,55 @@ namespace Web_ProjectName.Controllers
             return View();
         }
 
+        public async Task<IActionResult> GetList(int page = 1, int? categoryId = null, string? categoryIds = null, string? keyword = null)
+        {
+            const int pageSize = 10;
+            var res = await _s_News.GetListByStatus(1);
+            var all = (res.result == 1 && res.data != null) ? res.data : new List<M_News>();
+
+            if (!string.IsNullOrWhiteSpace(categoryIds))
+            {
+                var categoryIdList = categoryIds.Split(',')
+                                                .Select(id => int.TryParse(id, out var parsedId) ? parsedId : 0)
+                                                .Where(id => id > 0)
+                                                .ToList();
+                if (categoryIdList.Any())
+                {
+                    all = all.Where(n => n.newsCategoryId.HasValue && categoryIdList.Contains(n.newsCategoryId.Value)).ToList();
+                }
+            }
+            else if (categoryId.HasValue)
+            {
+                all = all.Where(n => n.newsCategoryId == categoryId.Value).ToList();
+            }
+
+            // Lọc keyword
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var kw = keyword.Trim().ToLowerInvariant();
+                all = all.Where(n => (n.name ?? string.Empty).ToLowerInvariant().Contains(kw)
+                                || (n.description ?? string.Empty).ToLowerInvariant().Contains(kw))
+                        .ToList();
+            }
+
+            // Sắp xếp & phân trang
+            all = all.OrderByDescending(n => n.publishedAt).ToList();
+            var totalCount = all.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            if (totalPages == 0) totalPages = 1;
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return Json(new {
+                result = 1,
+                data = items,
+                totalPages,
+                currentPage = page
+            });
+        }
+
+
         public async Task<IActionResult> Detail(string metaUrl)
         {
             if (string.IsNullOrEmpty(metaUrl))

@@ -153,6 +153,18 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         transform: translateY(-2px);
     }
+
+    .category-pill.active {
+        background: #007bff !important;
+        color: white !important;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    .category-pill.active:hover {
+        background: #0056b3 !important;
+        transform: scale(1.08);
+    }
 </style>
 
 <div class="trending-area fix"
@@ -243,17 +255,48 @@
                     {
                         foreach (var n in newsList)
                         {
-                            <div class="single-whats-news mb-30 p-2 border rounded-2">
-                                <a class="row g-3 align-items-center text-decoration-none" href="/home/detail?metaUrl=@(n.metaUrl)">
-                                    <div class="col-3 img-zoom">
-                                        <img src="~/images/demo_images.webp" class="img-fluid rounded" alt="@n.name" />
+                            var imageUrl = "/images/demo_images.webp";
+                            var categoryName = n.newsCategoryObj?.name ?? "Tin tức";
+                            var hotBadge = n.isHot ? "<span class=\"badge bg-danger ms-2\" style=\"font-size: 10px;\">Hot</span>" : "";
+                            var publishedDate = n.publishedAt?.ToString("dd/MM/yyyy") ?? "";
+                            var viewCount = n.viewNumber ?? 0;
+                            
+                            <div class="single-what-news mb-4" style="border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s ease;" 
+                                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.12)';" 
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)';">
+                                <div class="what-img" style="position: relative; overflow: hidden; height: 250px;">
+                                    <img src="@imageUrl" alt="@n.name" 
+                                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" 
+                                         onmouseover="this.style.transform='scale(1.05)';" 
+                                         onmouseout="this.style.transform='scale(1)'">
+                                    <div style="position: absolute; bottom: 15px; left: 15px; background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 8px 16px; border-radius: 25px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; box-shadow: 0 4px 12px rgba(0,123,255,0.3); backdrop-filter: blur(10px);">
+                                        @categoryName
                                     </div>
-                                    <div class="col-9">
-                                            <span class="span-name text-black fw-bold">@n.name</span>
-                                        <div class="text-muted small mb-1">@n.publishedAt?.ToString("dd/MM/yyyy")</div>
-                                        <div class="small">@Html.Raw(n.description)</div>
+                                </div>
+                                <div class="what-cap" style="padding: 25px 20px 20px 20px;">
+                                    <h4 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 700; line-height: 1.4;">
+                                        <a href="/tin-tuc/@(n.metaUrl ?? n.id.ToString())" 
+                                           style="text-decoration: none; color: #2c3e50; transition: color 0.2s ease;" 
+                                           onmouseover="this.style.color='#007bff';" 
+                                           onmouseout="this.style.color='#2c3e50';">
+                                            @n.name
+                                        </a>
+                                        @Html.Raw(hotBadge)
+                                    </h4>
+                                    <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin: 0 0 15px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                        @Html.Raw(n.description ?? "")
+                                    </p>
+                                    <div class="whats-date" style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f1f3f4; font-size: 13px; color: #6c757d;">
+                                        <span style="display: flex; align-items: center;">
+                                            <i class="fas fa-calendar" style="color: #007bff; margin-right: 8px;"></i>
+                                            @publishedDate
+                                        </span>
+                                        <span style="display: flex; align-items: center;">
+                                            <i class="fas fa-eye" style="color: #007bff; margin-right: 8px;"></i>
+                                            @viewCount lượt xem
+                                        </span>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                         }
                     }
