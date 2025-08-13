@@ -66,14 +66,14 @@ function loadCategories(quantity, mess) {
               </button>
             `);
           }
+            window.$("#category-list").append(`
+              <button id="btnAllCategory" class="category-action-btn" style="opacity: 0; transform: translateY(20px);">
+                  <img src="/images/all.png" alt="Tất cả" style="width: 16px; height: 16px;">
+              </button>
+            `);
           window.$("#category-list").append(`
             <button id="btnSearchCategory" class="category-action-btn" style="opacity: 0; transform: translateY(20px);">
                 <img src="/images/search-icon.png" alt="Tìm kiếm" style="width: 16px; height: 16px;">
-            </button>
-          `);
-          window.$("#category-list").append(`
-            <button id="btnAllCategory" class="category-action-btn" style="opacity: 0; transform: translateY(20px);">
-                <img src="/images/all.png" alt="Tất cả" style="width: 16px; height: 16px;">
             </button>
           `);
 
