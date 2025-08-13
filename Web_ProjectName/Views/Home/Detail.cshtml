@@ -55,7 +55,7 @@
 
                         @if (!string.IsNullOrEmpty(Model?.description))
                         {
-                            <div class="text-secondary mb-1" style="font-size:1.1rem;">@Model.description</div>
+                            <div class="text-secondary mb-1" style="font-size:1.1rem;">@Html.Raw(@Model.description)</div>
                         }
                     </div>
                 </div>

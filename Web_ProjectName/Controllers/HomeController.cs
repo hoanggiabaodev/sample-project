@@ -15,8 +15,52 @@ namespace Web_ProjectName.Controllers
             _s_NewsCategory = s_NewsCategory;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int? categoryId = null, string? keyword = null)
+		public async Task<IActionResult> Index(int page = 1, int? categoryId = null, string? keyword = null)
         {
+            const int pageSize = 10;
+
+            try
+            {
+                var catRes = await _s_NewsCategory.GetListByPaging("0,1");
+                ViewBag.Categories = (catRes.result == 1 && catRes.data != null) ? catRes.data : new List<M_NewsCategory>();
+            }
+            catch
+            {
+                ViewBag.Categories = new List<M_NewsCategory>();
+            }
+
+            var res = await _s_News.GetListByStatus(1);
+            var all = (res.result == 1 && res.data != null) ? res.data : new List<M_News>();
+
+            if (categoryId.HasValue)
+            {
+                all = all.Where(n => n.newsCategoryId == categoryId.Value).ToList();
+            }
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var kw = keyword.Trim().ToLowerInvariant();
+                all = all.Where(n => (n.name ?? string.Empty).ToLowerInvariant().Contains(kw)
+                                   || (n.description ?? string.Empty).ToLowerInvariant().Contains(kw))
+                         .ToList();
+            }
+
+            all = all.OrderByDescending(n => n.publishedAt).ToList();
+
+            var totalCount = all.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            if (totalPages == 0) totalPages = 1;
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.NewsList = items;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.Keyword = keyword;
+            ViewBag.CategoryId = categoryId;
+
             return View();
         }
 
