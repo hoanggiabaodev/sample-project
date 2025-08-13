@@ -1,0 +1,207 @@
+@{
+    var introduce = ViewBag.Introduce as Web_ProjectName.Models.M_Introduce;
+    ViewData["Title"] = introduce?.name ?? "Về chúng tôi";
+    ViewData["Description"] = introduce?.metaDescription ?? "Thông tin về chúng tôi";
+    Layout = "_LayoutNews";
+}
+
+<style>
+    .intro-hero {
+        background: linear-gradient(135deg, #667eea 0%, #a095ac 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .intro-hero:before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.12) 1px, transparent 1px), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.12) 1px, transparent 1px);
+        background-size: 100px 100px;
+        opacity: .6;
+    }
+    .feature-card {
+        border: 1px solid #eef2f7;
+        border-radius: 12px;
+        padding: 24px;
+        background: #fff;
+        transition: transform .2s ease, box-shadow .2s ease;
+        height: 100%;
+        text-align: center;
+    }
+    .feature-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.08); }
+    .feature-icon { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 12px; background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; font-size: 26px; }
+    .team-card { border: 1px solid #eef2f7; border-radius: 12px; padding: 24px; text-align: center; background:#fff; height:100%; transition: transform .2s ease, box-shadow .2s ease; }
+    .team-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.08); }
+    .team-avatar { width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; display:grid; place-items:center; font-weight:700; font-size:28px; margin:0 auto 12px; }
+    .meta-item { display:flex; align-items:center; padding:12px 0; border-bottom:1px solid #f1f3f4; }
+    .meta-item:last-child { border-bottom:0; }
+    .meta-item strong { min-width:120px; margin-right:8px; color:#2c3e50; }
+    .section-tittle h3, .section-tittle h2 { margin: 0; }
+    @@keyframes fadeInUp { from {opacity:0; transform: translateY(16px)} to {opacity:1; transform:none} }
+</style>
+
+<div class="intro-hero trending-area">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="trending-main py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center text-white">
+                    <h1 class="mb-2 text-white" style="font-weight:800; letter-spacing:.2px; text-shadow:0 2px 8px rgba(0,0,0,.25);">
+                        @(introduce?.name ?? "Chào mừng đến với chúng tôi")
+                    </h1>
+                    <p class="mb-0 text-white" style="opacity:.95; max-width:880px; margin: 0 auto;">
+                        @(introduce?.metaDescription ?? "Khám phá những điều chúng tôi mang lại")
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="whats-news-area pt-50 pb-40">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="section-tittle mb-3">
+                    <h3>Giới Thiệu</h3>
+                </div>
+                <div class="single-what-news mb-4" style="border:1px solid #e9ecef; border-radius:12px; overflow:hidden; background:#fff;">
+                    <div class="what-cap p-4">
+                        <div class="intro-description" style="font-size:1.05rem; color:#444; line-height:1.8;">
+                            @{
+                                string companyDescription = !string.IsNullOrEmpty(introduce?.description) ? introduce.description :
+                                !string.IsNullOrEmpty(introduce?.detail) ? introduce.detail :
+                                "Chúng tôi là một đội ngũ đam mê công nghệ, luôn nỗ lực để mang đến những giải pháp sáng tạo và hiệu quả cho khách hàng.";
+                            }
+                            @Html.Raw(companyDescription)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-tittle mb-3">
+                    <h3>Điểm nổi bật</h3>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="feature-card" style="animation: fadeInUp .5s ease both .05s;">
+                            <div class="feature-icon">🚀</div>
+                            <h5 class="mb-2">Hiệu suất cao</h5>
+                            <p class="mb-0" style="color:#6b7280;">Tối ưu hóa để đạt trải nghiệm nhanh và mượt.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card" style="animation: fadeInUp .5s ease both .15s;">
+                            <div class="feature-icon">💡</div>
+                            <h5 class="mb-2">Sáng tạo</h5>
+                            <p class="mb-0" style="color:#6b7280;">Ý tưởng mới mẻ, giải pháp khác biệt.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card" style="animation: fadeInUp .5s ease both .25s;">
+                            <div class="feature-icon">🤝</div>
+                            <h5 class="mb-2">Đồng hành</h5>
+                            <p class="mb-0" style="color:#6b7280;">Hỗ trợ tận tâm, 24/7 khi cần.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-tittle mb-3">
+                    <h3>Thống kê</h3>
+                </div>
+                <div class="row g-3 mb-4" style="background:#0f172a; color:#fff; border-radius:12px; padding:20px;">
+                    <div class="col-6 col-md-3 text-center">
+                        <div class="h2 mb-0" data-count="500">0</div>
+                        <div class="small" style="opacity:.9;">Dự án</div>
+                    </div>
+                    <div class="col-6 col-md-3 text-center">
+                        <div class="h2 mb-0" data-count="100">0</div>
+                        <div class="small" style="opacity:.9;">Khách hàng</div>
+                    </div>
+                    <div class="col-6 col-md-3 text-center">
+                        <div class="h2 mb-0" data-count="5">0</div>
+                        <div class="small" style="opacity:.9;">Năm kinh nghiệm</div>
+                    </div>
+                    <div class="col-6 col-md-3 text-center">
+                        <div class="h2 mb-0">24/7</div>
+                        <div class="small" style="opacity:.9;">Hỗ trợ</div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(introduce?.detail))
+                {
+                    <div class="section-tittle mb-3">
+                        <h3>Chi tiết</h3>
+                    </div>
+                    <div class="single-what-news mb-4" style="border:1px solid #e9ecef; border-radius:12px; overflow:hidden; background:#fff;">
+                        <div class="what-cap p-4" style="line-height:1.8; color:#333;">
+                            @Html.Raw(introduce.detail)
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(introduce?.metaTitle) || !string.IsNullOrEmpty(introduce?.metaKeywords) || !string.IsNullOrEmpty(introduce?.metaUrl))
+                {
+                    <div class="section-tittle mb-3">
+                        <h3>Thông tin bổ sung</h3>
+                    </div>
+                    <div class="single-what-news mb-4" style="border:1px solid #e9ecef; border-radius:12px; overflow:hidden; background:#fff;">
+                        <div class="what-cap p-4">
+                            @if (!string.IsNullOrEmpty(introduce?.metaTitle)) { <div class="meta-item"><strong>Tiêu đề:</strong><span>@introduce.metaTitle</span></div> }
+                            @if (!string.IsNullOrEmpty(introduce?.metaKeywords)) { <div class="meta-item"><strong>Từ khóa:</strong><span>@introduce.metaKeywords</span></div> }
+                            @if (!string.IsNullOrEmpty(introduce?.metaUrl)) { <div class="meta-item"><strong>URL:</strong><span>@introduce.metaUrl</span></div> }
+                        </div>
+                    </div>
+                }
+
+                <div class="text-center py-5" style="background: linear-gradient(135deg, #667eea, #764ba2); color:#fff; border-radius:12px;">
+                    <h3 class="mb-2 text-white">Sẵn sàng bắt đầu?</h3>
+                    <p class="mb-3 text-white" style="opacity:.95;">Liên hệ với chúng tôi để trao đổi về dự án của bạn</p>
+                    @Html.ActionLink("Liên hệ ngay", "1", "cong-ty", null, new { @class = "btn btn-light px-4 py-1.5rem fw-bold" })
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="section-tittle mb-3">
+                    <h3>Đội ngũ</h3>
+                </div>
+                <div class="row g-3">
+                    @{
+                        var teamMembers = new List<dynamic> {
+                            new { Name = "Nguyễn Công Ấn", Role = "CEO & Founder", Avatar = "A" },
+                            new { Name = "Nguyễn Hòa", Role = "CTO", Avatar = "B" },
+                            new { Name = "Phạm Tuấn", Role = "Lead Dev", Avatar = "C" }
+                        };
+                    }
+                    @foreach (var member in teamMembers)
+                    {
+                        <div class="col-12">
+                            <div class="team-card">
+                                <div class="team-avatar">@member.Avatar</div>
+                                <div class="fw-bold">@member.Name</div>
+                                <div class="text-primary" style="font-weight:600;">@member.Role</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</section>
+
+@section Scripts {
+    <script>
+        (function(){
+            const counters = document.querySelectorAll('[data-count]');
+            counters.forEach(el => {
+                const target = parseInt(el.getAttribute('data-count') || '0', 10);
+                let current = 0;
+                const step = Math.max(1, Math.floor(target / 80));
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) { current = target; clearInterval(timer); }
+                    el.textContent = current.toLocaleString('vi-VN') + (target >= 100 ? '+' : '');
+                }, 16);
+            });
+        })();
+    </script>
+}

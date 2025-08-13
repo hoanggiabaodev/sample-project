@@ -91,20 +91,19 @@ builder.Services.AddSingleton<IS_NewsCategory, S_NewsCategory>();
 builder.Services.AddSingleton<IS_PartnerList, S_PartnerList>();
 builder.Services.AddSingleton<IS_Banner, S_Banner>();
 builder.Services.AddSingleton<IS_GoogleReCAPTCHA, S_GoogleReCAPTCHA>();
-builder.Services.AddScoped<IS_School, S_School>();
+builder.Services.AddSingleton<IS_School, S_School>();
+builder.Services.AddSingleton<IS_Introduce, S_Introduce>();
 
 builder.Services.Configure<Config_ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 builder.Services.Configure<Config_MetaSEO>(builder.Configuration.GetSection("MetaSEO"));
 builder.Services.Configure<ReCAPTCHASettings>(builder.Configuration.GetSection("GooglereCAPTCHA"));
 builder.Services.Configure<Config_Supplier>(builder.Configuration.GetSection("Supplier"));
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -119,7 +118,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
     {
-        const int durationInSeconds = 7 * 60 * 60 * 24; //7 days
+        const int durationInSeconds = 7 * 60 * 60 * 24; 
         ctx.Context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.CacheControl] =
             "public,max-age=" + durationInSeconds;
     }
@@ -131,15 +130,9 @@ app.UseSession();
 
 app.UseRouting();
 
-/*app.UseAuthorization();*/
 
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapControllerRoute(
-        name: "Introduce IsHot",
-        pattern: "gioi-thieu",
-        defaults: new { controller = "Introduce", action = "Index" });
-
     endpoints.MapControllerRoute(
        name: "Product List",
        pattern: "san-pham",
@@ -181,9 +174,9 @@ app.UseEndpoints(endpoints =>
         defaults: new { controller = "School", action = "GetById" });
     
     endpoints.MapControllerRoute(
-        name: "About",
-        pattern: "about",
-        defaults: new { controller = "School", action = "About" });
+        name: "Introduce",
+        pattern: "gioi-thieu",
+        defaults: new { controller = "Introduce", action = "Index" });
 
     endpoints.MapControllerRoute(
        name: "Error page",
