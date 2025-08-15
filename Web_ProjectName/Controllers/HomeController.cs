@@ -124,7 +124,7 @@ namespace Web_ProjectName.Controllers
             if (res == null || res.result != 1 || res.data == null)
                 return View(null);
 
-            return View(detail.data);
+            return View("P_View", detail.data);
         }
 
         public async Task<IActionResult> Category(int id, int page = 1)
