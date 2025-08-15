@@ -134,5 +134,12 @@ namespace Web_ProjectName.Controllers
                 });
             }
         }
+
+        [HttpPost]
+        public async Task<JsonResult> P_EditStatus(int id, int status)
+        {
+            var res = await _s_NewsCategory.UpdateStatus("", id, status, "");
+            return Json(res);
+        }
     }
 }

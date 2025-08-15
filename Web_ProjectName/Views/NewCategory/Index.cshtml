@@ -265,6 +265,18 @@
         </div>
 
         <div class="table-wrapper overflow-hidden p-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <select id="bulkStatusSelect" class="form-select form-select-sm" style="width: 180px;">
+                        <option value="">-- Cập nhật trạng thái --</option>
+                        <option value="1">Mở khóa (Hoạt động)</option>
+                        <option value="0">Khóa (Không hoạt động)</option>
+                    </select>
+                    <button id="btnApplyBulkStatus" type="button" class="btn btn-sm btn-primary">
+                        Áp dụng
+                    </button>
+                </div>
+            </div>
             <table class="table-custom" id="categoriesDataTable">
                 <thead>
                     <tr>
@@ -442,6 +454,7 @@
     <script type="text/javascript" src="~/lib/datatable/js/datatables.min.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/datatables.bootstrap4.min.js"></script>
     <script type="text/javascript" src="~/lib/datatable/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/datatables.net-select/js/dataTables.select.min.js"></script>
     <script src="~/lib/select2/js/select2.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/dist/js/il8n/vi.js"></script>
@@ -449,4 +462,6 @@
     <script src="~/lib/izi-toast-mater/iziToast.min.js"></script>
     <script src="~/js/call-api.js"></script>
     <script src="~/controllers/new_categories_management.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 }

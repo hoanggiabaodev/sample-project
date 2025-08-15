@@ -371,7 +371,6 @@
     <script src="~/controllers/news_management.js"></script>
 
     <script>
-        // Set current date time
         function updateDateTime() {
             const now = new Date();
             const options = {
@@ -386,7 +385,6 @@
             document.getElementById('currentDateTime').textContent = now.toLocaleDateString('vi-VN', options);
         }
 
-        // Update time every second
         setInterval(updateDateTime, 1000);
         updateDateTime();
     </script>

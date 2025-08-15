@@ -1,4 +1,3 @@
-// Constants
 const CONSTANTS = {
   STATUS: {
     INACTIVE: 0,
@@ -26,7 +25,6 @@ const CONSTANTS = {
   },
 };
 
-// Main Categories Manager Class
 class CategoriesManager {
   constructor() {
     this.dataTable = null;
@@ -87,7 +85,6 @@ class CategoriesManager {
         placeholder: "Chọn danh mục",
       });
 
-      // Initialize Select2 in modals
       [CONSTANTS.SELECTORS.ADD_MODAL, CONSTANTS.SELECTORS.EDIT_MODAL].forEach(
         (modalSelector) => {
           $(modalSelector).on("shown.bs.modal", function () {
@@ -119,7 +116,6 @@ class CategoriesManager {
   }
 
   bindEvents() {
-    // Search and filter events
     $("#btnSearch").click(() => {
       this.dataTable.ajax.reload();
       this.showToast(
@@ -131,12 +127,10 @@ class CategoriesManager {
 
     $("#btnReset").click(() => this.resetFilters());
 
-    // Form submission events
     $("#btnSaveCategory").click(() => this.saveCategory());
     $("#btnUpdateCategory").click(() => this.updateCategory());
     $("#btnConfirmDelete").click(() => this.confirmDelete());
 
-    // Modal events
     $(CONSTANTS.SELECTORS.ADD_MODAL).on("hidden.bs.modal", () =>
       this.resetAddForm()
     );
@@ -144,7 +138,6 @@ class CategoriesManager {
       this.resetEditForm()
     );
 
-    // Filter change events
     $(CONSTANTS.SELECTORS.STATUS_FILTER).change(() =>
       this.dataTable.ajax.reload()
     );
@@ -152,7 +145,6 @@ class CategoriesManager {
       this.handleCategoryFilterChange(e)
     );
 
-    // Form submission handlers
     $("#addCategoryForm").on("submit", (e) => {
       e.preventDefault();
       this.saveCategory();
@@ -163,12 +155,10 @@ class CategoriesManager {
       this.updateCategory();
     });
 
-    // Auto-generate meta URL
     $("#categoryName, #editCategoryName").on("input", (e) => {
       this.handleNameInput(e);
     });
 
-    // Edit modal cancel button
     $(CONSTANTS.SELECTORS.EDIT_MODAL + " .btn-secondary")
       .off("click.editCancel")
       .on("click.editCancel", () => this.handleEditCancel());
@@ -645,7 +635,6 @@ class CategoriesManager {
   }
 }
 
-// Legacy form handling functions (for backward compatibility)
 function showEditForm() {
   $(CONSTANTS.SELECTORS.VIEW_PANEL).hide();
   $(CONSTANTS.SELECTORS.EDIT_PANEL).show();
@@ -656,14 +645,12 @@ function hideEditForm() {
   $(CONSTANTS.SELECTORS.VIEW_PANEL).show();
 }
 
-// Initialize when document is ready
 let categoriesManager;
 
 $(document).ready(() => {
   categoriesManager = new CategoriesManager();
 });
 
-// Legacy event handlers
 $(document).on("submit", "#div_edit_panel #editCategoryForm", (e) => {
   e.preventDefault();
   hideEditForm();
@@ -673,7 +660,67 @@ $(document).on("click", "#div_edit_panel .btn-secondary", () => {
   hideEditForm();
 });
 
-// Global function exports for backward compatibility
+$(document).on("click", "#btnApplyBulkStatus", applyBulkStatus);
+
+async function applyBulkStatus() {
+  const statusValue = $("#bulkStatusSelect").val();
+  if (!statusValue) {
+    showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
+    return;
+  }
+
+  console.log(categoriesManager.dataTable);
+
+  if (!categoriesManager.dataTable.select) {
+    console.warn("DataTables Select plugin not available; cannot read selected rows.");
+    showToast("error", "Lỗi", "Plugin chọn nhiều dòng chưa được tải.");
+    return;
+  }
+
+  const api = categoriesManager.dataTable;
+  const selected = api.rows({ selected: true });
+  const selectedData = selected.data().toArray();
+
+  if (selectedData.length === 0) {
+    showToast("warning", "Cảnh báo", "Vui lòng chọn ít nhất một bản ghi.");
+    return;
+  }
+
+  const confirmText = statusValue === "1" ? "Mở khóa" : "Khóa";
+  const result = await Swal.fire({
+    icon: "question",
+    title: `Xác nhận ${confirmText}`,
+    text: `Bạn có chắc chắn muốn ${confirmText.toLowerCase()} ${selectedData.length} tin tức đã chọn?`,
+    showCancelButton: true,
+    confirmButtonText: "Cập nhật",
+    cancelButtonText: "Hủy",
+  });
+
+  if (!result.isConfirmed) return;
+
+  const requests = selectedData.map(row =>
+    CategoryApi.updateStatus(row.id, parseInt(statusValue))
+      .then(res => ({ id: row.id, success: res?.result === 1 }))
+      .catch(() => ({ id: row.id, success: false }))
+  );
+
+  const results = await Promise.all(requests);
+  const successCount = results.filter(r => r.success).length;
+  const errorCount = results.length - successCount;
+
+  if (successCount > 0) {
+    showToast(
+      "success",
+      "Thành công",
+      `Đã cập nhật ${successCount} bản ghi${errorCount ? `, lỗi: ${errorCount}` : ""}.`
+    );
+    api.rows({ selected: true }).deselect();
+    api.ajax.reload(null, false);
+  } else {
+    showToast("error", "Thất bại", "Không thể cập nhật bản ghi nào.");
+  }
+}
+
 window.viewCategory = (id) => categoriesManager.viewCategory(id);
 window.editCategory = (id) => categoriesManager.editCategory(id);
 window.deleteCategory = (id) => categoriesManager.deleteCategory(id);

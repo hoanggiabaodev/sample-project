@@ -119,6 +119,13 @@ const CategoryApi = {
     return ApiService.delete(`/NewCategory/Delete/${id}`);
   },
 
+  updateStatus: function (id, status) {
+    return ApiService.post(
+      `/NewCategory/P_EditStatus/${id}?status=${encodeURIComponent(status)}`,
+      {}
+    );
+  },
+
   getCategories: function () {
     return ApiService.get("/New/GetCategories");
   },
