@@ -218,7 +218,7 @@ function ResetFilters() {
 
 async function LoadCategories() {
   try {
-    const response = await NewsApi.getCategories();
+    const response = await CategoryApi.getList();
     const result = ApiUtils.handleResponse(
       response,
       null,
