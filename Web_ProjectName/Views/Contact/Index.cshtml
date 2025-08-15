@@ -284,6 +284,8 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
 <script>
 $(function () {
     $("#contactForm").on("submit", function (e) {
@@ -292,7 +294,7 @@ $(function () {
         let form = $(this);
         let formData = form.serialize(); 
 
-    let extraQuery = $.param({ Remark: "", Status: "1" });
+        let extraQuery = $.param({ Remark: "", Status: "1" });
 
         if (formData.length > 0) {
             formData += "&" + extraQuery;
@@ -305,7 +307,14 @@ $(function () {
             type: "POST",
             data: formData,
             success: function (res) {
-                alert("Gửi thành công!");
+                iziToast.success({
+                    title: 'Thành công!',
+                    message: 'Thông tin liên hệ đã được gửi thành công.',
+                    position: 'topRight',
+                    timeout: 5000,
+                    transitionIn: 'bounceInLeft',
+                    transitionOut: 'fadeOutRight'
+                });
                 form[0].reset();
             },
             error: function (xhr) {
@@ -315,7 +324,15 @@ $(function () {
                 } else if (xhr.responseText) {
                     message = "Lỗi server: " + xhr.responseText;
                 }
-                alert(message);
+                
+                iziToast.error({
+                    title: 'Lỗi!',
+                    message: message,
+                    position: 'topRight',
+                    timeout: 8000,
+                    transitionIn: 'bounceInLeft',
+                    transitionOut: 'fadeOutRight'
+                });
             }
         });
     });
