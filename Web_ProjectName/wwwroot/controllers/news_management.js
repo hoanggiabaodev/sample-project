@@ -124,7 +124,7 @@ function BindEvents() {
     showToast("success", "Đang tìm kiếm...", "Vui lòng chờ trong giây lát.");
   });
 
-  $("#btnReset").click(function () {
+  $("#btn_reset").click(function () {
     ResetFilters();
   });
 
