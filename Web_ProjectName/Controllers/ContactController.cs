@@ -5,12 +5,12 @@ using Web_ProjectName.Lib;
 
 namespace Web_ProjectName.Controllers
 {
-    public class SchoolController : BaseController<SchoolController>
+    public class ContactController : BaseController<ContactController>
     {
         private readonly IS_School _S_School;
         private readonly IS_Contact _S_Contact;
 
-        public SchoolController(IS_School S_School, IS_Contact S_Contact)
+        public ContactController(IS_School S_School, IS_Contact S_Contact)
         {
             _S_School = S_School;
             _S_Contact = S_Contact;

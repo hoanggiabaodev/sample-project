@@ -284,50 +284,6 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-@* <script>
-$(function () {
-    $("#contactForm").on("submit", function (e) {
-        e.preventDefault();
-
-        let form = $(this);
-
-        // Lấy dữ liệu từ form, với các trường không có thì gán mặc định
-        let params = {
-            Id: "0", // bạn có thể thay bằng giá trị phù hợp
-            SchoolId: form.find("[name='schoolId']").val() || "1",
-            Name: form.find("[name='name']").val() || "",
-            Email: form.find("[name='email']").val() || "",
-            Phone: form.find("[name='phone']").val() || "",
-            Title: form.find("[name='title']").val() || "",
-            Detail: form.find("[name='detail']").val() || "",
-            Remark: "",    // form không có input remark nên để rỗng
-            Status: "1"   // mặc định status = 1
-        };
-
-        // Chuyển params thành query string encode đúng
-        let queryString = $.param(params);
-
-        let apiUrl = "https://api-intern-test.ecotech2a.com/Contact/Create?" + queryString;
-
-        $.ajax({
-            url: apiUrl,
-            type: "POST", // API đang dùng GET với query params
-            dataType: "json",
-            success: function (res) {
-                if (res.result === 1) {
-                    alert(res.error.message || "Gửi liên hệ thành công!");
-                    form[0].reset();
-                } else {
-                    alert("Lỗi từ API: " + (res.error?.message || "Không xác định"));
-                }
-            },
-            error: function () {
-                alert("Có lỗi xảy ra khi gửi dữ liệu!");
-            }
-        });
-    });
-});
-</script> *@
 <script>
 $(function () {
     $("#contactForm").on("submit", function (e) {
@@ -345,7 +301,7 @@ $(function () {
         }
 
         $.ajax({
-            url: "/School/Create",
+            url: "/Contact/Create",
             type: "POST",
             data: formData,
             success: function (res) {

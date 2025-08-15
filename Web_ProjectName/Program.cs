@@ -169,9 +169,14 @@ app.UseEndpoints(endpoints =>
         defaults: new { controller = "NewCategory", action = "Index" });
 
     endpoints.MapControllerRoute(
-        name: "School Details",
+        name: "Contact Details",
         pattern: "cong-ty/{id}",
-        defaults: new { controller = "School", action = "GetById" });
+        defaults: new { controller = "Contact", action = "GetById" });
+    
+    endpoints.MapControllerRoute(
+        name: "Create Contact",
+        pattern: "contact/create",
+        defaults: new { controller = "Contact", action = "Create" });
     
     endpoints.MapControllerRoute(
         name: "Introduce",

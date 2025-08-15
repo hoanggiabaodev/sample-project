@@ -5,7 +5,6 @@ namespace Web_ProjectName.Models
 {
     public class M_Contact : M_BaseModel.BaseCustom
     {
-        // New schema (PascalCase)
         public int? Id { get; set; }
         public int? SchoolId { get; set; }
         public int? ProductId { get; set; }
@@ -15,24 +14,10 @@ namespace Web_ProjectName.Models
         public string Title { get; set; }
         public string Detail { get; set; }
         public string Remark { get; set; }
-        public int? Status { get; set; }
-
-        // Backward-compatible aliases (camelCase/legacy names)
-        public int? id { get => Id; set => Id = value; }
-        public int? supplierId { get => SchoolId; set => SchoolId = value; }
-        public int? productId { get => ProductId; set => ProductId = value; }
-        public string name { get => Name; set => Name = value; }
-        public string email { get => Email; set => Email = value; }
-        public string phone { get => Phone; set => Phone = value; }
-        public string title { get => Title; set => Title = value; }
-        public string detail { get => Detail; set => Detail = value; }
-        public string remark { get => Remark; set => Remark = value; }
-        public int? status { get => Status; set => Status = value; }
     }
 
     public class EM_Contact : M_BaseModel.BaseCustom
     {
-        // New schema (PascalCase)
         public int? Id { get; set; }
         public int? SchoolId { get; set; }
         public int? ProductId { get; set; }
@@ -52,18 +37,5 @@ namespace Web_ProjectName.Models
         public string? Detail { get; set; }
         [StringLength(150, ErrorMessage = "Ghi chú tối đa 150 ký tự!")]
         public string? Remark { get; set; }
-        public int? Status { get; set; }
-
-        // Backward-compatible aliases (camelCase/legacy names)
-        public int? id { get => Id; set => Id = value; }
-        public int? supplierId { get => SchoolId; set => SchoolId = value; }
-        public int? productId { get => ProductId; set => ProductId = value; }
-        public string name { get => Name; set => Name = value; }
-        public string email { get => Email; set => Email = value; }
-        public string phone { get => Phone; set => Phone = value; }
-        public string title { get => Title; set => Title = value; }
-        public string detail { get => Detail; set => Detail = value; }
-        public string remark { get => Remark; set => Remark = value; }
-        public int? status { get => Status; set => Status = value; }
     }
 }

@@ -58,7 +58,7 @@ namespace Web_ProjectName.Services
             model = CleanXSSHelper.CleanXSSObject(model); //Clean XSS
             Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
             {
-                {"Id", model.Id},
+                {"Id", model.Id ?? 0},
                 {"SchoolId", model.SchoolId},
                 {"Name", model.Name},
                 {"Email", model.Email},
@@ -76,7 +76,7 @@ namespace Web_ProjectName.Services
             model = CleanXSSHelper.CleanXSSObject(model); //Clean XSS
             Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
             {
-                {"Id", model.Id},
+                {"Id", model.Id ?? 0},
                 {"SchoolId", model.SchoolId},
                 {"Name", model.Name},
                 {"Email", model.Email},
