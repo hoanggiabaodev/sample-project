@@ -3,19 +3,19 @@ let newsEditor;
 let editNewsEditor;
 
 $(document).ready(function () {
-  initializeComponents();
-  loadCategories();
-  initializeDataTable();
-  bindEvents();
+  InitializeComponents();
+  LoadCategories();
+  InitializeDataTable();
+  BindEvents();
 });
 
-function initializeComponents() {
-  initializeSelect2();
-  initializeDatepicker();
-  initializeCKEditor("newsContent", "newsEditor");
+function InitializeComponents() {
+  InitializeSelect2();
+  InitializeDatepicker();
+  InitializeCKEditor("newsContent", "newsEditor");
 }
 
-function initializeSelect2() {
+function InitializeSelect2() {
   $("#categoryFilter").select2({
     placeholder: "Chọn danh mục",
     allowClear: true,
@@ -34,7 +34,7 @@ function initializeSelect2() {
   });
 }
 
-function initializeDatepicker() {
+function InitializeDatepicker() {
   $(".datepicker").datepicker({
     format: "dd/mm/yyyy",
     language: "vi",
@@ -43,12 +43,12 @@ function initializeDatepicker() {
   });
 }
 
-function initializeCKEditor(elementId, editorVariable) {
+function InitializeCKEditor(elementId, editorVariable) {
   try {
     if (CKEDITOR.instances[elementId]) {
       CKEDITOR.instances[elementId].destroy();
     }
-    suppressCKEditorWarnings();
+    SuppressCKEditorWarnings();
     window[editorVariable] = CKEDITOR.replace(elementId, {
       height: 300,
       language: "vi",
@@ -96,7 +96,7 @@ function initializeCKEditor(elementId, editorVariable) {
   }
 }
 
-function suppressCKEditorWarnings() {
+function SuppressCKEditorWarnings() {
   if (window.console && window.console.warn) {
     const originalWarn = window.console.warn;
     window.console.warn = function (message) {
@@ -118,26 +118,26 @@ function suppressCKEditorWarnings() {
   }
 }
 
-function bindEvents() {
+function BindEvents() {
   $("#btnSearch").click(function () {
     newsDataTable.ajax.reload();
     showToast("success", "Đang tìm kiếm...", "Vui lòng chờ trong giây lát.");
   });
 
   $("#btnReset").click(function () {
-    resetFilters();
+    ResetFilters();
   });
 
-  $("#btnSaveNews").click(saveNews);
-  $("#btnUpdateNews").click(updateNews);
+  $("#btnSaveNews").click(SaveNews);
+  $("#btnUpdateNews").click(UpdateNews);
 
-  $(document).on("click", "#btnApplyBulkStatus", applyBulkStatus);
+  $(document).on("click", "#btnApplyBulkStatus", ApplyBulkStatus);
 
-  $("#addNewsModal").on("hidden.bs.modal", resetAddForm);
-  $("#editNewsModal").on("hidden.bs.modal", resetEditForm);
+  $("#addNewsModal").on("hidden.bs.modal", ResetAddForm);
+  $("#editNewsModal").on("hidden.bs.modal", ResetEditForm);
   $("#addNewsModal").on("shown.bs.modal", function () {
     setTimeout(function () {
-      initializeCKEditor("newsContent", "newsEditor");
+      InitializeCKEditor("newsContent", "newsEditor");
     }, 100);
   });
   $("#editNewsModal").on("shown.bs.modal", function () {
@@ -145,12 +145,12 @@ function bindEvents() {
       if (CKEDITOR.instances["editNewsContent"]) {
         CKEDITOR.instances["editNewsContent"].destroy();
       }
-      initializeCKEditor("editNewsContent", "editNewsEditor");
+      InitializeCKEditor("editNewsContent", "editNewsEditor");
     }, 100);
   });
 }
 
-async function applyBulkStatus() {
+async function ApplyBulkStatus() {
   const statusValue = $("#bulkStatusSelect").val();
   if (!statusValue) {
     showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
@@ -158,8 +158,7 @@ async function applyBulkStatus() {
   }
 
   if (!newsDataTable.select) {
-    console.warn("DataTables Select plugin not available; cannot read selected rows.");
-    showToast("error", "Lỗi", "Plugin chọn nhiều dòng chưa được tải.");
+    showToast("error", "Lỗi", "Chưa dòng nào được chọn");
     return;
   }
 
@@ -207,7 +206,7 @@ async function applyBulkStatus() {
   }
 }
 
-function resetFilters() {
+function ResetFilters() {
   $("#searchKeyword").val("");
   $("#categoryFilter").val("").trigger("change.select2");
   $("#statusFilter").val("");
@@ -217,7 +216,7 @@ function resetFilters() {
   showToast("info", "Đã làm mới", "Đã xóa tất cả bộ lọc.");
 }
 
-async function loadCategories() {
+async function LoadCategories() {
   try {
     const response = await NewsApi.getCategories();
     const result = ApiUtils.handleResponse(
@@ -227,7 +226,7 @@ async function loadCategories() {
     );
 
     if (result.success) {
-      populateCategoryDropdowns(result.data);
+      PopulateCategoryDropdowns(result.data);
     }
   } catch (error) {
     ApiUtils.handleError(
@@ -237,7 +236,7 @@ async function loadCategories() {
   }
 }
 
-function populateCategoryDropdowns(categories) {
+function PopulateCategoryDropdowns(categories) {
   $("#categoryFilter, #newsCategory, #editNewsCategory").empty();
 
   $("#categoryFilter").append('<option value="">Tất cả danh mục</option>');
@@ -257,7 +256,7 @@ function populateCategoryDropdowns(categories) {
   $("#categoryFilter").trigger("change.select2");
 }
 
-function initializeDataTable() {
+function InitializeDataTable() {
   newsDataTable = $("#newsDataTable").DataTable({
     processing: true,
     serverSide: false,
@@ -293,7 +292,7 @@ function initializeDataTable() {
         width: "5%",
         render: (data) => `
                     <div class="d-flex justify-content-center align-items-center text-center" style="height: 100%;">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewNews(${data})" title="Xem chi tiết">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="ViewNews(${data})" title="Xem chi tiết">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>`,
@@ -339,7 +338,7 @@ function initializeDataTable() {
         width: "12%",
         render: function (data, type, row) {
           return `<div class="text-center">${
-            data ? formatDate(data) : "-"
+            data ? FormatDate(data) : "-"
           }</div>`;
         },
       },
@@ -371,10 +370,10 @@ function initializeDataTable() {
         width: "15%",
         render: (data) => `
                     <div class="d-flex justify-content-center align-items-center gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-warning" onclick="editNews(${data})" title="Chỉnh sửa">
+                        <button type="button" class="btn btn-sm btn-outline-warning" onclick="EditNews(${data})" title="Chỉnh sửa">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button id="btnDeleteNew" type="button" class="btn btn-sm btn-outline-danger" onclick="deleteNews(${data})" title="Xóa">
+                        <button id="btnDeleteNew" type="button" class="btn btn-sm btn-outline-danger" onclick="DeleteNews(${data})" title="Xóa">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>`,
@@ -403,7 +402,7 @@ function initializeDataTable() {
   });
 }
 
-async function viewNews(id) {
+async function ViewNews(id) {
   try {
     const response = await NewsApi.getById(id);
     const result = ApiUtils.handleResponse(
@@ -413,23 +412,23 @@ async function viewNews(id) {
     );
 
     if (result.success) {
-      displayNewsDetails(result.data);
+      DisplayNewsDetails(result.data);
     }
   } catch (error) {
     ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
   }
 }
 
-function displayNewsDetails(news) {
+function DisplayNewsDetails(news) {
   let content = `
         <div class="row">
             <div class="mt-3 d-flex justify-content-end gap-2">
-              <button id="btn-edit" type="button" class="btn btn-primary" onclick="editNews(${
+              <button id="btn-edit" type="button" class="btn btn-primary" onclick="EditNews(${
                 news.id
               })">
                   <i class="fas fa-edit"></i> Chỉnh sửa
               </button>
-              <button id="btnDeleteNew" type="button" class="btn btn-danger" onclick="deleteNews(${
+              <button id="btnDeleteNew" type="button" class="btn btn-danger" onclick="DeleteNews(${
                 news.id
               })">
                   <i class="fas fa-trash"></i> Xóa
@@ -448,13 +447,13 @@ function displayNewsDetails(news) {
                     }
                 </div>
                 <div class="mb-3">
-                    <strong>Ngày đăng:</strong> ${formatDate(news.publishedAt)}
+                    <strong>Ngày đăng:</strong> ${FormatDate(news.publishedAt)}
                 </div>
                 <div class="mb-3">
                     <strong>Lượt xem:</strong> ${news.viewNumber || 0}
                 </div>
                 <div class="mb-3">
-                    <strong>Trạng thái:</strong> ${getStatusBadge(news.status)}
+                    <strong>Trạng thái:</strong> ${GetStatusBadge(news.status)}
                 </div>
                 <div class="mb-3">
                     <strong>Tin nổi bật:</strong> ${
@@ -478,7 +477,7 @@ function displayNewsDetails(news) {
   $("#viewNewsModal").modal("show");
 }
 
-async function editNews(id) {
+async function EditNews(id) {
   try {
     $("#viewNewsModal").modal("hide");
 
@@ -490,7 +489,7 @@ async function editNews(id) {
     );
 
     if (result.success) {
-      populateEditForm(result.data);
+      PopulateEditForm(result.data);
       $("#editNewsModal").modal("show");
     }
   } catch (error) {
@@ -498,12 +497,12 @@ async function editNews(id) {
   }
 }
 
-function populateEditForm(news) {
+function PopulateEditForm(news) {
   $("#editNewsId").val(news.id);
   $("#editNewsTitle").val(news.name);
   $("#editNewsCategory").val(news.newsCategoryId).trigger("change.select2");
   $("#editNewsDescription").val(news.description);
-  $("#editNewsPublishedDate").val(formatDate(news.publishedAt));
+  $("#editNewsPublishedDate").val(FormatDate(news.publishedAt));
   $("#editNewsIsHot").prop("checked", news.isHot);
   $("#editNewsStatus").val(news.status || 0);
 
@@ -552,7 +551,7 @@ function populateEditForm(news) {
   setTimeout(setCKEditorContent, 100);
 }
 
-function deleteNews(id) {
+function DeleteNews(id) {
   Swal.fire({
     icon: 'warning',
     title: 'Bạn chắc không?',
@@ -570,13 +569,12 @@ function deleteNews(id) {
     buttonsStyling: false
   }).then((result) => {
     if (result.isConfirmed) {
-      // Thực hiện xóa
-      performDelete(id);
+      PerformDelete(id);
     }
   });
 }
 
-async function performDelete(id) {
+async function PerformDelete(id) {
   try {
     const response = await NewsApi.delete(id);
     const result = ApiUtils.handleResponse(
@@ -586,12 +584,9 @@ async function performDelete(id) {
     );
 
     if (result.success) {
-      // Đóng modal chi tiết tin tức nếu đang mở
       $("#viewNewsModal").modal("hide");
-      // Cập nhật DataTable
       newsDataTable.ajax.reload();
       
-      // Hiển thị thông báo thành công
       Swal.fire({
         icon: 'success',
         title: 'Thành công!',
@@ -605,10 +600,25 @@ async function performDelete(id) {
   }
 }
 
-async function saveNews() {
-  const formData = buildAddFormData();
+$("#categoryFilter").change((e) =>
+  HandleCategoryFilterChange(e)
+);
 
-  if (!validateNewsForm(formData)) {
+function HandleCategoryFilterChange(event) {
+  const $select = $(event.target);
+  const selectedText = $select.find("option:selected").text();
+
+  if (!$select.val()) {
+    newsDataTable.column(4).search("").draw();
+  } else {
+    newsDataTable.column(4).search(`^${selectedText}$`, true, false).draw();
+  }
+}
+
+async function SaveNews() {
+  const formData = BuildAddFormData();
+
+  if (!ValidateNewsForm(formData)) {
     return;
   }
 
@@ -623,17 +633,17 @@ async function saveNews() {
     if (result.success) {
       $("#addNewsModal").modal("hide");
       newsDataTable.ajax.reload();
-      resetAddForm();
+      ResetAddForm();
     }
   } catch (error) {
     ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
   }
 }
 
-async function updateNews() {
-  const formData = buildEditFormData();
+async function UpdateNews() {
+  const formData = BuildEditFormData();
 
-  if (!validateNewsForm(formData)) {
+  if (!ValidateNewsForm(formData)) {
     return;
   }
 
@@ -650,7 +660,7 @@ async function updateNews() {
 
       newsDataTable.ajax.reload();
 
-      resetEditForm();
+      ResetEditForm();
 
       try {
         const updatedNewsResponse = await NewsApi.getById(formData.id);
@@ -661,7 +671,7 @@ async function updateNews() {
         );
 
         if (updatedNewsResult.success) {
-          displayNewsDetails(updatedNewsResult.data);
+          DisplayNewsDetails(updatedNewsResult.data);
         }
       } catch (error) {
         console.error("Error loading updated news details:", error);
@@ -677,7 +687,7 @@ async function updateNews() {
   }
 }
 
-function buildAddFormData() {
+function BuildAddFormData() {
   let detail = "";
   try {
     detail =
@@ -709,7 +719,7 @@ function buildAddFormData() {
     detail: detail,
     publishedAt: parsedDate.toISOString(),
     isHot: $("#newsIsHot").is(":checked"),
-    metaUrl: generateMetaUrl($("#newsTitle").val()),
+    metaUrl: GenerateMetaUrl($("#newsTitle").val()),
     metaKeywords: "",
     metaDescription: $("#newsDescription").val() || "",
     metaTitle: $("#newsTitle").val() || "",
@@ -721,7 +731,7 @@ function buildAddFormData() {
   return formData;
 }
 
-function buildEditFormData() {
+function BuildEditFormData() {
   let detail = "";
   try {
     detail =
@@ -757,7 +767,7 @@ function buildEditFormData() {
     detail: detail,
     publishedAt: parsedDate.toISOString(),
     isHot: $("#editNewsIsHot").is(":checked"),
-    metaUrl: generateMetaUrl($("#editNewsTitle").val()),
+    metaUrl: GenerateMetaUrl($("#editNewsTitle").val()),
     metaKeywords: $("#editNewsMetaKeywords").val() || "",
     metaDescription:
       $("#editNewsMetaDescription").val() ||
@@ -772,7 +782,7 @@ function buildEditFormData() {
   return formData;
 }
 
-function validateNewsForm(formData) {
+function ValidateNewsForm(formData) {
   if (!formData.name || formData.name.trim() === "") {
     showToast("error", "Lỗi", "Vui lòng nhập tiêu đề tin tức.");
     return false;
@@ -795,7 +805,7 @@ function validateNewsForm(formData) {
   return true;
 }
 
-function resetAddForm() {
+function ResetAddForm() {
   $("#newsForm")[0].reset();
   $("#newsCategory").val("").trigger("change.select2");
   $("#newsStatus").val("");
@@ -810,7 +820,7 @@ function resetAddForm() {
   }
 }
 
-function resetEditForm() {
+function ResetEditForm() {
   $("#editNewsForm")[0].reset();
   $("#editNewsCategory").val("").trigger("change.select2");
   $("#editNewsStatus").val("");
@@ -833,13 +843,13 @@ function resetEditForm() {
   }
 }
 
-function formatDate(dateString) {
+function FormatDate(dateString) {
   if (!dateString) return "";
   const date = new Date(dateString);
   return date.toLocaleDateString("vi-VN");
 }
 
-function generateMetaUrl(title) {
+function GenerateMetaUrl(title) {
   if (!title) return "";
   return title
     .toLowerCase()
@@ -856,7 +866,7 @@ function generateMetaUrl(title) {
     .trim("-");
 }
 
-function getStatusBadge(status) {
+function GetStatusBadge(status) {
   switch (status) {
     case 0:
       return '<span class="badge bg-danger">Không hoạt động</span>';
@@ -865,13 +875,4 @@ function getStatusBadge(status) {
     default:
       return '<span class="badge bg-secondary">Không xác định</span>';
   }
-}
-
-function showToast(type, title, message) {
-  iziToast[type]({
-    title: title,
-    message: message,
-    position: "topRight",
-    timeout: 5000,
-  });
 }
