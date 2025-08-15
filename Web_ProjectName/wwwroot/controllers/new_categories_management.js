@@ -34,18 +34,18 @@ class CategoriesManager {
   }
 
   init() {
-    this.initializeComponents();
-    this.initializeDataTable();
-    this.bindEvents();
+    this.InitializeComponents();
+    this.InitializeDataTable();
+    this.BindEvents();
   }
 
-  initializeComponents() {
-    this.initializeSelect2();
-    this.initializeDatepicker();
-    this.loadCategoryFilter();
+  InitializeComponents() {
+    this.InitializeSelect2();
+    this.InitializeDatepicker();
+    this.LoadCategoryFilter();
   }
 
-  async loadCategoryFilter() {
+  async LoadCategoryFilter() {
     try {
       const response = await CategoryApi.getList();
       if (response?.result === 1 && Array.isArray(response.data)) {
@@ -67,7 +67,7 @@ class CategoriesManager {
     }
   }
 
-  initializeSelect2() {
+  InitializeSelect2() {
     try {
       const select2Config = {
         placeholder: "Chọn một tùy chọn",
@@ -102,7 +102,7 @@ class CategoriesManager {
     }
   }
 
-  initializeDatepicker() {
+  InitializeDatepicker() {
     try {
       $(".datepicker").datepicker({
         format: "dd/mm/yyyy",
@@ -115,7 +115,7 @@ class CategoriesManager {
     }
   }
 
-  bindEvents() {
+  BindEvents() {
     $("#btn_search").click(() => {
       this.dataTable.ajax.reload();
       this.showToast(
@@ -125,46 +125,46 @@ class CategoriesManager {
       );
     });
 
-    $("#btnReset").click(() => this.resetFilters());
+    $("#btnReset").click(() => this.ResetFilters());
 
-    $("#btn_save_category").click(() => this.saveCategory());
-    $("#btn_update_category").click(() => this.updateCategory());
-    $("#btn_confirm_delete").click(() => this.confirmDelete());
+    $("#btn_save_category").click(() => this.SaveCategory());
+    $("#btn_update_category").click(() => this.UpdateCategory());
+    $("#btn_confirm_delete").click(() => this.ConfirmDelete());
 
     $(CONSTANTS.SELECTORS.ADD_MODAL).on("hidden.bs.modal", () =>
-      this.resetAddForm()
+      this.ResetAddForm()
     );
     $(CONSTANTS.SELECTORS.EDIT_MODAL).on("hidden.bs.modal", () =>
-      this.resetEditForm()
+      this.ResetEditForm()
     );
 
     $(CONSTANTS.SELECTORS.STATUS_FILTER).change(() =>
       this.dataTable.ajax.reload()
     );
     $(CONSTANTS.SELECTORS.CATEGORY_FILTER).change((e) =>
-      this.handleCategoryFilterChange(e)
+      this.HandleCategoryFilterChange(e)
     );
 
     $("#addCategoryForm").on("submit", (e) => {
       e.preventDefault();
-      this.saveCategory();
+      this.SaveCategory();
     });
 
     $("#editCategoryForm").on("submit", (e) => {
       e.preventDefault();
-      this.updateCategory();
+      this.UpdateCategory();
     });
 
     $("#category_name, #edit_category_name").on("input", (e) => {
-      this.handleNameInput(e);
+      this.HandleNameInput(e);
     });
 
     $(CONSTANTS.SELECTORS.EDIT_MODAL + " .btn-secondary")
       .off("click.editCancel")
-      .on("click.editCancel", () => this.handleEditCancel());
+      .on("click.editCancel", () => this.HandleEditCancel());
   }
 
-  handleCategoryFilterChange(event) {
+  HandleCategoryFilterChange(event) {
     const $select = $(event.target);
     const selectedText = $select.find("option:selected").text();
 
@@ -175,7 +175,7 @@ class CategoriesManager {
     }
   }
 
-  handleNameInput(event) {
+  HandleNameInput(event) {
     const name = $(event.target).val();
     const metaUrlField =
       $(event.target).attr("id") === "categoryName"
@@ -183,18 +183,18 @@ class CategoriesManager {
         : "#editCategoryMetaUrl";
 
     if (name && !$(metaUrlField).val()) {
-      $(metaUrlField).val(this.generateMetaUrl(name));
+      $(metaUrlField).val(this.GenerateMetaUrl(name));
     }
   }
 
-  handleEditCancel() {
+  HandleEditCancel() {
     $(CONSTANTS.SELECTORS.EDIT_MODAL).modal("hide");
     if (this.currentEditingId) {
-      setTimeout(() => this.viewCategory(this.currentEditingId), 400);
+      setTimeout(() => this.ViewCategory(this.currentEditingId), 400);
     }
   }
 
-  resetFilters() {
+  ResetFilters() {
     $(CONSTANTS.SELECTORS.SEARCH_KEYWORD).val("");
 
     if (typeof $.fn.select2 !== "undefined") {
@@ -207,7 +207,7 @@ class CategoriesManager {
     this.showToast("info", CONSTANTS.MESSAGES.INFO, CONSTANTS.MESSAGES.RESET);
   }
 
-  initializeDataTable() {
+  InitializeDataTable() {
     this.dataTable = $(CONSTANTS.SELECTORS.CATEGORIES_TABLE).DataTable({
       processing: true,
       serverSide: false,
@@ -231,7 +231,7 @@ class CategoriesManager {
           render: (data) => `
             <div class="d-flex justify-content-center align-items-center text-center" style="height: 100%;">
               <button type="button" class="btn btn-sm btn-outline-success d-flex justify-content-center align-items-center" 
-                      onclick="categoriesManager.viewCategory(${data})" title="Xem">
+                      onclick="categoriesManager.ViewCategory(${data})" title="Xem">
                 <i class="fas fa-search"></i>
               </button>
             </div>`,
@@ -251,7 +251,7 @@ class CategoriesManager {
           data: null,
           width: "20%",
           render: (data, type, row) => {
-            const metaUrl = row.metaUrl || this.generateMetaUrl(row.name);
+            const metaUrl = row.metaUrl || this.GenerateMetaUrl(row.name);
             return metaUrl
               ? `<div class="text-center"><code>${metaUrl}</code></div>`
               : '<div class="text-center text-muted">-</div>';
@@ -261,14 +261,14 @@ class CategoriesManager {
           data: "status",
           width: "12%",
           render: (data) =>
-            `<div class="text-center">${this.getStatusBadge(data)}</div>`,
+            `<div class="text-center">${this.GetStatusBadge(data)}</div>`,
         },
         {
           data: "createdAt",
           width: "15%",
           render: (data) =>
             `<div class="text-center">${
-              data ? this.formatDate(data) : "-"
+              data ? this.FormatDate(data) : "-"
             }</div>`,
         },
         {
@@ -276,7 +276,7 @@ class CategoriesManager {
           width: "15%",
           render: (data) =>
             `<div class="text-center">${
-              data ? this.formatDate(data) : "-"
+              data ? this.FormatDate(data) : "-"
             }</div>`,
         },
       ],
@@ -303,7 +303,7 @@ class CategoriesManager {
     });
   }
 
-  async viewCategory(id) {
+  async ViewCategory(id) {
     try {
       const response = await CategoryApi.getById(id);
       const result = ApiUtils.handleResponse(
@@ -313,14 +313,14 @@ class CategoriesManager {
       );
 
       if (result.success) {
-        this.displayCategoryDetails(result.data);
+        this.DisplayCategoryDetails(result.data);
       }
     } catch (error) {
       ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
     }
   }
 
-  displayCategoryDetails(category) {
+  DisplayCategoryDetails(category) {
     const content = `
       <div id="categoryDetailContainer">
         <div class="card mb-4">
@@ -328,11 +328,11 @@ class CategoriesManager {
             Thông tin
             <div class="ms-auto">
               <a href="javascript:void(0)" class="text-decoration-none text-danger fw-bold ms-2" 
-                 onclick="categoriesManager.deleteCategory(${category.id})">
+                 onclick="categoriesManager.DeleteCategory(${category.id})">
                 Xóa <i class="fas fa-fw me-1 fa-trash"></i>
               </a>
               <a href="javascript:void(0)" class="text-decoration-none text-success fw-bold ms-2" 
-                 onclick="categoriesManager.editCategory(${category.id})">
+                 onclick="categoriesManager.EditCategory(${category.id})">
                 Sửa <i class="fas fa-fw me-1 fa-edit"></i>
               </a>
             </div>
@@ -347,20 +347,20 @@ class CategoriesManager {
                 <tr>
                   <td class="fw-bold">URL Meta</td>
                   <td>${
-                    category.metaUrl || this.generateMetaUrl(category.name)
+                    category.metaUrl || this.GenerateMetaUrl(category.name)
                   }</td>
                 </tr>
                 <tr>
                   <td class="fw-bold">Trạng thái</td>
-                  <td>${this.getStatusBadge(category.status)}</td>
+                  <td>${this.GetStatusBadge(category.status)}</td>
                 </tr>
                 <tr>
                   <td class="fw-bold">Ngày tạo</td>
-                  <td>${this.formatDate(category.createdAt)}</td>
+                  <td>${this.FormatDate(category.createdAt)}</td>
                 </tr>
                 <tr>
                   <td class="fw-bold">Cập nhật lần cuối</td>
-                  <td>${this.formatDate(category.updatedAt)}</td>
+                  <td>${this.FormatDate(category.updatedAt)}</td>
                 </tr>
               </tbody>
             </table>
@@ -388,7 +388,7 @@ class CategoriesManager {
     $(CONSTANTS.SELECTORS.VIEW_MODAL).modal("show");
   }
 
-  async editCategory(id) {
+  async EditCategory(id) {
     this.currentEditingId = id;
     try {
       $(CONSTANTS.SELECTORS.VIEW_MODAL).modal("hide");
@@ -400,7 +400,7 @@ class CategoriesManager {
       );
 
       if (result.success) {
-        this.populateEditForm(result.data);
+        this.PopulateEditForm(result.data);
         $(CONSTANTS.SELECTORS.EDIT_MODAL).modal("show");
       }
     } catch (error) {
@@ -408,19 +408,19 @@ class CategoriesManager {
     }
   }
 
-  populateEditForm(category) {
+  PopulateEditForm(category) {
     $("#edit_category_id").val(category.id);
     $("#edit_category_name").val(category.name);
     $("#edit_category_status").val(category.status || CONSTANTS.STATUS.INACTIVE);
     $("#edit_category_metaUrl").val(category.metaUrl || "");
   }
 
-  deleteCategory(id) {
+  DeleteCategory(id) {
     this.currentDeleteId = id;
     $(CONSTANTS.SELECTORS.DELETE_MODAL).modal("show");
   }
 
-  confirmDelete() {
+  ConfirmDelete() {
     if (!this.currentDeleteId) return;
 
     $.ajax({
@@ -454,14 +454,14 @@ class CategoriesManager {
     });
   }
 
-  async saveCategory() {
-    const formData = this.buildFormData(
+  async SaveCategory() {
+    const formData = this.BuildFormData(
       "#category_name",
       "#category_status",
       "#category_metaUrl"
     );
 
-    if (!this.validateForm(formData)) return;
+    if (!this.ValidateForm(formData)) return;
 
     try {
       const response = await CategoryApi.save(formData);
@@ -474,22 +474,22 @@ class CategoriesManager {
       if (result.success) {
         $(CONSTANTS.SELECTORS.ADD_MODAL).modal("hide");
         this.dataTable.ajax.reload();
-        this.resetAddForm();
+        this.ResetAddForm();
       }
     } catch (error) {
       ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
     }
   }
 
-  async updateCategory() {
-    const formData = this.buildFormData(
+  async UpdateCategory() {
+    const formData = this.BuildFormData(
       "#edit_category_name",
       "#edit_category_status",
       "#edit_category_metaUrl",
       "#edit_category_id"
     );
 
-    if (!this.validateForm(formData)) return;
+    if (!this.ValidateForm(formData)) return;
 
     try {
       const response = await CategoryApi.update(formData);
@@ -502,10 +502,10 @@ class CategoriesManager {
       if (result.success) {
         $(CONSTANTS.SELECTORS.EDIT_MODAL).modal("hide");
         this.dataTable.ajax.reload();
-        this.resetEditForm();
+        this.ResetEditForm();
 
         if (this.currentEditingId) {
-          setTimeout(() => this.viewCategory(this.currentEditingId), 400);
+          setTimeout(() => this.ViewCategory(this.currentEditingId), 400);
         }
       }
     } catch (error) {
@@ -513,7 +513,7 @@ class CategoriesManager {
     }
   }
 
-  buildFormData(
+  BuildFormData(
     nameSelector,
     statusSelector,
     metaUrlSelector,
@@ -523,7 +523,7 @@ class CategoriesManager {
       name: $(nameSelector).val(),
       status: parseInt($(statusSelector).val()) || CONSTANTS.STATUS.INACTIVE,
       metaUrl:
-        $(metaUrlSelector).val() || this.generateMetaUrl($(nameSelector).val()),
+        $(metaUrlSelector).val() || this.GenerateMetaUrl($(nameSelector).val()),
     };
 
     if (idSelector) {
@@ -533,7 +533,7 @@ class CategoriesManager {
     return formData;
   }
 
-  validateForm(formData) {
+  ValidateForm(formData) {
     if (!formData.name?.trim()) {
       this.showToast(
         "error",
@@ -559,18 +559,18 @@ class CategoriesManager {
     return true;
   }
 
-  resetAddForm() {
+  ResetAddForm() {
     $("#addCategoryForm")[0].reset();
-    this.resetSelect2("#category_status");
+    this.ResetSelect2("#category_status");
   }
 
-  resetEditForm() {
+  ResetEditForm() {
     $("#editCategoryForm")[0].reset();
-    this.resetSelect2("#editCategoryStatus");
+    this.ResetSelect2("#editCategoryStatus");
     $("#editCategoryMetaUrl").val("");
   }
 
-  resetSelect2(selector) {
+  ResetSelect2(selector) {
     if (typeof $.fn.select2 !== "undefined") {
       $(selector).val("").trigger("change.select2");
     } else {
@@ -578,13 +578,13 @@ class CategoriesManager {
     }
   }
 
-  formatDate(dateString) {
+  FormatDate(dateString) {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN");
   }
 
-  generateMetaUrl(name) {
+  GenerateMetaUrl(name) {
     if (!name) return "";
     return name
       .toLowerCase()
@@ -601,7 +601,7 @@ class CategoriesManager {
       .trim("-");
   }
 
-  getStatusBadge(status) {
+  GetStatusBadge(status) {
     switch (status) {
       case CONSTANTS.STATUS.INACTIVE:
         return '<span class="badge bg-danger">Không hoạt động</span>';
@@ -625,7 +625,7 @@ class CategoriesManager {
     }
   }
 
-  refreshTable() {
+  RefreshTable() {
     this.dataTable.ajax.reload();
     this.showToast(
       "info",
@@ -635,12 +635,12 @@ class CategoriesManager {
   }
 }
 
-function showEditForm() {
+function ShowEditForm() {
   $(CONSTANTS.SELECTORS.VIEW_PANEL).hide();
   $(CONSTANTS.SELECTORS.EDIT_PANEL).show();
 }
 
-function hideEditForm() {
+function HideEditForm() {
   $(CONSTANTS.SELECTORS.EDIT_PANEL).hide();
   $(CONSTANTS.SELECTORS.VIEW_PANEL).show();
 }
@@ -653,16 +653,16 @@ $(document).ready(() => {
 
 $(document).on("submit", "#div_edit_panel #editCategoryForm", (e) => {
   e.preventDefault();
-  hideEditForm();
+  HideEditForm();
 });
 
 $(document).on("click", "#div_edit_panel .btn-secondary", () => {
-  hideEditForm();
+  HideEditForm();
 });
 
-$(document).on("click", "#btn_apply_bulk_status", applyBulkStatus);
+$(document).on("click", "#btn_apply_bulk_status", ApplyBulkStatus);
 
-async function applyBulkStatus() {
+async function ApplyBulkStatus() {
   const statusValue = $("#bulk_status_select").val();
   if (!statusValue) {
     showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
@@ -721,10 +721,10 @@ async function applyBulkStatus() {
   }
 }
 
-window.viewCategory = (id) => categoriesManager.viewCategory(id);
-window.editCategory = (id) => categoriesManager.editCategory(id);
-window.deleteCategory = (id) => categoriesManager.deleteCategory(id);
-window.confirmDelete = () => categoriesManager.confirmDelete();
-window.refreshTable = () => categoriesManager.refreshTable();
-window.saveCategory = () => categoriesManager.saveCategory();
-window.updateCategory = () => categoriesManager.updateCategory();
+window.viewCategory = (id) => categoriesManager.ViewCategory(id);
+window.editCategory = (id) => categoriesManager.EditCategory(id);
+window.deleteCategory = (id) => categoriesManager.DeleteCategory(id);
+window.confirmDelete = () => categoriesManager.ConfirmDelete();
+window.refreshTable = () => categoriesManager.RefreshTable();
+window.saveCategory = () => categoriesManager.SaveCategory();
+window.updateCategory = () => categoriesManager.UpdateCategory();
