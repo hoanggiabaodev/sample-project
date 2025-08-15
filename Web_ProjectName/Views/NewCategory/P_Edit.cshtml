@@ -22,8 +22,8 @@
                             <input type="hidden" id="categoryId" name="id">
 
                             <div class="mb-3">
-                                <label for="categoryName" class="form-label">Tên danh mục *</label>
-                                <input type="text" class="form-control" id="categoryName" name="name" required>
+                                <label for="category_name" class="form-label">Tên danh mục *</label>
+                                <input type="text" class="form-control" id="category_name" name="name" required>
                                 <div class="form-text">Tên danh mục không được để trống</div>
                             </div>
 
@@ -107,7 +107,7 @@
             loadCategoryData();
 
             // Auto generate meta URL from name
-            $('#categoryName').on('input', function () {
+            $('#category_name').on('input', function () {
                 const name = $(this).val();
                 if (name && !$('#categoryMetaUrl').val()) {
                     const metaUrl = generateMetaUrl(name);
@@ -145,7 +145,7 @@
 
         function populateForm(category) {
             $('#categoryId').val(category.id);
-            $('#categoryName').val(category.name);
+            $('#category_name').val(category.name);
             $('#categoryStatus').val(category.status);
             $('#categoryMetaUrl').val(category.metaUrl || '');
 
@@ -167,7 +167,7 @@
         function updateCategory() {
             const formData = {
                 id: parseInt($('#categoryId').val()),
-                name: $('#categoryName').val(),
+                name: $('#category_name').val(),
                 status: parseInt($('#categoryStatus').val()),
                 metaUrl: $('#categoryMetaUrl').val()
             };

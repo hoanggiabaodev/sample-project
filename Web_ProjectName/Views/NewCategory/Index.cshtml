@@ -124,17 +124,17 @@
         gap: 8px;
     }
 
-    #categoriesDataTable.dataTable tbody td,
-    #categoriesDataTable.dataTable thead th {
+    #categories_dataTable.dataTable tbody td,
+    #categories_dataTable.dataTable thead th {
         border: 1px solid #dee2e6;
     }
 
-    #categoriesDataTable.dataTable {
+    #categories_dataTable.dataTable {
         border-collapse: collapse;
         border: 1px solid #dee2e6;
     }
 
-    #categoriesDataTable.dataTable tbody tr:hover {
+    #categories_dataTable.dataTable tbody tr:hover {
         background-color: #f1f3f5;
     }
 
@@ -157,28 +157,28 @@
         cursor: pointer;
     }
 
-    #categoriesDataTable.dataTable tbody tr:not(.selected):hover {
+    #categories_dataTable.dataTable tbody tr:not(.selected):hover {
         background-color: #f1f3f5 !important;
     }
 
-    #categoriesDataTable.dataTable tbody tr.selected,
-    #categoriesDataTable.dataTable tbody tr.selected:hover {
+    #categories_dataTable.dataTable tbody tr.selected,
+    #categories_dataTable.dataTable tbody tr.selected:hover {
         background-color: #0d6efd !important;
         color: #fff !important;
     }
 
-    #categoriesDataTable.dataTable tbody tr.selected td,
-    #categoriesDataTable.dataTable tbody tr.selected:hover td {
+    #categories_dataTable.dataTable tbody tr.selected td,
+    #categories_dataTable.dataTable tbody tr.selected:hover td {
         color: #fff !important;
     }
 
-    #categoriesDataTable.dataTable tbody tr.selected a,
-    #categoriesDataTable.dataTable tbody tr.selected:hover a {
+    #categories_dataTable.dataTable tbody tr.selected a,
+    #categories_dataTable.dataTable tbody tr.selected:hover a {
         color: #fff !important;
     }
 
-    #categoriesDataTable.dataTable tbody tr.selected .btn,
-    #categoriesDataTable.dataTable tbody tr.selected:hover .btn {
+    #categories_dataTable.dataTable tbody tr.selected .btn,
+    #categories_dataTable.dataTable tbody tr.selected:hover .btn {
         color: #fff;
         border-color: rgba(255, 255, 255, 0.75);
     }
@@ -242,20 +242,20 @@
         <div class="filter-section d-flex flex-wrap align-items-end" style="gap: 8px;">
             <div class="d-flex flex-column" style="min-width: 150px;">
                 <label class="filter-label mb-1">Danh mục</label>
-                <select class="form-select" id="categoryFilter">
+                <select class="form-select" id="category_filter">
                     <option value="">Tất cả danh mục</option>
                 </select>
             </div>
             <div class="d-flex flex-column" style="min-width: 220px;">
                 <label class="filter-label mb-1">Trạng thái</label>
-                <select class="form-select" id="statusFilter">
+                <select class="form-select" id="status_filter">
                     <option value="">Tất cả trạng thái</option>
                     <option value="1">Hoạt động</option>
                     <option value="0">Không hoạt động</option>
                 </select>
             </div>
             <div class="d-flex flex-column justify-content-end">
-                <button type="button" class="btn rounded-2 px-2 d-flex align-items-center gap-2" id="btnSearch"
+                <button type="button" class="btn rounded-2 px-2 d-flex align-items-center gap-2" id="btn_search"
                     style="font-size: 14px; height: 38px; transition: all 0.3s ease; background-color: #fff; color: #198754; border: 1px solid #198754;"
                     onmouseover="this.style.backgroundColor='#198754'; this.style.color='#fff'; this.style.borderColor='#198754';"
                     onmouseout="this.style.backgroundColor='#fff'; this.style.color='#198754'; this.style.borderColor='#198754';">
@@ -267,17 +267,17 @@
         <div class="table-wrapper overflow-hidden p-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <select id="bulkStatusSelect" class="form-select form-select-sm" style="width: 180px;">
+                    <select id="bulk_status_select" class="form-select form-select-sm" style="width: 180px;">
                         <option value="">-- Cập nhật trạng thái --</option>
                         <option value="1">Mở khóa (Hoạt động)</option>
                         <option value="0">Khóa (Không hoạt động)</option>
                     </select>
-                    <button id="btnApplyBulkStatus" type="button" class="btn btn-sm btn-primary">
+                    <button id="btn_apply_bulk_status" type="button" class="btn btn-sm btn-primary">
                         Áp dụng
                     </button>
                 </div>
             </div>
-            <table class="table-custom" id="categoriesDataTable">
+            <table class="table-custom" id="categories_dataTable">
                 <thead>
                     <tr>
                         <th class="text-center">Xem</th>
@@ -307,18 +307,18 @@
                 <form id="addCategoryForm">
                     <div class="mb-3">
                         <label for="categoryName" class="form-label">Tên danh mục *</label>
-                        <input type="text" class="form-control" id="categoryName" name="name" required>
+                        <input type="text" class="form-control" id="category_name" name="name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="categoryStatus" class="form-label">Trạng thái</label>
-                        <select class="form-select" id="categoryStatus" name="status">
+                        <label for="category_status" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="category_status" name="status">
                             <option value="1">Hoạt động</option>
                             <option value="0">Không hoạt động</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="categoryMetaUrl" class="form-label">URL Meta</label>
-                        <input type="text" class="form-control" id="categoryMetaUrl" name="metaUrl"
+                        <label for="category_metaUrl" class="form-label">URL Meta</label>
+                        <input type="text" class="form-control" id="category_metaUrl" name="metaUrl"
                             placeholder="url-meta-danh-muc">
                         <div class="form-text">URL thân thiện cho SEO (tùy chọn)</div>
                     </div>
@@ -326,7 +326,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="btnSaveCategory">Lưu</button>
+                <button type="button" class="btn btn-primary" id="btn_save_category">Lưu</button>
             </div>
         </div>
     </div>
@@ -342,28 +342,28 @@
             </div>
             <div class="modal-body">
                 <form id="editCategoryForm">
-                    <input type="hidden" id="editCategoryId" name="id">
+                    <input type="hidden" id="edit_category_id" name="id">
                     <div class="mb-3">
-                        <label for="editCategoryName" class="form-label">Tên danh mục *</label>
-                        <input type="text" class="form-control" id="editCategoryName" name="name" required>
+                        <label for="edit_category_name" class="form-label">Tên danh mục *</label>
+                        <input type="text" class="form-control" id="edit_category_name" name="name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editCategoryStatus" class="form-label">Trạng thái</label>
-                        <select class="form-select" id="editCategoryStatus" name="status">
+                        <label for="edit_category_status" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="edit_category_status" name="status">
                             <option value="1">Hoạt động</option>
                             <option value="0">Không hoạt động</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="editCategoryMetaUrl" class="form-label">URL Meta</label>
-                        <input type="text" class="form-control" id="editCategoryMetaUrl" name="metaUrl"
+                        <label for="edit_category_metaUrl" class="form-label">URL Meta</label>
+                        <input type="text" class="form-control" id="edit_category_metaUrl" name="metaUrl"
                             placeholder="url-meta-danh-muc">
                         <div class="form-text">URL thân thiện cho SEO (tùy chọn)</div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="btnCancelEdit" data-bs-dismiss="modal"
+                <button type="button" class="btn btn-secondary" id="btn_cancel_edit" data-bs-dismiss="modal"
                     onclick="onCancelEditCategory()">Hủy</button>
                 <script>
                     function onCancelEditCategory() {
@@ -376,7 +376,7 @@
                         }, 400);
                     }
                 </script>
-                <button type="button" class="btn btn-primary" id="btnUpdateCategory">Cập nhật</button>
+                <button type="button" class="btn btn-primary" id="btn_update_category">Cập nhật</button>
             </div>
         </div>
     </div>
@@ -414,7 +414,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Xóa</button>
+                <button type="button" class="btn btn-danger" id="btn_confirm_delete">Xóa</button>
             </div>
         </div>
     </div>

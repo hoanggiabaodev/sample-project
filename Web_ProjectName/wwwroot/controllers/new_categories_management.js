@@ -6,10 +6,10 @@ const CONSTANTS = {
   SELECTORS: {
     VIEW_PANEL: "#div_view_panel",
     EDIT_PANEL: "#div_edit_panel",
-    CATEGORIES_TABLE: "#categoriesDataTable",
-    STATUS_FILTER: "#statusFilter",
-    CATEGORY_FILTER: "#categoryFilter",
-    SEARCH_KEYWORD: "#searchKeyword",
+    CATEGORIES_TABLE: "#categories_dataTable",
+    STATUS_FILTER: "#status_filter",
+    CATEGORY_FILTER: "#category_filter",
+    SEARCH_KEYWORD: "#search_keyword",
     ADD_MODAL: "#addCategoryModal",
     EDIT_MODAL: "#editCategoryModal",
     VIEW_MODAL: "#viewCategoryModal",
@@ -116,7 +116,7 @@ class CategoriesManager {
   }
 
   bindEvents() {
-    $("#btnSearch").click(() => {
+    $("#btn_search").click(() => {
       this.dataTable.ajax.reload();
       this.showToast(
         "success",
@@ -127,9 +127,9 @@ class CategoriesManager {
 
     $("#btnReset").click(() => this.resetFilters());
 
-    $("#btnSaveCategory").click(() => this.saveCategory());
-    $("#btnUpdateCategory").click(() => this.updateCategory());
-    $("#btnConfirmDelete").click(() => this.confirmDelete());
+    $("#btn_save_category").click(() => this.saveCategory());
+    $("#btn_update_category").click(() => this.updateCategory());
+    $("#btn_confirm_delete").click(() => this.confirmDelete());
 
     $(CONSTANTS.SELECTORS.ADD_MODAL).on("hidden.bs.modal", () =>
       this.resetAddForm()
@@ -155,7 +155,7 @@ class CategoriesManager {
       this.updateCategory();
     });
 
-    $("#categoryName, #editCategoryName").on("input", (e) => {
+    $("#category_name, #edit_category_name").on("input", (e) => {
       this.handleNameInput(e);
     });
 
@@ -179,7 +179,7 @@ class CategoriesManager {
     const name = $(event.target).val();
     const metaUrlField =
       $(event.target).attr("id") === "categoryName"
-        ? "#categoryMetaUrl"
+        ? "#category_metaUrl"
         : "#editCategoryMetaUrl";
 
     if (name && !$(metaUrlField).val()) {
@@ -409,10 +409,10 @@ class CategoriesManager {
   }
 
   populateEditForm(category) {
-    $("#editCategoryId").val(category.id);
-    $("#editCategoryName").val(category.name);
-    $("#editCategoryStatus").val(category.status || CONSTANTS.STATUS.INACTIVE);
-    $("#editCategoryMetaUrl").val(category.metaUrl || "");
+    $("#edit_category_id").val(category.id);
+    $("#edit_category_name").val(category.name);
+    $("#edit_category_status").val(category.status || CONSTANTS.STATUS.INACTIVE);
+    $("#edit_category_metaUrl").val(category.metaUrl || "");
   }
 
   deleteCategory(id) {
@@ -456,9 +456,9 @@ class CategoriesManager {
 
   async saveCategory() {
     const formData = this.buildFormData(
-      "#categoryName",
-      "#categoryStatus",
-      "#categoryMetaUrl"
+      "#category_name",
+      "#category_status",
+      "#category_metaUrl"
     );
 
     if (!this.validateForm(formData)) return;
@@ -483,10 +483,10 @@ class CategoriesManager {
 
   async updateCategory() {
     const formData = this.buildFormData(
-      "#editCategoryName",
-      "#editCategoryStatus",
-      "#editCategoryMetaUrl",
-      "#editCategoryId"
+      "#edit_category_name",
+      "#edit_category_status",
+      "#edit_category_metaUrl",
+      "#edit_category_id"
     );
 
     if (!this.validateForm(formData)) return;
@@ -561,7 +561,7 @@ class CategoriesManager {
 
   resetAddForm() {
     $("#addCategoryForm")[0].reset();
-    this.resetSelect2("#categoryStatus");
+    this.resetSelect2("#category_status");
   }
 
   resetEditForm() {
@@ -660,10 +660,10 @@ $(document).on("click", "#div_edit_panel .btn-secondary", () => {
   hideEditForm();
 });
 
-$(document).on("click", "#btnApplyBulkStatus", applyBulkStatus);
+$(document).on("click", "#btn_apply_bulk_status", applyBulkStatus);
 
 async function applyBulkStatus() {
-  const statusValue = $("#bulkStatusSelect").val();
+  const statusValue = $("#bulk_status_select").val();
   if (!statusValue) {
     showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
     return;
