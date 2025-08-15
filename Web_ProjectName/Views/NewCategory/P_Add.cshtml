@@ -1,0 +1,36 @@
+@* Partial: Add Category Form *@
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCategoryModalLabel">Thêm danh mục mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCategoryForm">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Tên danh mục *</label>
+                        <input type="text" class="form-control" id="category_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category_status" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="category_status" name="status">
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category_metaUrl" class="form-label">URL Meta</label>
+                        <input type="text" class="form-control" id="category_metaUrl" name="metaUrl"
+                            placeholder="url-meta-danh-muc">
+                        <div class="form-text">URL thân thiện cho SEO (tùy chọn)</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btn_save_category">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+@* Partial: Edit Category Form *@
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCategoryModalLabel">Chỉnh sửa danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCategoryForm">
+                    <input type="hidden" id="edit_category_id" name="id">
+                    <div class="mb-3">
+                        <label for="edit_category_name" class="form-label">Tên danh mục *</label>
+                        <input type="text" class="form-control" id="edit_category_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_category_status" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="edit_category_status" name="status">
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_category_metaUrl" class="form-label">URL Meta</label>
+                        <input type="text" class="form-control" id="edit_category_metaUrl" name="metaUrl"
+                            placeholder="url-meta-danh-muc">
+                        <div class="form-text">URL thân thiện cho SEO (tùy chọn)</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn_cancel_edit" data-bs-dismiss="modal"
+                    onclick="onCancelEditCategory()">Hủy</button>
+                <script>
+                    function onCancelEditCategory() {
+                        setTimeout(function () {
+                            if (window._currentEditingCategoryId) {
+                                if (typeof viewCategory === 'function') {
+                                    viewCategory(window._currentEditingCategoryId);
+                                }
+                            }
+                        }, 400);
+                    }
+                </script>
+                <button type="button" class="btn btn-primary" id="btn_update_category">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
