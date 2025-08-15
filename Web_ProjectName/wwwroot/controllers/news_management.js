@@ -16,7 +16,7 @@ function InitializeComponents() {
 }
 
 function InitializeSelect2() {
-  $("#categoryFilter").select2({
+  $("#category_filter").select2({
     placeholder: "Chọn danh mục",
     allowClear: true,
     language: "vi",
@@ -119,7 +119,7 @@ function SuppressCKEditorWarnings() {
 }
 
 function BindEvents() {
-  $("#btnSearch").click(function () {
+  $("#btn_search").click(function () {
     newsDataTable.ajax.reload();
     showToast("success", "Đang tìm kiếm...", "Vui lòng chờ trong giây lát.");
   });
@@ -131,7 +131,7 @@ function BindEvents() {
   $("#btnSaveNews").click(SaveNews);
   $("#btnUpdateNews").click(UpdateNews);
 
-  $(document).on("click", "#btnApplyBulkStatus", ApplyBulkStatus);
+  $(document).on("click", "#btn_apply_bulk_status", ApplyBulkStatus);
 
   $("#addNewsModal").on("hidden.bs.modal", ResetAddForm);
   $("#editNewsModal").on("hidden.bs.modal", ResetEditForm);
@@ -151,7 +151,7 @@ function BindEvents() {
 }
 
 async function ApplyBulkStatus() {
-  const statusValue = $("#bulkStatusSelect").val();
+  const statusValue = $("#bulk_status_select").val();
   if (!statusValue) {
     showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
     return;
@@ -208,8 +208,8 @@ async function ApplyBulkStatus() {
 
 function ResetFilters() {
   $("#searchKeyword").val("");
-  $("#categoryFilter").val("").trigger("change.select2");
-  $("#statusFilter").val("");
+  $("#category_filter").val("").trigger("change.select2");
+  $("#status_filter").val("");
   $("#dateFrom").val("");
   $("#dateTo").val("");
   newsDataTable.ajax.reload();
@@ -237,15 +237,15 @@ async function LoadCategories() {
 }
 
 function PopulateCategoryDropdowns(categories) {
-  $("#categoryFilter, #newsCategory, #editNewsCategory").empty();
+  $("#category_filter, #newsCategory, #editNewsCategory").empty();
 
-  $("#categoryFilter").append('<option value="">Tất cả danh mục</option>');
+  $("#category_filter").append('<option value="">Tất cả danh mục</option>');
   $("#newsCategory, #editNewsCategory").append(
     '<option value="">Chọn danh mục</option>'
   );
 
   categories.forEach(function (category) {
-    $("#categoryFilter").append(
+    $("#category_filter").append(
       `<option value="${category.id}">${category.name}</option>`
     );
     $("#newsCategory, #editNewsCategory").append(
@@ -253,11 +253,11 @@ function PopulateCategoryDropdowns(categories) {
     );
   });
 
-  $("#categoryFilter").trigger("change.select2");
+  $("#category_filter").trigger("change.select2");
 }
 
 function InitializeDataTable() {
-  newsDataTable = $("#newsDataTable").DataTable({
+  newsDataTable = $("#news_data_table").DataTable({
     processing: true,
     serverSide: false,
     select: {
@@ -268,13 +268,13 @@ function InitializeDataTable() {
       url: "/New/GetListByStatus",
       type: "GET",
       data: function (d) {
-        var statusFilter = $("#statusFilter").val();
+        var status_filter = $("#status_filter").val();
         return {
           page: d.start / d.length + 1,
           record: d.length,
           keyword: $("#searchKeyword").val(),
-          newsCategoryId: $("#categoryFilter").val(),
-          status: statusFilter === "" ? null : parseInt(statusFilter),
+          newsCategoryId: $("#category_filter").val(),
+          status: status_filter === "" ? null : parseInt(status_filter),
           dateFrom: $("#dateFrom").val(),
           dateTo: $("#dateTo").val(),
         };
@@ -600,7 +600,7 @@ async function PerformDelete(id) {
   }
 }
 
-$("#categoryFilter").change((e) =>
+$("#category_filter").change((e) =>
   HandleCategoryFilterChange(e)
 );
 
