@@ -337,18 +337,16 @@ function InitializeDataTable() {
         data: "publishedAt",
         width: "12%",
         render: function (data, type, row) {
-          return `<div class="text-center">${
-            data ? FormatDate(data) : "-"
-          }</div>`;
+          return `<div class="text-center">${data ? FormatDate(data) : "-"
+            }</div>`;
         },
       },
       {
         data: "viewNumber",
         width: "8%",
         render: function (data, type, row) {
-          return `<div class="text-center"><span class="badge bg-info"><i class="fas fa-eye"></i> ${
-            data || 0
-          }</span></div>`;
+          return `<div class="text-center"><span class="badge bg-info"><i class="fas fa-eye"></i> ${data || 0
+            }</span></div>`;
         },
       },
       {
@@ -423,28 +421,24 @@ function DisplayNewsDetails(news) {
   let content = `
         <div class="row">
             <div class="mt-3 d-flex justify-content-end gap-2">
-              <button id="btn-edit" type="button" class="btn btn-primary" onclick="EditNews(${
-                news.id
-              })">
+              <button id="btn-edit" type="button" class="btn btn-primary" onclick="EditNews(${news.id
+    })">
                   <i class="fas fa-edit"></i> Chỉnh sửa
               </button>
-              <button id="btnDeleteNew" type="button" class="btn btn-danger" onclick="DeleteNews(${
-                news.id
-              })">
+              <button id="btnDeleteNew" type="button" class="btn btn-danger" onclick="DeleteNews(${news.id
+    })">
                   <i class="fas fa-trash"></i> Xóa
               </button>
             </div>
             <div class="col-md-4">
-                <img src="images/demo_images.webp" class="img-fluid rounded" alt="${
-                  news.name
-                }">
+                <img src="images/demo_images.webp" class="img-fluid rounded" alt="${news.name
+    }">
             </div>
             <div class="col-md-8">
                 <h4>${news.name}</h4>
                 <div class="mb-3">
-                    <strong>Danh mục:</strong> ${
-                      news.newsCategoryObj?.name || "Không có"
-                    }
+                    <strong>Danh mục:</strong> ${news.newsCategoryObj?.name || "Không có"
+    }
                 </div>
                 <div class="mb-3">
                     <strong>Ngày đăng:</strong> ${FormatDate(news.publishedAt)}
@@ -456,11 +450,10 @@ function DisplayNewsDetails(news) {
                     <strong>Trạng thái:</strong> ${GetStatusBadge(news.status)}
                 </div>
                 <div class="mb-3">
-                    <strong>Tin nổi bật:</strong> ${
-                      news.isHot
-                        ? '<span class="badge bg-danger">Hot</span>'
-                        : '<span class="badge bg-secondary">Bình thường</span>'
-                    }
+                    <strong>Tin nổi bật:</strong> ${news.isHot
+      ? '<span class="badge bg-danger">Hot</span>'
+      : '<span class="badge bg-secondary">Bình thường</span>'
+    }
                 </div>
             </div>
         </div>
@@ -586,7 +579,7 @@ async function PerformDelete(id) {
     if (result.success) {
       $("#viewNewsModal").modal("hide");
       newsDataTable.ajax.reload();
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Thành công!',
@@ -604,6 +597,10 @@ $("#category_filter").change((e) =>
   HandleCategoryFilterChange(e)
 );
 
+$("#status_filter").change((e) =>
+  HandleStatusFilterChange(e)
+);
+
 function HandleCategoryFilterChange(event) {
   const $select = $(event.target);
   const selectedText = $select.find("option:selected").text();
@@ -612,6 +609,17 @@ function HandleCategoryFilterChange(event) {
     newsDataTable.column(4).search("").draw();
   } else {
     newsDataTable.column(4).search(`^${selectedText}$`, true, false).draw();
+  }
+}
+
+function HandleStatusFilterChange(event) {
+  const $select = $(event.target);
+  const selectedText = $select.find("option:selected").text();
+
+  if (!$select.val()) {
+    newsDataTable.column(7).search("").draw();
+  } else {
+    newsDataTable.column(7).search(`^${selectedText}$`, true, false).draw();
   }
 }
 
