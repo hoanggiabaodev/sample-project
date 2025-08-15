@@ -1,4 +1,6 @@
-function getMetaUrlFromPath() {
+let clickedCategories = [];
+
+function GetMetaUrlFromPath() {
   var path = window.location.pathname;
   var parts = path.split("/");
   if (parts.length > 2 && parts[1] === "tin-tuc") {
@@ -7,7 +9,33 @@ function getMetaUrlFromPath() {
   return null;
 }
 
-function loadCategories(quantity, mess) {
+function FormatDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("vi-VN");
+}
+
+function WaitForJQuery() {
+  if (typeof $ !== "undefined") {
+    $(document).ready(function () {
+      LoadCategories(3, "Nhiều hơn");
+      LoadFeaturedNews();
+      LoadMostViewed();
+      const currentMetaUrl = GetMetaUrlFromPath();
+      LoadRelatedNews(currentMetaUrl);
+      var metaUrl = GetMetaUrlFromPath();
+      if (metaUrl) {
+        LoadNewsDetail(metaUrl);
+      }
+
+      BindEvents();
+    });
+  } else {
+    setTimeout(WaitForJQuery, 100);
+  }
+}
+
+function LoadCategories(quantity, mess) {
   if (typeof window.$ === "undefined") {
     console.error("jQuery is not loaded yet");
     return;
@@ -43,7 +71,7 @@ function loadCategories(quantity, mess) {
           limitedCategories.forEach((category, index) => {
             const isActive = clickedCategories.some(cat => cat.id == category.id);
             const activeClass = isActive ? 'active' : '';
-            
+
             var categoryHtml =
               '<a href="/tin-tuc/danh-muc/' +
               category.id +
@@ -66,7 +94,7 @@ function loadCategories(quantity, mess) {
               </button>
             `);
           }
-            window.$("#category-list").append(`
+          window.$("#category-list").append(`
               <button id="btnAllCategory" class="category-action-btn" style="opacity: 0; transform: translateY(20px);">
                   <img src="/images/all.png" alt="Tất cả" style="width: 16px; height: 16px;">
               </button>
@@ -92,6 +120,8 @@ function loadCategories(quantity, mess) {
                   });
                 }, index * 40);
               });
+
+            BindEvents();
           });
 
           console.log("Loaded " + limitedCategories.length + " categories");
@@ -116,152 +146,7 @@ function loadCategories(quantity, mess) {
   });
 }
 
-$(document).on("click", "#btnMore", function () {
-  var $btn = $(this);
-  var $img = $btn.find("img");
-  var originalSrc = $img.attr("src");
-  $btn.prop("disabled", true);
-
-  $img.css({
-    opacity: "0.6",
-    transform: "translateY(0) rotate(360deg)",
-    transition: "all 0.3s ease",
-  });
-
-  loadCategories(null, "Ít hơn");
-
-  setTimeout(function () {
-    $btn.prop("disabled", false);
-    $img.css({
-      opacity: "1",
-      transform: "translateY(0) rotate(0deg)",
-      transition: "all 0.3s ease",
-    });
-  }, 500);
-});
-
-$(document).on("click", "#btnLess", function () {
-  var $btn = $(this);
-  var $img = $btn.find("img");
-  $btn.prop("disabled", true);
-
-  $img.css({
-    opacity: "0.6",
-    transform: "translateY(0) rotate(360deg)",
-    transition: "all 0.3s ease",
-  });
-
-  loadCategories(3, "Nhiều hơn");
-
-  setTimeout(function () {
-    $btn.prop("disabled", false);
-    $img.css({
-      opacity: "1",
-      transform: "translateY(0) rotate(0deg)",
-      transition: "all 0.3s ease",
-    });
-  }, 500);
-});
-
-let clickedCategories = [];
-
-$(document).on("click", "#btnSearchCategory", function() {
-  if (clickedCategories.length > 0) {
-    const categoryIds = clickedCategories.map(cat => cat.id);
-    console.log("Category IDs to search:", categoryIds);
-    loadNewsList(categoryIds);
-  } else {
-    console.log("Không có danh mục nào được chọn");
-    alert("Vui lòng chọn ít nhất một danh mục để tìm kiếm");
-  }
-})
-
-$(document).on("click", "#btnAllCategory", function() {
-  const $allPills = $("#category-list .category-pill");
-  const totalCategories = $allPills.length;
-  const selectedCategories = clickedCategories.length;
-  
-  if (selectedCategories === totalCategories && totalCategories > 0) {
-    clickedCategories = [];
-    $allPills.removeClass("active");
-    
-    $("#btnAllCategory img").attr("src", "/images/all.png");
-    
-    iziToast.info({
-      title: 'Đã bỏ chọn',
-      message: 'Đã bỏ chọn tất cả danh mục',
-      position: 'topRight'
-    });
-  } else {
-    clickedCategories = [];
-    
-    $allPills.each(function() {
-      const $pill = $(this);
-      const categoryId = $pill.attr("href").split("/").pop();
-      const categoryName = $pill.text().trim();
-      
-      clickedCategories.push({ id: categoryId, name: categoryName });
-      $pill.addClass("active");
-    });
-    
-    $("#btnAllCategory img").attr("src", "/images/cross.png");
-    
-    if (clickedCategories.length > 0) {
-      iziToast.success({
-        title: 'Thành công',
-        message: `Đã chọn ${clickedCategories.length} danh mục`,
-        position: 'topRight'
-      });
-    }
-  }
-})
-
-$(document).on("click", ".category-pill", function(e) {
-  e.preventDefault();
-  
-  const $pill = $(this);
-  const categoryId = $pill.attr("href").split("/").pop();
-  const categoryName = $pill.text().trim();
-  
-  const existingIndex = clickedCategories.findIndex(cat => cat.id == categoryId);
-  
-  if (existingIndex === -1) {
-    clickedCategories.push({ id: categoryId, name: categoryName });
-    $pill.addClass("active");
-    console.log(`Đã thêm danh mục: ${categoryName} (ID: ${categoryId})`);
-  } else {
-    clickedCategories.splice(existingIndex, 1);
-    $pill.removeClass("active");
-    console.log(`Đã xóa danh mục: ${categoryName} (ID: ${categoryId})`);
-  }
-  
-  console.log("Danh mục đã click:", clickedCategories);
-});
-function waitForJQuery() {
-  if (typeof $ !== "undefined") {
-    $(document).ready(function () {
-      loadCategories(3, "Nhiều hơn");
-      loadFeaturedNews();
-      mostviewed();
-      const currentMetaUrl = getMetaUrlFromPath();
-      loadRelatedNews(currentMetaUrl);
-      var metaUrl = getMetaUrlFromPath();
-      if (metaUrl) {
-        loadNewsDetail(metaUrl);
-      }
-    });
-  } else {
-    setTimeout(waitForJQuery, 100);
-  }
-}
-
-function formatDate(dateString) {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN");
-}
-
-function loadNewsDetail(metaUrl) {
+function LoadNewsDetail(metaUrl) {
   if (typeof $ === "undefined") {
     console.error("jQuery is not loaded yet");
     return;
@@ -270,7 +155,7 @@ function loadNewsDetail(metaUrl) {
   $.ajax({
     url: "/New/GetDetail",
     type: "GET",
-    data: { metaUrl: metaUrl }, 
+    data: { metaUrl: metaUrl },
     dataType: "json",
     success: function (response) {
       console.log("News detail response:", response);
@@ -281,16 +166,14 @@ function loadNewsDetail(metaUrl) {
                     <div class="news-detail">
                         <h1>${news.name || ""}</h1>
                         <div class="meta">
-                            <span>Ngày đăng: ${formatDate(
-                              news.publishedAt
-                            )}</span>
-                            <span style="margin-left: 16px;">Lượt xem: ${
-                              news.viewNumber || 0
-                            }</span>
+                            <span>Ngày đăng: ${FormatDate(
+          news.publishedAt
+        )}</span>
+                            <span style="margin-left: 16px;">Lượt xem: ${news.viewNumber || 0
+          }</span>
                         </div>
-                        <div class="description" style="margin: 16px 0; color: #555; font-size: 16px;">${
-                          news.description || ""
-                        }</div>
+                        <div class="description" style="margin: 16px 0; color: #555; font-size: 16px;">${news.description || ""
+          }</div>
                         <div class="content">${news.content || ""}</div>
                     </div>
                 `;
@@ -310,7 +193,7 @@ function loadNewsDetail(metaUrl) {
   });
 }
 
-function loadFeaturedNews() {
+function LoadFeaturedNews() {
   if (typeof $ === "undefined") {
     console.error("jQuery is not loaded yet");
     return;
@@ -382,35 +265,35 @@ function loadFeaturedNews() {
   });
 }
 
-async function loadNewsList(categoryIds = []) {
-  try {    
+async function LoadNewsList(categoryIds = []) {
+  try {
     $("#news-list").html('<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Đang tải tin tức...</p></div>');
-    
+
     const response = await HomeApi.getList(categoryIds);
-    
+
     console.log("News list response:", response);
-    
+
     const data = response && response.res && Array.isArray(response.res.data)
       ? response.res.data
       : response && response.data && Array.isArray(response.data)
-      ? response.data
-      : [];
-    
+        ? response.data
+        : [];
+
     if (data.length > 0) {
-      renderNewsList(data);
+      RenderNewsList(data);
     } else {
       $("#news-list").html('<p class="text-muted text-center">Không tìm thấy tin tức nào</p>');
     }
-    
+
   } catch (error) {
     console.error("Error loading news list:", error);
     $("#news-list").html('<p class="text-danger text-center">Lỗi tải tin tức</p>');
   }
 }
 
-function renderNewsList(newsList) {
+function RenderNewsList(newsList) {
   $("#news-list").empty();
-  
+
   newsList.forEach(function (news) {
     var imageUrl = "/images/demo_images.webp";
     var categoryName = news.newsCategoryObj && news.newsCategoryObj.name
@@ -420,7 +303,7 @@ function renderNewsList(newsList) {
       ? '<span class="badge bg-danger ms-2" style="font-size: 10px;">Hot</span>'
       : "";
     var publishedDate = news.publishedAt
-      ? formatDate(news.publishedAt)
+      ? FormatDate(news.publishedAt)
       : "";
     var viewCount = news.viewNumber || 0;
 
@@ -463,14 +346,14 @@ function renderNewsList(newsList) {
         </div>
       </div>
     `;
-    
+
     $("#news-list").append(newsHtml);
   });
-  
+
   console.log("Loaded " + newsList.length + " news items");
 }
 
-function mostviewed() {
+function LoadMostViewed() {
   if (typeof $ === "undefined") {
     console.error("jQuery is not loaded yet");
     return;
@@ -492,7 +375,7 @@ function mostviewed() {
 
         top3.forEach((news, index) => {
           const rank = String(index + 1).padStart(2, "0");
-          const date = formatDate(news.publishedAt);
+          const date = FormatDate(news.publishedAt);
           const html = `
                         <div class="most-recent mb-40">
                             <div class="most-recent-img">
@@ -516,7 +399,7 @@ function mostviewed() {
   });
 }
 
-function loadRelatedNews(metaUrl) {
+function LoadRelatedNews(metaUrl) {
   $.ajax({
     url: "/Home/GetRelatedNews",
     type: "GET",
@@ -571,9 +454,139 @@ function loadRelatedNews(metaUrl) {
   });
 }
 
-$(document).on("change", "#categorySelect", function () {
-  var val = $(this).val();
-  loadNewsList(val ? parseInt(val) : null);
-});
+function HandleBtnMoreClick() {
+  var $btn = $("#btnMore");
+  var $img = $btn.find("img");
+  var originalSrc = $img.attr("src");
+  $btn.prop("disabled", true);
 
-waitForJQuery();
+  $img.css({
+    opacity: "0.6",
+    transform: "translateY(0) rotate(360deg)",
+    transition: "all 0.3s ease",
+  });
+
+  LoadCategories(null, "Ít hơn");
+
+  setTimeout(function () {
+    $btn.prop("disabled", false);
+    $img.css({
+      opacity: "1",
+      transform: "translateY(0) rotate(0deg)",
+      transition: "all 0.3s ease",
+    });
+  }, 500);
+}
+
+function HandleBtnLessClick() {
+  var $btn = $("#btnLess");
+  var $img = $btn.find("img");
+  $btn.prop("disabled", true);
+
+  $img.css({
+    opacity: "0.6",
+    transform: "translateY(0) rotate(360deg)",
+    transition: "all 0.3s ease",
+  });
+
+  LoadCategories(3, "Nhiều hơn");
+
+  setTimeout(function () {
+    $btn.prop("disabled", false);
+    $img.css({
+      opacity: "1",
+      transform: "translateY(0) rotate(0deg)",
+      transition: "all 0.3s ease",
+    });
+  }, 500);
+}
+
+function HandleBtnSearchCategoryClick() {
+  if (clickedCategories.length > 0) {
+    const categoryIds = clickedCategories.map(cat => cat.id);
+    console.log("Category IDs to search:", categoryIds);
+    LoadNewsList(categoryIds);
+  } else {
+    console.log("Không có danh mục nào được chọn");
+    alert("Vui lòng chọn ít nhất một danh mục để tìm kiếm");
+  }
+}
+
+function HandleBtnAllCategoryClick() {
+  const $allPills = $("#category-list .category-pill");
+  const totalCategories = $allPills.length;
+  const selectedCategories = clickedCategories.length;
+
+  if (selectedCategories === totalCategories && totalCategories > 0) {
+    clickedCategories = [];
+    $allPills.removeClass("active");
+
+    $("#btnAllCategory img").attr("src", "/images/all.png");
+
+    iziToast.info({
+      title: 'Đã bỏ chọn',
+      message: 'Đã bỏ chọn tất cả danh mục',
+      position: 'topRight'
+    });
+  } else {
+    clickedCategories = [];
+
+    $allPills.each(function () {
+      const $pill = $(this);
+      const categoryId = $pill.attr("href").split("/").pop();
+      const categoryName = $pill.text().trim();
+
+      clickedCategories.push({ id: categoryId, name: categoryName });
+      $pill.addClass("active");
+    });
+
+    $("#btnAllCategory img").attr("src", "/images/cross.png");
+
+    if (clickedCategories.length > 0) {
+      iziToast.success({
+        title: 'Thành công',
+        message: `Đã chọn ${clickedCategories.length} danh mục`,
+        position: 'topRight'
+      });
+    }
+  }
+}
+
+function HandleCategoryPillClick(e) {
+  e.preventDefault();
+
+  const $pill = $(this);
+  const categoryId = $pill.attr("href").split("/").pop();
+  const categoryName = $pill.text().trim();
+
+  const existingIndex = clickedCategories.findIndex(cat => cat.id == categoryId);
+
+  if (existingIndex === -1) {
+    clickedCategories.push({ id: categoryId, name: categoryName });
+    $pill.addClass("active");
+    console.log(`Đã thêm danh mục: ${categoryName} (ID: ${categoryId})`);
+  } else {
+    clickedCategories.splice(existingIndex, 1);
+    $pill.removeClass("active");
+    console.log(`Đã xóa danh mục: ${categoryName} (ID: ${categoryId})`);
+  }
+
+  console.log("Danh mục đã click:", clickedCategories);
+}
+
+function HandleCategorySelectChange() {
+  var val = $(this).val();
+  LoadNewsList(val ? parseInt(val) : null);
+}
+
+function BindEvents() {
+  $("#btnMore").off("click").on("click", HandleBtnMoreClick);
+  $("#btnLess").off("click").on("click", HandleBtnLessClick);
+  $("#btnSearchCategory").off("click").on("click", HandleBtnSearchCategoryClick);
+  $("#btnAllCategory").off("click").on("click", HandleBtnAllCategoryClick);
+  $("#categorySelect").off("change").on("change", HandleCategorySelectChange);
+
+  $(document).off("click", ".category-pill").on("click", ".category-pill", HandleCategoryPillClick);
+}
+
+WaitForJQuery();
