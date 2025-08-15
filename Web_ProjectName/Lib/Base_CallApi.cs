@@ -186,25 +186,22 @@ namespace Web_ProjectName.Lib
                     System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Authorization header added");
                 }
 
-                // For News/Update endpoint, use query parameters instead of form data
                 if (url.Contains("News/Update"))
                 {
-                    int i = 0;
-                    string param = "?";
+                    MultipartFormDataContent formData = new MultipartFormDataContent();
                     if (dictPars != null)
                         foreach (KeyValuePair<string, dynamic> item in dictPars)
                         {
-                            param += (i == 0 ? "" : "&") + string.Format("{0}={1}", item.Key, item.Value == null ? "" : Uri.EscapeDataString(item.Value.ToString()));
-                            i++;
+                            formData.Add(new StringContent(item.Value == null ? "" : item.Value.ToString()), item.Key);
                         }
 
-                    string fullUrl = url + param;
+                    string fullUrl = url;
                     System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Full URL: {fullUrl}");
                     System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Base Address: {client.BaseAddress}");
                     System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Parameters: {System.Text.Json.JsonSerializer.Serialize(dictPars)}");
                     System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Timeout: {client.Timeout}");
 
-                    var response = await client.PutAsync(fullUrl, null);
+                    var response = await client.PutAsync(fullUrl, formData);
                     System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Response Status: {response.StatusCode}");
                     System.Diagnostics.Debug.WriteLine($"Base_CallApi PutResponseDataAsync - Response Headers: {System.Text.Json.JsonSerializer.Serialize(response.Headers)}");
 
@@ -217,7 +214,6 @@ namespace Web_ProjectName.Lib
                 }
                 else
                 {
-                    // For other endpoints, use form data as before
                     MultipartFormDataContent formData = new MultipartFormDataContent();
                     if (dictPars != null)
                         foreach (KeyValuePair<string, dynamic> item in dictPars)

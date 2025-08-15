@@ -177,20 +177,22 @@ namespace Web_ProjectName.Services
                     {"ImageId", model.imageId ?? 0}
                 };
 
-                System.Diagnostics.Debug.WriteLine($"News Update API Call - URL: News/Update");
-                System.Diagnostics.Debug.WriteLine($"News Update Parameters: {System.Text.Json.JsonSerializer.Serialize(dictPars)}");
-                System.Diagnostics.Debug.WriteLine($"Access Token: {accessToken ?? "NULL"}");
-
                 try
                 {
                     var result = await _callApi.PutResponseDataAsync<M_News>("News/Update", dictPars, accessToken ?? "");
-                    System.Diagnostics.Debug.WriteLine($"News Update API Response: {System.Text.Json.JsonSerializer.Serialize(result)}");
                     return result;
                 }
                 catch (HttpRequestException httpEx)
                 {
-                    System.Diagnostics.Debug.WriteLine($"HTTP Request Exception: {httpEx.Message}");
-                    System.Diagnostics.Debug.WriteLine($"HTTP Status Code: {httpEx.StatusCode}");
+                    if (httpEx.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        return new ResponseData<M_News>
+                        {
+                            result = -1,
+                            error = new error { code = 404, message = "API endpoint News/Update không tồn tại. Vui lòng kiểm tra lại API URL." }
+                        };
+                    }
+                    
                     return new ResponseData<M_News>
                     {
                         result = -1,
@@ -199,7 +201,6 @@ namespace Web_ProjectName.Services
                 }
                 catch (TaskCanceledException taskEx)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Task Canceled Exception: {taskEx.Message}");
                     return new ResponseData<M_News>
                     {
                         result = -1,
@@ -209,7 +210,6 @@ namespace Web_ProjectName.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"News Update Exception: {ex.Message}");
                 return new ResponseData<M_News>
                 {
                     result = -1,
