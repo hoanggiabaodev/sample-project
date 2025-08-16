@@ -45,19 +45,6 @@ function GetStatusBadge(status) {
   }
 }
 
-function ShowToast(type, title, message) {
-  if (typeof iziToast !== "undefined") {
-    iziToast[type]({
-      title,
-      message,
-      position: "topRight",
-      timeout: 5000,
-    });
-  } else {
-    alert(`${title}: ${message}`);
-  }
-}
-
 function WaitForJQuery() {
   if (typeof $ !== "undefined") {
     $(document).ready(function () {

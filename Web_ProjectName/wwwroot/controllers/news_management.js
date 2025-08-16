@@ -529,7 +529,7 @@ async function UpdateNews() {
         }
       } catch (error) {
         console.error("Error loading updated news details:", error);
-        showToast(
+        ShowToast(
           "success",
           "Cập nhật thành công",
           "Tin tức đã được cập nhật thành công."
@@ -687,12 +687,12 @@ function BuildEditFormData() {
 
 function ValidateNewsForm(formData) {
   if (!formData.name || formData.name.trim() === "") {
-    showToast("error", "Lỗi", "Vui lòng nhập tiêu đề tin tức.");
+    ShowToast("error", "Lỗi", "Vui lòng nhập tiêu đề tin tức.");
     return false;
   }
 
   if (!formData.newsCategoryId || formData.newsCategoryId === 0) {
-    showToast("error", "Lỗi", "Vui lòng chọn danh mục.");
+    ShowToast("error", "Lỗi", "Vui lòng chọn danh mục.");
     return false;
   }
 
@@ -701,7 +701,7 @@ function ValidateNewsForm(formData) {
     formData.status === null ||
     formData.status === ""
   ) {
-    showToast("error", "Lỗi", "Vui lòng chọn trạng thái.");
+    ShowToast("error", "Lỗi", "Vui lòng chọn trạng thái.");
     return false;
   }
 
@@ -753,7 +753,7 @@ function ResetFilters() {
   $("#dateFrom").val("");
   $("#dateTo").val("");
   newsDataTable.ajax.reload();
-  showToast("info", "Đã làm mới", "Đã xóa tất cả bộ lọc.");
+  ShowToast("info", "Đã làm mới", "Đã xóa tất cả bộ lọc.");
 }
 
 function HandleCategoryFilterChange(event) {
@@ -781,12 +781,12 @@ function HandleStatusFilterChange(event) {
 async function ApplyBulkStatus() {
   const statusValue = $("#bulk_status_select").val();
   if (!statusValue) {
-    showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
+    ShowToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
     return;
   }
 
   if (!newsDataTable.select) {
-    showToast("error", "Lỗi", "Chưa dòng nào được chọn");
+    ShowToast("error", "Lỗi", "Chưa dòng nào được chọn");
     return;
   }
 
@@ -795,7 +795,7 @@ async function ApplyBulkStatus() {
   const selectedData = selected.data().toArray();
 
   if (selectedData.length === 0) {
-    showToast("warning", "Cảnh báo", "Vui lòng chọn ít nhất một bản ghi.");
+    ShowToast("warning", "Cảnh báo", "Vui lòng chọn ít nhất một bản ghi.");
     return;
   }
 
@@ -822,7 +822,7 @@ async function ApplyBulkStatus() {
   const errorCount = results.length - successCount;
 
   if (successCount > 0) {
-    showToast(
+    ShowToast(
       "success",
       "Thành công",
       `Đã cập nhật ${successCount} bản ghi${errorCount ? `, lỗi: ${errorCount}` : ""}.`
@@ -830,13 +830,13 @@ async function ApplyBulkStatus() {
     api.rows({ selected: true }).deselect();
     api.ajax.reload(null, false);
   } else {
-    showToast("error", "Thất bại", "Không thể cập nhật bản ghi nào.");
+    ShowToast("error", "Thất bại", "Không thể cập nhật bản ghi nào.");
   }
 }
 
 function HandleBtnSearchClick() {
   newsDataTable.ajax.reload();
-  showToast("success", "Đang tìm kiếm...", "Vui lòng chờ trong giây lát.");
+  ShowToast("success", "Đang tìm kiếm...", "Vui lòng chờ trong giây lát.");
 }
 
 function HandleBtnResetClick() {

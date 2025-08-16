@@ -139,11 +139,11 @@ const ApiUtils = {
   ) {
     if (response.result === 1) {
       if (successMessage) {
-        showToast("success", "Thành công", successMessage);
+        ShowToast("success", "Thành công", successMessage);
       }
       return { success: true, data: response.data };
     } else {
-      showToast("error", "Lỗi", response.error || errorMessage);
+      ShowToast("error", "Lỗi", response.error || errorMessage);
       return { success: false, error: response.error || errorMessage };
     }
   },
@@ -153,12 +153,12 @@ const ApiUtils = {
     errorMessage = "Không thể kết nối đến máy chủ"
   ) {
     console.error("API Error:", error);
-    showToast("error", "Lỗi", errorMessage);
+    ShowToast("error", "Lỗi", errorMessage);
     return { success: false, error: errorMessage };
   },
 };
 
-function showToast(type, title, message) {
+function ShowToast(type, title, message) {
   if (typeof iziToast !== "undefined") {
     iziToast[type]({
       title: title,
