@@ -2,12 +2,57 @@ let newsDataTable;
 let newsEditor;
 let editNewsEditor;
 
-$(document).ready(function () {
-  InitializeComponents();
-  LoadCategories();
-  InitializeDataTable();
-  BindEvents();
-});
+function FormatDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("vi-VN");
+}
+
+function GetStatusBadge(status) {
+  switch (status) {
+    case 0:
+      return '<span class="badge bg-danger">Không hoạt động</span>';
+    case 1:
+      return '<span class="badge bg-success">Hoạt động</span>';
+    default:
+      return '<span class="badge bg-secondary">Không xác định</span>';
+  }
+}
+
+function SuppressCKEditorWarnings() {
+  if (window.console && window.console.warn) {
+    const originalWarn = window.console.warn;
+    window.console.warn = function (message) {
+      if (
+        message &&
+        typeof message === "string" &&
+        ((message.includes("CKEditor") && message.includes("license")) ||
+          (message.includes("CKEditor") && message.includes("not secure")) ||
+          (message.includes("This CKEditor") &&
+            message.includes("version is not secure")) ||
+          (message.includes("4.22.1") && message.includes("not secure")) ||
+          message.includes("license key is missing") ||
+          message.includes("LTS version"))
+      ) {
+        return;
+      }
+      originalWarn.apply(window.console, arguments);
+    };
+  }
+}
+
+function WaitForJQuery() {
+  if (typeof $ !== "undefined") {
+    $(document).ready(function () {
+      InitializeComponents();
+      LoadCategories();
+      InitializeDataTable();
+      BindEvents();
+    });
+  } else {
+    setTimeout(WaitForJQuery, 100);
+  }
+}
 
 function InitializeComponents() {
   InitializeSelect2();
@@ -94,166 +139,6 @@ function InitializeCKEditor(elementId, editorVariable) {
     console.error("Error initializing CKEditor:", error);
     $("#" + elementId).show();
   }
-}
-
-function SuppressCKEditorWarnings() {
-  if (window.console && window.console.warn) {
-    const originalWarn = window.console.warn;
-    window.console.warn = function (message) {
-      if (
-        message &&
-        typeof message === "string" &&
-        ((message.includes("CKEditor") && message.includes("license")) ||
-          (message.includes("CKEditor") && message.includes("not secure")) ||
-          (message.includes("This CKEditor") &&
-            message.includes("version is not secure")) ||
-          (message.includes("4.22.1") && message.includes("not secure")) ||
-          message.includes("license key is missing") ||
-          message.includes("LTS version"))
-      ) {
-        return;
-      }
-      originalWarn.apply(window.console, arguments);
-    };
-  }
-}
-
-function BindEvents() {
-  $("#btn_search").click(function () {
-    newsDataTable.ajax.reload();
-    showToast("success", "Đang tìm kiếm...", "Vui lòng chờ trong giây lát.");
-  });
-
-  $("#btn_reset").click(function () {
-    ResetFilters();
-  });
-
-  $("#btnSaveNews").click(SaveNews);
-  $("#btnUpdateNews").click(UpdateNews);
-
-  $(document).on("click", "#btn_apply_bulk_status", ApplyBulkStatus);
-
-  $("#addNewsModal").on("hidden.bs.modal", ResetAddForm);
-  $("#editNewsModal").on("hidden.bs.modal", ResetEditForm);
-  $("#addNewsModal").on("shown.bs.modal", function () {
-    setTimeout(function () {
-      InitializeCKEditor("newsContent", "newsEditor");
-    }, 100);
-  });
-  $("#editNewsModal").on("shown.bs.modal", function () {
-    setTimeout(function () {
-      if (CKEDITOR.instances["editNewsContent"]) {
-        CKEDITOR.instances["editNewsContent"].destroy();
-      }
-      InitializeCKEditor("editNewsContent", "editNewsEditor");
-    }, 100);
-  });
-}
-
-async function ApplyBulkStatus() {
-  const statusValue = $("#bulk_status_select").val();
-  if (!statusValue) {
-    showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
-    return;
-  }
-
-  if (!newsDataTable.select) {
-    showToast("error", "Lỗi", "Chưa dòng nào được chọn");
-    return;
-  }
-
-  const api = newsDataTable;
-  const selected = api.rows({ selected: true });
-  const selectedData = selected.data().toArray();
-
-  if (selectedData.length === 0) {
-    showToast("warning", "Cảnh báo", "Vui lòng chọn ít nhất một bản ghi.");
-    return;
-  }
-
-  const confirmText = statusValue === "1" ? "Mở khóa" : "Khóa";
-  const result = await Swal.fire({
-    icon: "question",
-    title: `Xác nhận ${confirmText}`,
-    text: `Bạn có chắc chắn muốn ${confirmText.toLowerCase()} ${selectedData.length} tin tức đã chọn?`,
-    showCancelButton: true,
-    confirmButtonText: "Cập nhật",
-    cancelButtonText: "Hủy",
-  });
-
-  if (!result.isConfirmed) return;
-
-  const requests = selectedData.map(row =>
-    NewsApi.updateStatus(row.id, parseInt(statusValue))
-      .then(res => ({ id: row.id, success: res?.result === 1 }))
-      .catch(() => ({ id: row.id, success: false }))
-  );
-
-  const results = await Promise.all(requests);
-  const successCount = results.filter(r => r.success).length;
-  const errorCount = results.length - successCount;
-
-  if (successCount > 0) {
-    showToast(
-      "success",
-      "Thành công",
-      `Đã cập nhật ${successCount} bản ghi${errorCount ? `, lỗi: ${errorCount}` : ""}.`
-    );
-    api.rows({ selected: true }).deselect();
-    api.ajax.reload(null, false);
-  } else {
-    showToast("error", "Thất bại", "Không thể cập nhật bản ghi nào.");
-  }
-}
-
-function ResetFilters() {
-  $("#searchKeyword").val("");
-  $("#category_filter").val("").trigger("change.select2");
-  $("#status_filter").val("");
-  $("#dateFrom").val("");
-  $("#dateTo").val("");
-  newsDataTable.ajax.reload();
-  showToast("info", "Đã làm mới", "Đã xóa tất cả bộ lọc.");
-}
-
-async function LoadCategories() {
-  try {
-    const response = await CategoryApi.getList();
-    const result = ApiUtils.handleResponse(
-      response,
-      null,
-      "Không thể tải danh mục tin tức"
-    );
-
-    if (result.success) {
-      PopulateCategoryDropdowns(result.data);
-    }
-  } catch (error) {
-    ApiUtils.handleError(
-      error,
-      "Không thể kết nối đến máy chủ để tải danh mục."
-    );
-  }
-}
-
-function PopulateCategoryDropdowns(categories) {
-  $("#category_filter, #newsCategory, #editNewsCategory").empty();
-
-  $("#category_filter").append('<option value="">Tất cả danh mục</option>');
-  $("#newsCategory, #editNewsCategory").append(
-    '<option value="">Chọn danh mục</option>'
-  );
-
-  categories.forEach(function (category) {
-    $("#category_filter").append(
-      `<option value="${category.id}">${category.name}</option>`
-    );
-    $("#newsCategory, #editNewsCategory").append(
-      `<option value="${category.id}">${category.name}</option>`
-    );
-  });
-
-  $("#category_filter").trigger("change.select2");
 }
 
 function InitializeDataTable() {
@@ -400,6 +285,46 @@ function InitializeDataTable() {
   });
 }
 
+async function LoadCategories() {
+  try {
+    const response = await CategoryApi.getList();
+    const result = ApiUtils.handleResponse(
+      response,
+      null,
+      "Không thể tải danh mục tin tức"
+    );
+
+    if (result.success) {
+      PopulateCategoryDropdowns(result.data);
+    }
+  } catch (error) {
+    ApiUtils.handleError(
+      error,
+      "Không thể kết nối đến máy chủ để tải danh mục."
+    );
+  }
+}
+
+function PopulateCategoryDropdowns(categories) {
+  $("#category_filter, #newsCategory, #editNewsCategory").empty();
+
+  $("#category_filter").append('<option value="">Tất cả danh mục</option>');
+  $("#newsCategory, #editNewsCategory").append(
+    '<option value="">Chọn danh mục</option>'
+  );
+
+  categories.forEach(function (category) {
+    $("#category_filter").append(
+      `<option value="${category.id}">${category.name}</option>`
+    );
+    $("#newsCategory, #editNewsCategory").append(
+      `<option value="${category.id}">${category.name}</option>`
+    );
+  });
+
+  $("#category_filter").trigger("change.select2");
+}
+
 async function ViewNews(id) {
   try {
     const response = await NewsApi.getById(id);
@@ -544,85 +469,6 @@ function PopulateEditForm(news) {
   setTimeout(setCKEditorContent, 100);
 }
 
-function DeleteNews(id) {
-  Swal.fire({
-    icon: 'warning',
-    title: 'Bạn chắc không?',
-    text: 'Bạn có thực sự muốn xóa mục này? Không thể khôi phục sau khi xóa?',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Xóa',
-    cancelButtonText: 'Hủy',
-    reverseButtons: true,
-    customClass: {
-      confirmButton: 'btn btn-danger',
-      cancelButton: 'btn btn-secondary'
-    },
-    buttonsStyling: false
-  }).then((result) => {
-    if (result.isConfirmed) {
-      PerformDelete(id);
-    }
-  });
-}
-
-async function PerformDelete(id) {
-  try {
-    const response = await NewsApi.delete(id);
-    const result = ApiUtils.handleResponse(
-      response,
-      "Đã xóa tin tức thành công.",
-      "Không thể xóa tin tức."
-    );
-
-    if (result.success) {
-      $("#viewNewsModal").modal("hide");
-      newsDataTable.ajax.reload();
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Thành công!',
-        text: 'Tin tức đã được xóa thành công.',
-        timer: 2000,
-        showConfirmButton: false
-      });
-    }
-  } catch (error) {
-    ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
-  }
-}
-
-$("#category_filter").change((e) =>
-  HandleCategoryFilterChange(e)
-);
-
-$("#status_filter").change((e) =>
-  HandleStatusFilterChange(e)
-);
-
-function HandleCategoryFilterChange(event) {
-  const $select = $(event.target);
-  const selectedText = $select.find("option:selected").text();
-
-  if (!$select.val()) {
-    newsDataTable.column(4).search("").draw();
-  } else {
-    newsDataTable.column(4).search(`^${selectedText}$`, true, false).draw();
-  }
-}
-
-function HandleStatusFilterChange(event) {
-  const $select = $(event.target);
-  const selectedText = $select.find("option:selected").text();
-
-  if (!$select.val()) {
-    newsDataTable.column(7).search("").draw();
-  } else {
-    newsDataTable.column(7).search(`^${selectedText}$`, true, false).draw();
-  }
-}
-
 async function SaveNews() {
   const formData = BuildAddFormData();
 
@@ -689,6 +535,55 @@ async function UpdateNews() {
           "Tin tức đã được cập nhật thành công."
         );
       }
+    }
+  } catch (error) {
+    ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
+  }
+}
+
+function DeleteNews(id) {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Bạn chắc không?',
+    text: 'Bạn có thực sự muốn xóa mục này? Không thể khôi phục sau khi xóa?',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy',
+    reverseButtons: true,
+    customClass: {
+      confirmButton: 'btn btn-danger',
+      cancelButton: 'btn btn-secondary'
+    },
+    buttonsStyling: false
+  }).then((result) => {
+    if (result.isConfirmed) {
+      PerformDelete(id);
+    }
+  });
+}
+
+async function PerformDelete(id) {
+  try {
+    const response = await NewsApi.delete(id);
+    const result = ApiUtils.handleResponse(
+      response,
+      "Đã xóa tin tức thành công.",
+      "Không thể xóa tin tức."
+    );
+
+    if (result.success) {
+      $("#viewNewsModal").modal("hide");
+      newsDataTable.ajax.reload();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Tin tức đã được xóa thành công.',
+        timer: 2000,
+        showConfirmButton: false
+      });
     }
   } catch (error) {
     ApiUtils.handleError(error, "Không thể kết nối đến máy chủ.");
@@ -851,36 +746,152 @@ function ResetEditForm() {
   }
 }
 
-function FormatDate(dateString) {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN");
+function ResetFilters() {
+  $("#searchKeyword").val("");
+  $("#category_filter").val("").trigger("change.select2");
+  $("#status_filter").val("");
+  $("#dateFrom").val("");
+  $("#dateTo").val("");
+  newsDataTable.ajax.reload();
+  showToast("info", "Đã làm mới", "Đã xóa tất cả bộ lọc.");
 }
 
-function GenerateMetaUrl(title) {
-  if (!title) return "";
-  return title
-    .toLowerCase()
-    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, "a")
-    .replace(/[èéẹẻẽêềếệểễ]/g, "e")
-    .replace(/[ìíịỉĩ]/g, "i")
-    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, "o")
-    .replace(/[ùúụủũưừứựửữ]/g, "u")
-    .replace(/[ỳýỵỷỹ]/g, "y")
-    .replace(/đ/g, "d")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim("-");
-}
+function HandleCategoryFilterChange(event) {
+  const $select = $(event.target);
+  const selectedText = $select.find("option:selected").text();
 
-function GetStatusBadge(status) {
-  switch (status) {
-    case 0:
-      return '<span class="badge bg-danger">Không hoạt động</span>';
-    case 1:
-      return '<span class="badge bg-success">Hoạt động</span>';
-    default:
-      return '<span class="badge bg-secondary">Không xác định</span>';
+  if (!$select.val()) {
+    newsDataTable.column(4).search("").draw();
+  } else {
+    newsDataTable.column(4).search(`^${selectedText}$`, true, false).draw();
   }
 }
+
+function HandleStatusFilterChange(event) {
+  const $select = $(event.target);
+  const selectedText = $select.find("option:selected").text();
+
+  if (!$select.val()) {
+    newsDataTable.column(7).search("").draw();
+  } else {
+    newsDataTable.column(7).search(`^${selectedText}$`, true, false).draw();
+  }
+}
+
+async function ApplyBulkStatus() {
+  const statusValue = $("#bulk_status_select").val();
+  if (!statusValue) {
+    showToast("warning", "Cảnh báo", "Vui lòng chọn trạng thái cần cập nhật.");
+    return;
+  }
+
+  if (!newsDataTable.select) {
+    showToast("error", "Lỗi", "Chưa dòng nào được chọn");
+    return;
+  }
+
+  const api = newsDataTable;
+  const selected = api.rows({ selected: true });
+  const selectedData = selected.data().toArray();
+
+  if (selectedData.length === 0) {
+    showToast("warning", "Cảnh báo", "Vui lòng chọn ít nhất một bản ghi.");
+    return;
+  }
+
+  const confirmText = statusValue === "1" ? "Mở khóa" : "Khóa";
+  const result = await Swal.fire({
+    icon: "question",
+    title: `Xác nhận ${confirmText}`,
+    text: `Bạn có chắc chắn muốn ${confirmText.toLowerCase()} ${selectedData.length} tin tức đã chọn?`,
+    showCancelButton: true,
+    confirmButtonText: "Cập nhật",
+    cancelButtonText: "Hủy",
+  });
+
+  if (!result.isConfirmed) return;
+
+  const requests = selectedData.map(row =>
+    NewsApi.updateStatus(row.id, parseInt(statusValue))
+      .then(res => ({ id: row.id, success: res?.result === 1 }))
+      .catch(() => ({ id: row.id, success: false }))
+  );
+
+  const results = await Promise.all(requests);
+  const successCount = results.filter(r => r.success).length;
+  const errorCount = results.length - successCount;
+
+  if (successCount > 0) {
+    showToast(
+      "success",
+      "Thành công",
+      `Đã cập nhật ${successCount} bản ghi${errorCount ? `, lỗi: ${errorCount}` : ""}.`
+    );
+    api.rows({ selected: true }).deselect();
+    api.ajax.reload(null, false);
+  } else {
+    showToast("error", "Thất bại", "Không thể cập nhật bản ghi nào.");
+  }
+}
+
+function HandleBtnSearchClick() {
+  newsDataTable.ajax.reload();
+  showToast("success", "Đang tìm kiếm...", "Vui lòng chờ trong giây lát.");
+}
+
+function HandleBtnResetClick() {
+  ResetFilters();
+}
+
+function HandleSaveNewsClick() {
+  SaveNews();
+}
+
+function HandleUpdateNewsClick() {
+  UpdateNews();
+}
+
+function HandleBulkStatusClick() {
+  ApplyBulkStatus();
+}
+
+function HandleAddModalHidden() {
+  ResetAddForm();
+}
+
+function HandleEditModalHidden() {
+  ResetEditForm();
+}
+
+function HandleAddModalShown() {
+  setTimeout(function () {
+    InitializeCKEditor("newsContent", "newsEditor");
+  }, 100);
+}
+
+function HandleEditModalShown() {
+  setTimeout(function () {
+    if (CKEDITOR.instances["editNewsContent"]) {
+      CKEDITOR.instances["editNewsContent"].destroy();
+    }
+    InitializeCKEditor("editNewsContent", "editNewsEditor");
+  }, 100);
+}
+
+function BindEvents() {
+  $("#btn_search").off("click").on("click", HandleBtnSearchClick);
+  $("#btn_reset").off("click").on("click", HandleBtnResetClick);
+  $("#btnSaveNews").off("click").on("click", HandleSaveNewsClick);
+  $("#btnUpdateNews").off("click").on("click", HandleUpdateNewsClick);
+  $("#btn_apply_bulk_status").off("click").on("click", HandleBulkStatusClick);
+
+  $("#category_filter").off("change").on("change", HandleCategoryFilterChange);
+  $("#status_filter").off("change").on("change", HandleStatusFilterChange);
+
+  $("#addNewsModal").off("hidden.bs.modal").on("hidden.bs.modal", HandleAddModalHidden);
+  $("#editNewsModal").off("hidden.bs.modal").on("hidden.bs.modal", HandleEditModalHidden);
+  $("#addNewsModal").off("shown.bs.modal").on("shown.bs.modal", HandleAddModalShown);
+  $("#editNewsModal").off("shown.bs.modal").on("shown.bs.modal", HandleEditModalShown);
+}
+
+WaitForJQuery();
