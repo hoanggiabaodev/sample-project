@@ -502,8 +502,10 @@ function ResetFilters() {
 
   if (typeof $.fn.select2 !== "undefined") {
     $(CONSTANTS.SELECTORS.STATUS_FILTER).val("").trigger("change.select2");
+    $(CONSTANTS.SELECTORS.CATEGORY_FILTER).val("").trigger("change.select2");
   } else {
     $(CONSTANTS.SELECTORS.STATUS_FILTER).val("");
+    $(CONSTANTS.SELECTORS.CATEGORY_FILTER).val("");
   }
 
   categoriesDataTable.ajax.reload();
@@ -638,7 +640,7 @@ function HandleEditFormSubmit(event) {
 
 function BindEvents() {
   $("#btn_search").off("click").on("click", HandleBtnSearchClick);
-  $("#btnReset").off("click").on("click", HandleBtnResetClick);
+  $("#btn_reset").off("click").on("click", HandleBtnResetClick);
   $("#btn_save_category").off("click").on("click", HandleSaveCategoryClick);
   $("#btn_update_category").off("click").on("click", HandleUpdateCategoryClick);
   $("#btn_confirm_delete").off("click").on("click", HandleConfirmDeleteClick);
