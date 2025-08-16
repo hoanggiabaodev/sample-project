@@ -248,19 +248,19 @@ function InitializeDataTable() {
           }
         },
       },
-      {
-        data: "id",
-        width: "15%",
-        render: (data) => `
-                    <div class="d-flex justify-content-center align-items-center gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-warning" onclick="EditNews(${data})" title="Chỉnh sửa">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button id="btnDeleteNew" type="button" class="btn btn-sm btn-outline-danger" onclick="DeleteNews(${data})" title="Xóa">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>`,
-      },
+      // {
+      //   data: "id",
+      //   width: "15%",
+      //   render: (data) => `
+      //               <div class="d-flex justify-content-center align-items-center gap-1">
+      //                   <button type="button" class="btn btn-sm btn-outline-warning" onclick="EditNews(${data})" title="Chỉnh sửa">
+      //                       <i class="fas fa-edit"></i>
+      //                   </button>
+      //                   <button id="btnDeleteNew" type="button" class="btn btn-sm btn-outline-danger" onclick="DeleteNews(${data})" title="Xóa">
+      //                       <i class="fas fa-trash"></i>
+      //                   </button>
+      //               </div>`,
+      // },
     ],
     language: {
       search: "Tìm kiếm:",

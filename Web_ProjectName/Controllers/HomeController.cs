@@ -15,9 +15,9 @@ namespace Web_ProjectName.Controllers
             _s_NewsCategory = s_NewsCategory;
         }
 
-		public async Task<IActionResult> Index(int page = 1, int? categoryId = null, string? keyword = null)
+        public async Task<IActionResult> Index(int page = 1, int? categoryId = null, string? keyword = null)
         {
-            const int pageSize = 10;
+            const int pageSize = 5;
 
             try
             {
@@ -66,7 +66,7 @@ namespace Web_ProjectName.Controllers
 
         public async Task<IActionResult> GetList(int page = 1, int? categoryId = null, string? categoryIds = null, string? keyword = null)
         {
-            const int pageSize = 10;
+            const int pageSize = 5;
             var res = await _s_News.GetListByStatus(1);
             var all = (res.result == 1 && res.data != null) ? res.data : new List<M_News>();
 
@@ -104,7 +104,8 @@ namespace Web_ProjectName.Controllers
             if (page > totalPages) page = totalPages;
             var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            return Json(new {
+            return Json(new
+            {
                 result = 1,
                 data = items,
                 totalPages,
