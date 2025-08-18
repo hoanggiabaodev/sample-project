@@ -28,6 +28,13 @@ const CONSTANTS = {
   },
 };
 
+$(document).ready(function () {
+    InitializeComponents();
+    LoadCategoryFilter();
+    InitializeDataTable();
+    BindEvents();
+});
+
 function FormatDate(dateString) {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -42,19 +49,6 @@ function GetStatusBadge(status) {
       return '<span class="badge bg-success">Hoạt động</span>';
     default:
       return '<span class="badge bg-secondary">Không xác định</span>';
-  }
-}
-
-function WaitForJQuery() {
-  if (typeof $ !== "undefined") {
-    $(document).ready(function () {
-      InitializeComponents();
-      LoadCategoryFilter();
-      InitializeDataTable();
-      BindEvents();
-    });
-  } else {
-    setTimeout(WaitForJQuery, 100);
   }
 }
 
@@ -643,5 +637,3 @@ function BindEvents() {
 
   $("#category_name, #edit_category_name").off("input").on("input", HandleNameInput);
 }
-
-WaitForJQuery();

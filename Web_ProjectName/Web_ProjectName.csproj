@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="EditModels\**" />
+    <Compile Remove="Views\NewFolder\**" />
     <Content Remove="EditModels\**" />
+    <Content Remove="Views\NewFolder\**" />
     <EmbeddedResource Remove="EditModels\**" />
+    <EmbeddedResource Remove="Views\NewFolder\**" />
     <None Remove="EditModels\**" />
+    <None Remove="Views\NewFolder\**" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -23,10 +27,6 @@
 		<PackageReference Include="WebEssentials.AspNetCore.PWA" Version="1.0.85" />
 		<PackageReference Include="DeviceDetector.NET" Version="6.3.3" />
 		<PackageReference Include="HtmlSanitizer" Version="8.0.865" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Views\NewFolder\" />
 	</ItemGroup>
 
 </Project>

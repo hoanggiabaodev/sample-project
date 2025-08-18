@@ -36,7 +36,6 @@ namespace Web_ProjectName.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(EM_Contact model)
         {
-            // Bỏ qua validate cho các trường audit (server sẽ tự set)
             ModelState.Remove("createdByObj");
             ModelState.Remove("updatedByObj");
             ModelState.Remove("Remark");

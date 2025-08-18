@@ -118,7 +118,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
     {
-        const int durationInSeconds = 7 * 60 * 60 * 24; 
+        const int durationInSeconds = 7 * 60 * 60 * 24;
         ctx.Context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.CacheControl] =
             "public,max-age=" + durationInSeconds;
     }
@@ -172,12 +172,17 @@ app.UseEndpoints(endpoints =>
         name: "Contact Details",
         pattern: "cong-ty/{id}",
         defaults: new { controller = "Contact", action = "GetById" });
-    
+
+    endpoints.MapControllerRoute(
+        name: "Contact List",
+        pattern: "admin/contact-list",
+        defaults: new { controller = "Contact", action = "GetList" });
+
     endpoints.MapControllerRoute(
         name: "Create Contact",
         pattern: "contact/create",
         defaults: new { controller = "Contact", action = "Create" });
-    
+
     endpoints.MapControllerRoute(
         name: "Introduce",
         pattern: "gioi-thieu",

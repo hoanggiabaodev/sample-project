@@ -1,0 +1,384 @@
+@{
+    ViewData["Title"] = "Quản lý Liên hệ";
+    ViewData["Description"] = "Quản lý liên hệ";
+    Layout = "_LayoutDashmin";
+}
+
+<style>
+    .header-logo {
+        border-radius: 8px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .header-logo-icon {
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+        color: #047857;
+    }
+
+    .filter-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-left: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .filter-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .filter-select,
+    .filter-input {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: #047857;
+        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.1);
+    }
+
+    .search-input {
+        padding: 6px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 250px;
+    }
+
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .table-custom thead {
+        background: #f9fafb;
+    }
+
+    .table-custom th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table-custom td {
+        padding: 12px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .table-custom tbody tr {
+        cursor: pointer;
+    }
+
+    .select2-container--default .select2-selection--single {
+        height: 44px;
+        padding: 8px 12px;
+        border-radius: 0.375rem;
+        font-size: 16px;
+        line-height: 28px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 28px;
+    }
+
+    .select2-selection.select2-selection--single {
+        height: max-content !important;
+        min-height: unset !important;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        line-height: normal;
+    }
+
+    .btn-search,
+    .btn-success {
+        height: 44px;
+        font-size: 16px;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #contact_data_table.dataTable tbody td,
+    #contact_data_table.dataTable thead th {
+        border: 1px solid #dee2e6;
+    }
+
+    #contact_data_table.dataTable {
+        border-collapse: collapse;
+        border: 1px solid #dee2e6;
+    }
+
+    #contact_data_table.dataTable tbody tr:hover {
+        background-color: #f1f3f5;
+    }
+
+    .page-item:not(.active) a {
+        color: #047857;
+        text-decoration: none;
+    }
+
+    .page-item:not(.active) a:hover {
+        color: #fff;
+        background-color: #059669;
+    }
+
+    .page-item.active .page-link {
+        color: #fff;
+        background-color: #059669;
+    }
+
+    .select2-container--open {
+        z-index: 9999 !important;
+    }
+
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+
+    .modal {
+        z-index: 1050 !important;
+    }
+
+    .modal .select2-container--open {
+        z-index: 9999 !important;
+    }
+
+    .datepicker {
+        z-index: 9999 !important;
+    }
+
+    .modal .dropdown-menu {
+        z-index: 9999 !important;
+    }
+
+    .modal .select2-container {
+        width: 100% !important;
+    }
+
+    .modal .select2-selection {
+        height: 38px !important;
+        border: 1px solid #ced4da !important;
+    }
+
+    .modal .select2-selection__rendered {
+        line-height: 36px !important;
+    }
+
+    .modal .select2-selection__arrow {
+        height: 36px !important;
+    }
+
+    #btnDeleteNew:hover {
+        color: white;
+        background-color: red;
+    }
+
+    #contact_data_table.dataTable tbody tr:not(.selected):hover {
+        background-color: #f1f3f5 !important;
+    }
+
+    #contact_data_table.dataTable tbody tr.selected,
+    #contact_data_table.dataTable tbody tr.selected:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    #contact_data_table.dataTable tbody tr.selected td,
+    #contact_data_table.dataTable tbody tr.selected:hover td {
+        color: #fff !important;
+    }
+
+    #contact_data_table.dataTable tbody tr.selected a,
+    #contact_data_table.dataTable tbody tr.selected:hover a {
+        color: #fff !important;
+    }
+
+    #contact_data_table.dataTable tbody tr.selected .btn,
+    #contact_data_table.dataTable tbody tr.selected:hover .btn {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.75);
+    }
+</style>
+
+<div class="text-white px-4 py-3" style="background: linear-gradient(135deg, #047857 0%, #059669 100%);">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <a href="#" class="text-white sidebar-toggler flex-shrink-0">
+                <i class="fa fa-bars"></i>
+            </a>
+            <button style="background: none; border: none; color: white; cursor: pointer;">
+                <i class="fa fa-home" style="font-size: 16px;"></i>
+            </button>
+            <div class="header-logo">
+                <div class="header-logo-icon">LH</div>
+                <span style="font-weight: 500;">QUẢN LÝ - LIÊN HỆ</span>
+            </div>
+            <div class="d-flex align-items-center gap-2" style="font-size: 14px;">
+                <i class="fa fa-calendar" style="font-size: 14px;"></i>
+                <span id="currentDateTime"></span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="text-end" style="font-size: 14px;">
+                <div>TK: admin | Tên: Quản trị viên</div>
+                <div class="text-white-50" style="font-size: 12px;">ADMIN</div>
+            </div>
+            <div class="d-flex align-items-center justify-content-center rounded-circle"
+                style="width:32px; height:32px; background:rgba(255,255,255,0.2);">
+                <i class="fa fa-user" style="font-size: 14px;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="bg-white border-bottom py-1 px-3" aria-label="breadcrumb">
+    <ol class="breadcrumb d-flex align-items-center gap-2 fs-6 text-secondary mb-0">
+        <li class="breadcrumb-item">
+            <i class="fa fa-home" style="font-size: 14px;"></i>
+        </li>
+        <li class="breadcrumb-item">Quản lý</li>
+        <li class="breadcrumb-item active fw-medium text-dark" aria-current="page">
+            Liên hệ
+        </li>
+        <li class="ms-auto">
+            <button type="button" class="btn btn-outline-theme btn-success rounded-1 px-2 py-1" data-bs-toggle="modal"
+                data-bs-target="#addContactModal"
+                style="transition: all 0.3s ease; background-color: #fff; color: #198754; border: 1px solid #198754;"
+                onmouseover="this.style.backgroundColor='#198754'; this.style.color='#fff'; this.style.borderColor='#198754';"
+                onmouseout="this.style.backgroundColor='#fff'; this.style.color='#198754'; this.style.borderColor='#198754';">
+                <i class="fa fa-plus"></i> Thêm liên hệ
+            </button>
+        </li>
+    </ol>
+</nav>
+
+<div class="mt-4 bg-gray-50 min-h-[calc(100vh-120px)]">
+    <div class="bg-white rounded-lg p-6">
+        <div class="filter-section d-flex flex-wrap align-items-end" style="gap: 8px;">
+            <div class="d-flex flex-column" style="min-width: 220px;">
+                <label class="filter-label mb-1">Trạng thái</label>
+                <select class="form-select" id="status_filter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="1">Hoạt động</option>
+                    <option value="0">Không hoạt động</option>
+                </select>
+            </div>
+            <div class="d-flex flex-column justify-content-end">
+                <button type="button" class="btn rounded-2 px-2 d-flex align-items-center gap-2" id="btn_search"
+                    style="font-size: 14px; height: 38px; transition: all 0.3s ease; background-color: #fff; color: #198754; border: 1px solid #198754;"
+                    onmouseover="this.style.backgroundColor='#198754'; this.style.color='#fff'; this.style.borderColor='#198754';"
+                    onmouseout="this.style.backgroundColor='#fff'; this.style.color='#198754'; this.style.borderColor='#198754';">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+            <div class="d-flex flex-column justify-content-end">
+                <button type="button" class="btn rounded-2 px-2 d-flex align-items-center gap-2" id="btn_reset"
+                    style="font-size: 14px; height: 38px; transition: all 0.3s ease; background-color: #fff; color: #6c757d; border: 1px solid #6c757d;"
+                    onmouseover="this.style.backgroundColor='#6c757d'; this.style.color='#fff'; this.style.borderColor='#6c757d';"
+                    onmouseout="this.style.backgroundColor='#fff'; this.style.color='#6c757d'; this.style.borderColor='#6c757d';">
+                    <i class="fa fa-undo"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="table-wrapper overflow-hidden p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <select id="bulk_status_select" class="form-select form-select-sm" style="width: 180px;">
+                        <option value="">-- Cập nhật trạng thái --</option>
+                        <option value="1">Mở khóa (Hoạt động)</option>
+                        <option value="0">Khóa (Không hoạt động)</option>
+                    </select>
+                    <button id="btn_apply_bulk_status" type="button" class="btn btn-sm btn-primary">
+                        Áp dụng
+                    </button>
+                </div>
+            </div>
+            <table class="table-custom" id="contact_data_table">
+                <thead>
+                    <tr>
+                        <th class="text-center">Xem</th>
+                        <th class="text-center" style="width: 50px;">Số thứ tự</th>
+                        <th class="text-center">TÊN</th>
+                        <th class="text-center">EMAIL</th>
+                        <th class="text-center">SỐ ĐIỆN THOẠI</th>
+                        <th class="text-center">TIÊU ĐỀ</th>
+                        <th class="text-center" style="width: 140px;">NGÀY TẠO</th>
+                        <th class="text-center" style="width: 120px;">TRẠNG THÁI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("P_AddForm")
+@await Html.PartialAsync("P_EditForm")
+@await Html.PartialAsync("P_ViewModal")
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="~/lib/select2/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="~/lib/izi-toast-mater/css/iziToast.min.css">
+
+    <script src="~/lib/ckeditor/ckeditor.js"></script>
+    <script type="text/javascript" src="~/lib/datatable/js/datatables.min.js"></script>
+    <script type="text/javascript" src="~/lib/datatable/js/datatables.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="~/lib/datatable/js/dataTables.responsive.min.js"></script>
+    <!-- Ensure Select plugin loads after page-level DataTables scripts -->
+    <script src="~/lib/datatables.net-select/js/dataTables.select.min.js"></script>
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/dist/js/il8n/vi.js"></script>
+    <script src="~/lib/izi-toast-mater/iziToast.min.js"></script>
+    <script src="~/js/call-api.js"></script>
+    <script src="~/controllers/contact_management.js"></script>
+
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('vi-VN', options);
+        }
+
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+    </script>
+}
