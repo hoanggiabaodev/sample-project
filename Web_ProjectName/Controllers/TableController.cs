@@ -190,6 +190,17 @@ namespace Web_ProjectName.Controllers
                                         }
                                         return DateTime.TryParse(s, out var parsed) ? parsed : null;
                                     }
+                                    bool? TryBoolX(object? v)
+                                    {
+                                        var s = v?.ToString()?.Trim();
+                                        if (string.IsNullOrEmpty(s)) return false; // để trống = false
+
+                                        if (string.Equals(s, "x", StringComparison.OrdinalIgnoreCase))
+                                            return true;
+
+                                        return false; // mọi giá trị khác cũng coi là false
+                                    }
+
                                     if (reader.Name.Equals("1.TM-TC", StringComparison.OrdinalIgnoreCase) || reader.Name.Equals("1.TC-TM", StringComparison.OrdinalIgnoreCase))
                                     {
                                         data.Add(new
@@ -225,7 +236,7 @@ namespace Web_ProjectName.Controllers
                                             GraftedTreeCorrectQuantity = TryInt(GetCell(15)),
                                             GraftedTreeMixedQuantity = TryInt(GetCell(17)),
                                             EmptyHoleQuantity = TryInt(GetCell(19)),
-                                            DensityOfGraftedTree = TryDouble(GetCell(21)),
+                                            DensityOfGraftedTree = TryInt(GetCell(21)),
                                             AverageNumberLeafLayer = TryDouble(GetCell(22)),
                                             PlantingEndDate = TryDate(GetCell(24))?.ToString("yyyy-MM-dd") ?? GetCell(24)?.ToString() ?? "",
                                             ProductivityByArea = 0,
@@ -250,7 +261,7 @@ namespace Web_ProjectName.Controllers
                                             EffectiveTreeDensity = 0,
                                             StandardDeviation = 0,
                                             RatioTreeObtain = 0,
-                                            MarkedExtendedGarden = 0,
+                                            MarkedExtendedGarden = false,
                                             ExpectedExploitationDate = "",
                                             YearOfPlanting = "",
                                             YearOfShaving = "",
@@ -295,10 +306,10 @@ namespace Web_ProjectName.Controllers
                                             PlantingDesignDensity = TryDouble(GetCell(12)),
                                             Hecta = 0,
                                             HoleQuantity = TryInt(GetCell(16)),
-                                            GraftedTreeCorrectQuantity = TryInt(GetCell(17)),
-                                            GraftedTreeMixedQuantity = TryInt(GetCell(19)),
+                                            GraftedTreeCorrectQuantity = 0,
+                                            GraftedTreeMixedQuantity = 0,
                                             EmptyHoleQuantity = TryInt(GetCell(23)),
-                                            DensityOfGraftedTree = 0.0f,
+                                            DensityOfGraftedTree = 0,
                                             AverageNumberLeafLayer = 0,
                                             PlantingEndDate = "",
                                             ProductivityByArea = 0,
@@ -320,10 +331,10 @@ namespace Web_ProjectName.Controllers
                                             IneffectiveTreeQuantity = TryInt(GetCell(21)),
                                             EffectiveTreeCorrectQuantity = TryInt(GetCell(17)),
                                             EffectiveTreeMixedQuantity = TryInt(GetCell(19)),
-                                            EffectiveTreeDensity = TryDouble(GetCell(25)),
+                                            EffectiveTreeDensity = TryInt(GetCell(25)),
                                             StandardDeviation = TryDouble(GetCell(28)),
                                             RatioTreeObtain = TryDouble(GetCell(29)),
-                                            MarkedExtendedGarden = TryInt(GetCell(30)),
+                                            MarkedExtendedGarden = TryBoolX(GetCell(30)),
                                             ExpectedExploitationDate = TryDate(GetCell(31))?.ToString("yyyy-MM-dd") ?? GetCell(31)?.ToString() ?? "",
                                             YearOfPlanting = GetCell(7)?.ToString() ?? "",
                                             YearOfShaving = "",
@@ -396,7 +407,7 @@ namespace Web_ProjectName.Controllers
                                             EffectiveTreeDensity = 0,                    // Mật độ cây hữu hiệu (cây/ha)
                                             StandardDeviation = 0,                       // Độ lệch chuẩn (vd: vanh)
                                             RatioTreeObtain = 0,                         // % cây đạt tiêu chuẩn
-                                            MarkedExtendedGarden = 0,                    // Đánh dấu vườn kéo dài (0/1)
+                                            MarkedExtendedGarden = false,                    // Đánh dấu vườn kéo dài (0/1)
                                             ExpectedExploitationDate = "",               // Tháng mở cạo
                                             YearOfPlanting = GetCell(7)?.ToString() ?? "",                         // Năm trồng
                                             YearOfShaving = GetCell(31)?.ToString() ?? "",                          // Năm cạo úp
