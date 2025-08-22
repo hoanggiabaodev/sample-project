@@ -8,17 +8,14 @@
 
   <ItemGroup>
     <Compile Remove="EditModels\**" />
-    <Compile Remove="Views\NewFolder\**" />
     <Content Remove="EditModels\**" />
-    <Content Remove="Views\NewFolder\**" />
     <EmbeddedResource Remove="EditModels\**" />
-    <EmbeddedResource Remove="Views\NewFolder\**" />
     <None Remove="EditModels\**" />
-    <None Remove="Views\NewFolder\**" />
   </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+		<PackageReference Include="ExcelDataReader" Version="3.8.0-develop00498" />
 		<PackageReference Include="Google.Analytics.Data.V1Beta" Version="2.0.0-beta03" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.30" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />

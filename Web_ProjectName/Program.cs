@@ -189,6 +189,11 @@ app.UseEndpoints(endpoints =>
         defaults: new { controller = "Introduce", action = "Index" });
 
     endpoints.MapControllerRoute(
+        name: "Table List",
+        pattern: "admin/table-list",
+        defaults: new { controller = "Table", action = "Index" });
+
+    endpoints.MapControllerRoute(
        name: "Error page",
        pattern: "error/{code}",
        defaults: new { controller = "Error", action = "Index" });

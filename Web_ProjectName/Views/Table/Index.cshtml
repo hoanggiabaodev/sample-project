@@ -1,0 +1,301 @@
+@{
+    var breadCrumb = new VM_BreadCrumb
+    {
+        lv1Name = "Nhật ký - Kiểm kê",
+        currentName = "Quản lý lô",
+    };
+    ViewData["Title"] = breadCrumb.currentName;
+    var currentAccountId = User.Claims.FirstOrDefault(c => c.Type == "AccountId")?.Value;
+}
+
+@section Styles {
+    <link href="~/lib/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="~/lib/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet">
+    @* <link href="~/lib/datatables.net-fixedcolumns-bs4/css/fixedColumns.bootstrap4.min.css" rel="stylesheet"> *@
+    <link href="~/lib/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet">
+    <link href="~/lib/datatable/css/extensions/dataTables.checkboxes.css" rel="stylesheet" />
+    @* <link href="~/css/datatables_custom.css" rel="stylesheet" /> *@
+
+    <link href="~/lib/dropify/css/dropify.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/ladda/ladda-themeless.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <!-- DataTables Select (Bootstrap 4) CSS for row selection highlight -->
+    <link href="~/lib/datatables.net-select-bs4/css/select.bootstrap4.min.css" rel="stylesheet" />
+
+    <style>
+        .dtfc-right-top-blocker {
+            display: none !important;
+        }
+
+        /* Fallback colors for subtle background utilities (in case not provided by Bootstrap on this page) */
+        .bg-success-subtle {
+            background-color: #d1e7dd !important;
+        }
+
+        .bg-warning-subtle {
+            background-color: #fff3cd !important;
+        }
+
+        table.dataTable tbody tr.selected,
+        table.dataTable tbody tr.selected>td,
+        table.dataTable tbody td.selected {
+            background-color: #cfe2ff !important;
+            /* xanh dương nhạt */
+            color: #052c65 !important;
+            /* xanh dương đậm */
+        }
+
+
+        #table_lo tbody tr {
+            cursor: pointer;
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #198754;
+            background-color: #f9fff4;
+            border-radius: 6px;
+            padding: 0 6px;
+            outline: 0;
+            box-shadow: none;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        .input-group-sm .select2-container--default .select2-selection--single {
+            height: 38px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+            color: #212529;
+            padding-left: 2px;
+        }
+
+        .input-group-sm .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            line-height: 36px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+            right: 8px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #198754 transparent transparent transparent;
+            border-width: 6px 5px 0 5px;
+        }
+
+        .select2-dropdown {
+            border-color: #198754;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #198754;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border-color: #198754;
+            border-radius: 4px;
+        }
+
+        /* Search button style */
+        .btn-theme {
+            background-color: #198754;
+            border-color: #198754;
+            color: #fff;
+            border-radius: 6px;
+        }
+
+        .btn-theme:hover {
+            background-color: #157347;
+            border-color: #157347;
+            color: #fff;
+        }
+
+        .btn-theme:focus {
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, .25);
+        }
+
+        .card-body {
+            background-color: #e0feff54;
+        }
+
+        @@media(max - width: 767px) {
+
+                table.dataTable td,
+                table.dataTable th {
+                    font-size: 11px !important;
+                }
+
+                .dataTables_wrapper .dataTables_length,
+                .dataTables_wrapper .dataTables_filter,
+                .dataTables_wrapper .dataTables_info,
+                .dataTables_wrapper .dataTables_paginate {
+                    font-size: 11px;
+                }
+            }
+
+            @@media(min - width: 1300px) {
+                    table>* {
+                        font-size: 0.7rem;
+                    }
+
+                    table.dataTable thead th,
+                    table.dataTable tbody td,
+                    table.dataTable tfoot th {
+                        padding-bottom: 0.4rem;
+                        padding-left: 0.5rem;
+                        padding-right: 0.5rem;
+                    }
+                }
+
+                @@keyframes blink {
+                        50% {
+                            opacity: 0;
+                        }
+                    }
+
+                    .blink-warning {
+                        animation: blink 1s infinite;
+                    }
+                </style>
+            }
+
+            @section Scripts {
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+                <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
+                <script src="~/lib/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+                <script src="~/lib/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+                <script src="~/lib/datatable/js/dataTables.select.min.js"></script>
+                <script src="~/lib/datatable/js/datatables.checkboxes.min.js"></script>
+                @* <script src="~/lib/jszip/dist/jszip.min.js"></script> *@
+                <script src="~/lib/pdfmake/build/pdfmake.min.js"></script>
+                <script src="~/lib/pdfmake/build/vfs_fonts.js"></script>
+                <script src="~/lib/datatables.net-buttons/js/buttons.colVis.min.js"></script>
+                <script src="~/lib/datatables.net-buttons/js/buttons.flash.min.js"></script>
+                <script src="~/lib/datatables.net-buttons/js/buttons.html5.min.js"></script>
+                <script src="~/lib/datatables.net-buttons/js/buttons.print.min.js"></script>
+                <script src="~/lib/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+                <script src="~/lib/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+                <script src="~/lib/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+                @* <script src="~/lib/datatables.net-fixedcolumns/js/dataTables.fixedColumns.min.js"></script>
+            <script src="~/lib/datatables.net-fixedcolumns-bs4/js/fixedColumns.bootstrap4.min.js"></script> *@
+                <!-- DataTables Select Bootstrap 4 integration JS (optional but recommended) -->
+                <script src="~/lib/datatables.net-select-bs4/js/select.bootstrap4.min.js"></script>
+
+                <script src="~/lib/dropify/js/dropify.min.js"></script>
+                <script src="~/lib/ladda/spin.min.js"></script>
+                <script src="~/lib/ladda/ladda.min.js"></script>
+                <script src="~/lib/select2/js/select2.min.js"></script>
+                <script src="~/lib/select2/js/i18n/vi.js"></script>
+                <script src="~/lib/bootstrap-maxlength/bootstrap-maxlength.min.js"></script>
+                <script src="~/lib/animate/animate.min.js"></script>
+                <script src="~/lib/jquery.maskedinput/src/jquery.maskedinput.js" type="text/javascript"></script>
+                <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+                <script src="~/lib/bootstrap-datepicker/dist/js/il8n/vi.js"></script>
+
+                <script>
+                    try {
+                        $.fn.dataTable.ext.errMode = 'none';
+                    } catch (err) {
+                        console.log("ERROR DataTable: " + err.message);
+                    }
+                    const CURRENT_ACCOUNT_ID = '@currentAccountId';
+                </script>
+                <script src="~/controllers/table.js" asp-append-version="true"></script>
+            }
+
+            <div class="card my-3" style="background: #fcfff2;">
+                <div class="card-body">
+                    <div class="row div_vibrate_search_all">
+                        <div class="row my-2">
+                            <div class="col-6 col-md-2 mb-2">
+                                <div class="form-group">
+                                    <label for="select_search_year" class="form-label fw-bolder mb-1">Năm trồng</label>
+                                    <div class="input-group input-group-sm">
+                                        <select class="form-control select2_search" id="select_search_year" onchange="Search()">
+                                            <option value="0">-- Chọn năm --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-2 mb-2">
+                                <div class="form-group">
+                                    <label for="select_search_variety" class="form-label fw-bolder mb-1">Giống</label>
+                                    <div class="input-group input-group-sm">
+                                        <select class="form-control select2_search" id="select_search_variety" onchange="Search()">
+                                            <option value="0">-- Chọn giống --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-auto d-flex align-items-end">
+                                <button type="button" class="btn btn-theme py-2 mb-2 ladda-button" id="btn_search_all"
+                                    onclick="Search()" dir="ltr" data-style="zoom-in">
+                                    <i class="fa fa-search fa-fw"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-arrow">
+                    <div class="card-arrow-top-left"></div>
+                    <div class="card-arrow-top-right"></div>
+                    <div class="card-arrow-bottom-left"></div>
+                    <div class="card-arrow-bottom-right"></div>
+                </div>
+            </div>
+
+            <div class="card my-3">
+                <div class="card-body">
+                    <h4 class="fw-bold text-primary border-bottom border-3 border-primary pb-2 mb-4">
+                        Danh sách lô
+                        <form id="importForm" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+                            <input type="file" id="import_excel_file" accept=".xlsx,.xls" />
+                            <button type="button" class="btn btn-outline-success rounded border border-1"
+                                onclick="ImportExcelFromFile()"><i class="fa-solid fa-file-excel me-1"></i>Import excel</button>
+                        </form>
+                        <button class="btn btn-outline-success rounded border border-1" onclick="ExportExcel()"><i
+                                class="fa-solid fa-file-excel me-1"></i>Xuất excel</button>
+                    </h4>
+                    <table class="table table-bordered table-striped text-center align-middle w-100" id="table_lo">
+                        <thead>
+                            <tr>
+                                <th class="text-center align-middle fw-700" rowspan="2">STT</th>
+                                <th class="text-center align-middle fw-700" rowspan="2">Lô</th>
+                                <th class="text-center align-middle fw-700" rowspan="2">Năm trồng</th>
+                                <th class="text-center align-middle fw-700" rowspan="2">Giống</th>
+                                <th class="text-center align-middle fw-700 bg-success-subtle" rowspan="2">Diện tích (ha)</th>
+
+                                <th class="text-center align-middle fw-700" colspan="4">Cây bị thiệt hại</th>
+
+                                <th class="text-center align-middle fw-700" rowspan="2">Nhánh</th>
+                                <th class="text-center align-middle fw-700" rowspan="2">Tàn cây</th>
+                                <th class="text-center align-middle fw-700" rowspan="2">Ghi chú</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center align-middle fw-700">Gãy ngang</th>
+                                <th class="text-center align-middle fw-700">Bật gốc</th>
+                                <th class="text-center align-middle fw-700">Sét đánh</th>
+                                <th class="text-center align-middle fw-700 bg-warning-subtle">Cộng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-arrow">
+                    <div class="card-arrow-top-left"></div>
+                    <div class="card-arrow-top-right"></div>
+                    <div class="card-arrow-bottom-left"></div>
+                    <div class="card-arrow-bottom-right"></div>
+                </div>
+            </div>
