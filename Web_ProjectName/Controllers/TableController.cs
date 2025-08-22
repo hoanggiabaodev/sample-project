@@ -384,7 +384,7 @@ namespace Web_ProjectName.Controllers
                                             ShavingTreeDensity = TryInt(GetCell(27)),                      // Mật độ cây cạo
                                             ShavingModeCode = GetCell(28)?.ToString() ?? "",                        // Chế độ cạo
                                             EndExploitationDate = "",                    // Ngày kết thúc khai thác
-                                            StartExploitationDate = "",                  // Ngày bắt đầu khai thác
+                                            StartExploitationDate = GetCell(29)?.ToString() ?? "",                  // Ngày bắt đầu khai thác
                                             TotalShavingSlice = TryInt(GetCell(35)),                       // Tổng số lát cạo
                                             ShavingFaceConditionId = 0,                  // ID tình trạng mặt cạo
                                             ShavingFaceConditionCode = GetCell(32)?.ToString() ?? "",               // Mã tình trạng mặt cạo
@@ -397,7 +397,7 @@ namespace Web_ProjectName.Controllers
                                             StandardDeviation = 0,                       // Độ lệch chuẩn (vd: vanh)
                                             RatioTreeObtain = 0,                         // % cây đạt tiêu chuẩn
                                             MarkedExtendedGarden = 0,                    // Đánh dấu vườn kéo dài (0/1)
-                                            ExpectedExploitationDate = GetCell(29)?.ToString() ?? "",               // Tháng mở cạo
+                                            ExpectedExploitationDate = "",               // Tháng mở cạo
                                             YearOfPlanting = GetCell(7)?.ToString() ?? "",                         // Năm trồng
                                             YearOfShaving = GetCell(31)?.ToString() ?? "",                          // Năm cạo úp
                                             Remark = GetCell(37)?.ToString() ?? "",      // Ghi chú
