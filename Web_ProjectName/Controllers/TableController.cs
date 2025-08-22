@@ -14,18 +14,67 @@ namespace Web_ProjectName.Controllers
         public IActionResult GetList()
         {
             var data = new List<object>
-            {
-                new { Lo = "N15", NamTrong = 2016, Giong = "RRIV 209", DienTich = 18.91862, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "ABC" },
-                new { Lo = "P15", NamTrong = 2017, Giong = "RRIV 106", DienTich = 11.85678, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "XYZ" },
-                new { Lo = "Q15", NamTrong = 2018, Giong = "PB 235", DienTich = 9.45111, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "APC" },
-                new { Lo = "L8", NamTrong = 2015, Giong = "RRIV 124", DienTich = 12.765, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "APZ" },
-                new { Lo = "M12", NamTrong = 2019, Giong = "RRIV 209", DienTich = 15.327, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "APD" },
-                new { Lo = "T7", NamTrong = 2014, Giong = "PB 235", DienTich = 10.854, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 1, TanCay = 0, GhiChu = "ASD" },
-                new { Lo = "R10", NamTrong = 2020, Giong = "RRIV 106", DienTich = 14.129, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 0, Nhanh = 0, TanCay = 1, GhiChu = "ADA" },
-                new { Lo = "S5", NamTrong = 2013, Giong = "RRIV 209", DienTich = 13.777, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "FAS" },
-                new { Lo = "U2", NamTrong = 2021, Giong = "RRIV 124", DienTich = 16.908, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "QWS" },
-                new { Lo = "V9", NamTrong = 2012, Giong = "PB 235", DienTich = 11.542, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "SDA" },
-            };
+        {
+            new { Lo = "N15", NamTrong = 2016, Giong = "RRIV 209", DienTich = 18.91862, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "ABC" },
+            new { Lo = "P15", NamTrong = 2017, Giong = "RRIV 106", DienTich = 11.85678, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "XYZ" },
+            new { Lo = "Q15", NamTrong = 2018, Giong = "PB 235", DienTich = 9.45111, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "APC" },
+            new { Lo = "L8", NamTrong = 2015, Giong = "RRIV 124", DienTich = 12.765, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "APZ" },
+            new { Lo = "M12", NamTrong = 2019, Giong = "RRIV 209", DienTich = 15.327, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "APD" },
+            new { Lo = "T7", NamTrong = 2014, Giong = "PB 235", DienTich = 10.854, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 1, TanCay = 0, GhiChu = "ASD" },
+            new { Lo = "R10", NamTrong = 2020, Giong = "RRIV 106", DienTich = 14.129, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 0, Nhanh = 0, TanCay = 1, GhiChu = "ADA" },
+            new { Lo = "S5", NamTrong = 2013, Giong = "RRIV 209", DienTich = 13.777, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "FAS" },
+            new { Lo = "U2", NamTrong = 2021, Giong = "RRIV 124", DienTich = 16.908, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "QWS" },
+            new { Lo = "V9", NamTrong = 2012, Giong = "PB 235", DienTich = 11.542, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "SDA" },
+
+            new { Lo = "W3", NamTrong = 2022, Giong = "RRIV 209", DienTich = 17.234, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "WXY" },
+            new { Lo = "X4", NamTrong = 2011, Giong = "RRIV 106", DienTich = 13.456, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "YZA" },
+            new { Lo = "Y5", NamTrong = 2023, Giong = "PB 235", DienTich = 10.123, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "ZBC" },
+            new { Lo = "Z6", NamTrong = 2010, Giong = "RRIV 124", DienTich = 14.789, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "CDE" },
+            new { Lo = "AA7", NamTrong = 2024, Giong = "RRIV 209", DienTich = 16.101, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "DEF" },
+            new { Lo = "BB8", NamTrong = 2009, Giong = "PB 235", DienTich = 11.987, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 1, TanCay = 0, GhiChu = "EFG" },
+            new { Lo = "CC9", NamTrong = 2025, Giong = "RRIV 106", DienTich = 15.234, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 0, Nhanh = 0, TanCay = 1, GhiChu = "FGH" },
+            new { Lo = "DD10", NamTrong = 2008, Giong = "RRIV 209", DienTich = 13.456, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "GHI" },
+            new { Lo = "EE11", NamTrong = 2026, Giong = "RRIV 124", DienTich = 17.890, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "HIJ" },
+            new { Lo = "FF12", NamTrong = 2007, Giong = "PB 235", DienTich = 12.345, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "IJK" },
+            new { Lo = "GG13", NamTrong = 2027, Giong = "RRIV 209", DienTich = 18.567, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "JKL" },
+            new { Lo = "HH14", NamTrong = 2006, Giong = "RRIV 106", DienTich = 11.234, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "KLM" },
+            new { Lo = "II15", NamTrong = 2028, Giong = "PB 235", DienTich = 9.876, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "LMN" },
+            new { Lo = "JJ16", NamTrong = 2005, Giong = "RRIV 124", DienTich = 13.678, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "MNO" },
+            new { Lo = "KK17", NamTrong = 2029, Giong = "RRIV 209", DienTich = 16.345, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "NOP" },
+            new { Lo = "LL18", NamTrong = 2004, Giong = "PB 235", DienTich = 10.987, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 1, TanCay = 0, GhiChu = "OPQ" },
+            new { Lo = "MM19", NamTrong = 2030, Giong = "RRIV 106", DienTich = 15.678, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 0, Nhanh = 0, TanCay = 1, GhiChu = "PQR" },
+            new { Lo = "NN20", NamTrong = 2003, Giong = "RRIV 209", DienTich = 14.234, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "QRS" },
+            new { Lo = "OO21", NamTrong = 2031, Giong = "RRIV 124", DienTich = 17.890, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "RST" },
+            new { Lo = "PP22", NamTrong = 2002, Giong = "PB 235", DienTich = 12.456, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "STU" },
+            new { Lo = "QQ23", NamTrong = 2032, Giong = "RRIV 209", DienTich = 19.012, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "TUV" },
+            new { Lo = "RR24", NamTrong = 2001, Giong = "RRIV 106", DienTich = 11.789, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "UVW" },
+            new { Lo = "SS25", NamTrong = 2033, Giong = "PB 235", DienTich = 9.345, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "VWX" },
+            new { Lo = "TT26", NamTrong = 2000, Giong = "RRIV 124", DienTich = 14.567, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "WXY" },
+            new { Lo = "UU27", NamTrong = 2034, Giong = "RRIV 209", DienTich = 16.789, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "XYZ" },
+            new { Lo = "VV28", NamTrong = 1999, Giong = "RRIV 106", DienTich = 13.123, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "YZA" },
+            new { Lo = "WW29", NamTrong = 2035, Giong = "PB 235", DienTich = 10.678, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "ZAB" },
+            new { Lo = "XX30", NamTrong = 1998, Giong = "RRIV 124", DienTich = 15.234, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "ABC" },
+            new { Lo = "YY31", NamTrong = 2036, Giong = "RRIV 209", DienTich = 18.456, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "BCD" },
+            new { Lo = "ZZ32", NamTrong = 1997, Giong = "RRIV 106", DienTich = 12.345, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "CDE" },
+            new { Lo = "AAA33", NamTrong = 2037, Giong = "PB 235", DienTich = 9.876, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "DEF" },
+            new { Lo = "BBB34", NamTrong = 1996, Giong = "RRIV 124", DienTich = 14.678, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "EFG" },
+            new { Lo = "CCC35", NamTrong = 2038, Giong = "RRIV 209", DienTich = 17.234, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "FGH" },
+            new { Lo = "DDD36", NamTrong = 1995, Giong = "RRIV 106", DienTich = 11.890, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "GHI" },
+            new { Lo = "EEE37", NamTrong = 2039, Giong = "RRIV 124", DienTich = 16.567, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "HIJ" },
+            new { Lo = "FFF38", NamTrong = 1994, Giong = "PB 235", DienTich = 10.234, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "IJK" },
+            new { Lo = "GGG39", NamTrong = 2040, Giong = "RRIV 209", DienTich = 19.012, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "JKL" },
+            new { Lo = "HHH40", NamTrong = 1993, Giong = "RRIV 106", DienTich = 13.456, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "KLM" },
+            new { Lo = "III41", NamTrong = 2041, Giong = "PB 235", DienTich = 9.678, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "LMN" },
+            new { Lo = "JJJ42", NamTrong = 1992, Giong = "RRIV 124", DienTich = 15.234, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "MNO" },
+            new { Lo = "KKK43", NamTrong = 2042, Giong = "RRIV 209", DienTich = 18.345, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "NOP" },
+            new { Lo = "LLL44", NamTrong = 1991, Giong = "RRIV 106", DienTich = 12.678, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "OPQ" },
+            new { Lo = "MMM45", NamTrong = 2043, Giong = "PB 235", DienTich = 9.234, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "PQR" },
+            new { Lo = "NNN46", NamTrong = 1990, Giong = "RRIV 124", DienTich = 14.890, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "QRS" },
+            new { Lo = "OOO47", NamTrong = 2044, Giong = "RRIV 209", DienTich = 17.678, GayNgang = 0, BatGoc = 1, SetDanh = 0, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "RST" },
+            new { Lo = "PPP48", NamTrong = 1989, Giong = "RRIV 106", DienTich = 11.234, GayNgang = 0, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 1, GhiChu = "STU" },
+            new { Lo = "QQQ49", NamTrong = 2045, Giong = "PB 235", DienTich = 9.890, GayNgang = 1, BatGoc = 0, SetDanh = 0, Cong = 1, Nhanh = 0, TanCay = 0, GhiChu = "TUV" },
+            new { Lo = "RRR50", NamTrong = 1988, Giong = "RRIV 124", DienTich = 15.456, GayNgang = 0, BatGoc = 0, SetDanh = 1, Cong = 0, Nhanh = 1, TanCay = 0, GhiChu = "UVW" }
+        };
 
             return Json(new { result = 1, data });
         }
@@ -146,16 +195,16 @@ namespace Web_ProjectName.Controllers
                                         data.Add(new
                                         {
                                             SurveyBatchId = 0,
-                                            LandLevelCode = "",
+                                            LandLevelCode = GetCell(6)?.ToString() ?? "",
                                             OwnerId = 0,
                                             CultivatorId = 0,
-                                            PlotId = idPrivate,
+                                            PlotId = "",
                                             IdPrivate = idPrivate,
                                             RiskLevel = "",
                                             PlotOldName = "",
                                             PlotNewName = "",
                                             PlotName = GetCell(5)?.ToString() ?? "",
-                                            LandType = GetCell(6)?.ToString() ?? "",
+                                            LandType = "",
                                             AreaCultivated = 0.0f,
                                             Area = 0.0f,
                                             Area1 = 0.0f,
@@ -178,7 +227,7 @@ namespace Web_ProjectName.Controllers
                                             EmptyHoleQuantity = TryInt(GetCell(19)),
                                             DensityOfGraftedTree = TryDouble(GetCell(21)),
                                             AverageNumberLeafLayer = TryInt(GetCell(22)),
-                                            PlantingEndDate = TryDate(GetCell(24))?.ToString("yyyy/MM/dd") ?? GetCell(24)?.ToString() ?? "",
+                                            PlantingEndDate = TryDate(GetCell(24))?.ToString("yyyy-MM-dd") ?? GetCell(24)?.ToString() ?? "",
                                             ProductivityByArea = 0,
                                             TreeQuantity = 0,
                                             TreeQuantityShaving = 0,
@@ -222,7 +271,7 @@ namespace Web_ProjectName.Controllers
                                             LandLevelCode = GetCell(8)?.ToString() ?? "",
                                             OwnerId = 0,
                                             CultivatorId = 0,
-                                            PlotId = idPrivate,
+                                            PlotId = "",
                                             IdPrivate = idPrivate,
                                             RiskLevel = "",
                                             PlotOldName = GetCell(5)?.ToString() ?? "",
@@ -236,8 +285,7 @@ namespace Web_ProjectName.Controllers
                                             Area3 = 0.0f,
                                             AltitudeLowest = 0.0f,
                                             AltitudeHighest = 0.0f,
-                                            AreaManagementChange = TryDouble(GetCell(14)),
-                                            // AreaAt2025 = TryDouble(GetCell(15)),
+                                            AreaManagementChange = TryDouble(GetCell(15)),
                                             ClassifyCode = GetCell(32)?.ToString() ?? "",
                                             AverageHeight = TryDouble(GetCell(9)),
                                             ActiveStatusId = 5,
@@ -296,7 +344,7 @@ namespace Web_ProjectName.Controllers
                                             LandLevelCode = GetCell(8)?.ToString() ?? "",                          // Hạng đất (mã phân hạng)
                                             OwnerId = 0,                                 // Chủ sở hữu (ID)
                                             CultivatorId = 0,                            // Người canh tác (ID)
-                                            PlotId = idPrivate,                          // Mã lô đất
+                                            PlotId = "",                          // Mã lô đất
                                             IdPrivate = idPrivate,                       // ID nội bộ, private key
                                             RiskLevel = "",                              // Mức độ rủi ro
                                             PlotOldName = GetCell(5)?.ToString() ?? "",                            // Tên lô cũ
@@ -310,8 +358,7 @@ namespace Web_ProjectName.Controllers
                                             Area3 = 0.0f,                                // Diện tích theo cách 3
                                             AltitudeLowest = 0.0f,                       // Cao độ thấp nhất
                                             AltitudeHighest = 0.0f,                      // Cao độ cao nhất
-                                            AreaManagementChange = TryDouble(GetCell(14)), // Diện tích (1/1/2024)
-                                            // AreaAt2025 = TryDouble(GetCell(15)),
+                                            AreaManagementChange = TryDouble(GetCell(15)), // Diện tích (1/1/2024)
                                             ClassifyCode = GetCell(36)?.ToString() ?? "",  // Xếp hạng
                                             AverageHeight = TryDouble(GetCell(9)),       // Cao trình trung bình (m)
                                             ActiveStatusId = 6,                          // Trạng thái hoạt động (mã)

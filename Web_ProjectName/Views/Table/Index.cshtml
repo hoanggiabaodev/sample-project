@@ -9,48 +9,37 @@
 }
 
 @section Styles {
+    <!-- DataTables CSS -->
     <link href="~/lib/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="~/lib/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet">
-    @* <link href="~/lib/datatables.net-fixedcolumns-bs4/css/fixedColumns.bootstrap4.min.css" rel="stylesheet"> *@
     <link href="~/lib/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet">
     <link href="~/lib/datatable/css/extensions/dataTables.checkboxes.css" rel="stylesheet" />
-    @* <link href="~/css/datatables_custom.css" rel="stylesheet" /> *@
+    <link href="~/lib/datatables.net-select-bs4/css/select.bootstrap4.min.css" rel="stylesheet" />
 
+    <!-- Third-party CSS -->
     <link href="~/lib/dropify/css/dropify.min.css" rel="stylesheet" type="text/css" />
     <link href="~/lib/ladda/ladda-themeless.min.css" rel="stylesheet" type="text/css" />
     <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
     <link href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
-    <!-- DataTables Select (Bootstrap 4) CSS for row selection highlight -->
-    <link href="~/lib/datatables.net-select-bs4/css/select.bootstrap4.min.css" rel="stylesheet" />
 
     <style>
+        /* DataTables Customization */
         .dtfc-right-top-blocker {
             display: none !important;
-        }
-
-        /* Fallback colors for subtle background utilities (in case not provided by Bootstrap on this page) */
-        .bg-success-subtle {
-            background-color: #d1e7dd !important;
-        }
-
-        .bg-warning-subtle {
-            background-color: #fff3cd !important;
         }
 
         table.dataTable tbody tr.selected,
         table.dataTable tbody tr.selected>td,
         table.dataTable tbody td.selected {
             background-color: #cfe2ff !important;
-            /* xanh dương nhạt */
             color: #052c65 !important;
-            /* xanh dương đậm */
         }
-
 
         #table_lo tbody tr {
             cursor: pointer;
         }
 
+        /* Select2 Customization */
         .select2-container--default .select2-selection--single {
             height: 38px;
             border: 1px solid #198754;
@@ -103,7 +92,7 @@
             border-radius: 4px;
         }
 
-        /* Search button style */
+        /* Button Styles */
         .btn-theme {
             background-color: #198754;
             border-color: #198754;
@@ -121,8 +110,145 @@
             box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, .25);
         }
 
+        /* Card Styles */
         .card-body {
             background-color: #e0feff54;
+        }
+
+        /* Background and Layout */
+        body {
+            background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.85);
+            z-index: -1;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        .card-body {
+            background-color: transparent;
+            padding: 1.5rem;
+        }
+
+        .card-arrow {
+            display: none;
+        }
+
+        /* Form Controls */
+        .form-control,
+        .select2-container--default .select2-selection--single {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        }
+
+        .btn-theme {
+            background: linear-gradient(45deg, #198754, #15803d);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(25, 135, 84, 0.3);
+        }
+
+        .btn-theme:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4);
+            background: linear-gradient(45deg, #15803d, #166534);
+        }
+
+        .table {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(25, 135, 84, 0.05);
+        }
+
+        .bg-success-subtle {
+            background-color: rgba(25, 135, 84, 0.1) !important;
+        }
+
+        .bg-warning-subtle {
+            background-color: rgba(255, 193, 7, 0.1) !important;
+        }
+
+        .fw-700 {
+            font-weight: 700 !important;
+        }
+
+        .border-bottom-3 {
+            border-bottom: 3px solid #198754 !important;
+        }
+
+        .text-primary {
+            color: #198754 !important;
+        }
+
+        .ladda-button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ladda-button .ladda-spinner {
+            position: absolute;
+            z-index: 2;
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            margin: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s linear;
+        }
+
+        .ladda-button[data-loading] .ladda-spinner {
+            opacity: 1;
         }
 
         @@media(max - width: 767px) {
@@ -137,6 +263,15 @@
                 .dataTables_wrapper .dataTables_info,
                 .dataTables_wrapper .dataTables_paginate {
                     font-size: 11px;
+                }
+
+                .card {
+                    margin: 0.5rem;
+                }
+
+                .table-responsive {
+                    border-radius: 8px;
+                    overflow-x: auto;
                 }
             }
 
@@ -167,13 +302,13 @@
             }
 
             @section Scripts {
+                <!-- DataTables Scripts -->
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
                 <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
                 <script src="~/lib/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
                 <script src="~/lib/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
                 <script src="~/lib/datatable/js/dataTables.select.min.js"></script>
                 <script src="~/lib/datatable/js/datatables.checkboxes.min.js"></script>
-                @* <script src="~/lib/jszip/dist/jszip.min.js"></script> *@
                 <script src="~/lib/pdfmake/build/pdfmake.min.js"></script>
                 <script src="~/lib/pdfmake/build/vfs_fonts.js"></script>
                 <script src="~/lib/datatables.net-buttons/js/buttons.colVis.min.js"></script>
@@ -183,11 +318,9 @@
                 <script src="~/lib/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
                 <script src="~/lib/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
                 <script src="~/lib/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
-                @* <script src="~/lib/datatables.net-fixedcolumns/js/dataTables.fixedColumns.min.js"></script>
-            <script src="~/lib/datatables.net-fixedcolumns-bs4/js/fixedColumns.bootstrap4.min.js"></script> *@
-                <!-- DataTables Select Bootstrap 4 integration JS (optional but recommended) -->
                 <script src="~/lib/datatables.net-select-bs4/js/select.bootstrap4.min.js"></script>
 
+                <!-- Third-party Scripts -->
                 <script src="~/lib/dropify/js/dropify.min.js"></script>
                 <script src="~/lib/ladda/spin.min.js"></script>
                 <script src="~/lib/ladda/ladda.min.js"></script>
@@ -210,6 +343,7 @@
                 <script src="~/controllers/table.js" asp-append-version="true"></script>
             }
 
+            <!-- Search Section -->
             <div class="card my-3" style="background: #fcfff2;">
                 <div class="card-body">
                     <div class="row div_vibrate_search_all">
@@ -253,6 +387,7 @@
                 </div>
             </div>
 
+            <!-- Main Table Section -->
             <div class="card my-3">
                 <div class="card-body">
                     <h4 class="fw-bold text-primary border-bottom border-3 border-primary pb-2 mb-4">
@@ -261,11 +396,15 @@
                             @Html.AntiForgeryToken()
                             <input type="file" id="import_excel_file" accept=".xlsx,.xls" />
                             <button type="button" class="btn btn-outline-success rounded border border-1"
-                                onclick="ImportExcelFromFile()"><i class="fa-solid fa-file-excel me-1"></i>Import excel</button>
+                                onclick="ImportExcelFromFile()">
+                                <i class="fa-solid fa-file-excel me-1"></i>Import excel
+                            </button>
                         </form>
-                        <button class="btn btn-outline-success rounded border border-1" onclick="ExportExcel()"><i
-                                class="fa-solid fa-file-excel me-1"></i>Xuất excel</button>
+                        <button class="btn btn-outline-success rounded border border-1" onclick="ExportExcel()">
+                            <i class="fa-solid fa-file-excel me-1"></i>Xuất excel
+                        </button>
                     </h4>
+
                     <table class="table table-bordered table-striped text-center align-middle w-100" id="table_lo">
                         <thead>
                             <tr>
@@ -274,9 +413,7 @@
                                 <th class="text-center align-middle fw-700" rowspan="2">Năm trồng</th>
                                 <th class="text-center align-middle fw-700" rowspan="2">Giống</th>
                                 <th class="text-center align-middle fw-700 bg-success-subtle" rowspan="2">Diện tích (ha)</th>
-
                                 <th class="text-center align-middle fw-700" colspan="4">Cây bị thiệt hại</th>
-
                                 <th class="text-center align-middle fw-700" rowspan="2">Nhánh</th>
                                 <th class="text-center align-middle fw-700" rowspan="2">Tàn cây</th>
                                 <th class="text-center align-middle fw-700" rowspan="2">Ghi chú</th>

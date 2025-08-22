@@ -337,26 +337,45 @@ function ImportExcelFromFile() {
             'RequestVerificationToken': token
         },
         success: function (res) {
-            console.log("Dữ liệu Excel từ server:", res);
-            console.log("Kết quả:", res.result);
-            console.log("Số dòng:", res.data ? res.data.length : 0);
-            console.log("Dữ liệu chi tiết:", res.data);
+            // console.log("Dữ liệu Excel từ server:", res);
 
             if (res.result === 1) {
                 iziToast.success({ title: 'Thành công', message: res.error?.message || 'Import dữ liệu thành công!' });
+
                 if (res.data && res.data.length > 0) {
-                    console.log("=== DỮ LIỆU EXCEL ===");
+                    // console.log("=== DỮ LIỆU EXCEL ===");
+
+                    const seen = new Set();
+                    const duplicates = [];
+
                     res.data.forEach((row, index) => {
-                        console.log(`Dòng ${index + 1}:`, row);
+                        if (seen.has(row.idPrivate)) {
+                            duplicates.push({ index: index + 1, id: row.idPrivate });
+                        } else {
+                            seen.add(row.idPrivate);
+                        }
+                        // console.log(`Dòng ${index + 1}:`, row);
                     });
+
+                    // if (duplicates.length > 0) {
+                    //     console.warn("⚠️ Các idPrivate bị trùng:", duplicates);
+                    //     iziToast.warning({
+                    //         title: 'Cảnh báo',
+                    //         message: `Có ${duplicates.length} dòng bị trùng idPrivate!`
+                    //     });
+                    // }
+                    // else {
+                    //     iziToast.success({ title: 'Thành công', message: 'Không có dữ liệu trùng!' });
+                    // }
                 }
+
                 dataTableLo.ajax.reload();
             } else {
                 iziToast.error({ title: 'Lỗi', message: res.error?.message || 'Import thất bại!' });
             }
         },
         error: function (xhr) {
-            console.error("Lỗi AJAX:", xhr);
+            // console.error("Lỗi AJAX:", xhr);
             iziToast.error({ title: 'Lỗi hệ thống', message: xhr.responseText });
         }
     });
