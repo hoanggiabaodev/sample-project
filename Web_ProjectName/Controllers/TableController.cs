@@ -1,11 +1,22 @@
 ﻿using ExcelDataReader;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Web_ProjectName.Lib;
+using ClosedXML.Excel;
+using System.Threading;
+using System.Text.Json;
 
 namespace Web_ProjectName.Controllers
 {
     public class TableController : BaseController<TableController>
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public TableController(IWebHostEnvironment webHostEnvironment)
+        {
+            _webHostEnvironment = webHostEnvironment;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -141,24 +152,22 @@ namespace Web_ProjectName.Controllers
                         {
                             if (!sheetNamesToRead.Contains(reader.Name)) continue;
 
-                            int rowStart = 8;
-
-                            if (reader.Name.Equals("1.KD", StringComparison.OrdinalIgnoreCase))
-                            {
-                                rowStart = 11;
-                            }
-                            else if (reader.Name.Equals("1.KTCB", StringComparison.OrdinalIgnoreCase))
-                            {
-                                rowStart = 9;
-                            }
-                            else if (reader.Name.Equals("1.TC-TM", StringComparison.OrdinalIgnoreCase) || reader.Name.Equals("1.TM-TC", StringComparison.OrdinalIgnoreCase))
-                            {
-                                rowStart = 8;
-                            }
+                            int rowStart = -1;
 
                             while (reader.Read())
                             {
-                                if (reader.Depth >= rowStart)
+                                if (rowStart == -1)
+                                {
+                                    var colA = reader.GetValue(0)?.ToString();
+                                    var colB = reader.GetValue(1)?.ToString();
+
+                                    if (colA == "1" && !string.IsNullOrWhiteSpace(colB) && !int.TryParse(colB, out _))
+                                    {
+                                        rowStart = reader.Depth;
+                                    }
+                                }
+
+                                if (rowStart != -1 && reader.Depth >= rowStart)
                                 {
                                     bool rowIsEmpty = true;
                                     for (int c = 0; c < reader.FieldCount; c++)
@@ -177,6 +186,9 @@ namespace Web_ProjectName.Controllers
                                     var idPrivate = GetCell(1)?.ToString();
                                     if (string.IsNullOrWhiteSpace(idPrivate)) continue;
 
+                                    var colD = GetCell(3)?.ToString();
+                                    if (string.IsNullOrWhiteSpace(colD)) continue;
+
                                     double TryDouble(object? v) => double.TryParse(v?.ToString(), out var d) ? d : 0d;
                                     int TryInt(object? v) => int.TryParse(v?.ToString(), out var i) ? i : 0;
                                     DateTime? TryDate(object? v)
@@ -193,12 +205,12 @@ namespace Web_ProjectName.Controllers
                                     bool? TryBoolX(object? v)
                                     {
                                         var s = v?.ToString()?.Trim();
-                                        if (string.IsNullOrEmpty(s)) return false; // để trống = false
+                                        if (string.IsNullOrEmpty(s)) return false;
 
                                         if (string.Equals(s, "x", StringComparison.OrdinalIgnoreCase))
                                             return true;
 
-                                        return false; // mọi giá trị khác cũng coi là false
+                                        return false;
                                     }
 
                                     if (reader.Name.Equals("1.TM-TC", StringComparison.OrdinalIgnoreCase) || reader.Name.Equals("1.TC-TM", StringComparison.OrdinalIgnoreCase))
@@ -443,9 +455,363 @@ namespace Web_ProjectName.Controllers
         }
 
         [HttpPost]
-        public IActionResult ExportExcel(int? year, string? variety, string? ids)
+        public async Task<JsonResult> ExportExcel(int? year, string? variety, string? ids)
         {
-            return View();
+            M_JResult jResult = new M_JResult();
+            try
+            {
+                // Try to open the provided Excel template exactly (do NOT fallback silently)
+                var candidateTemplatePaths = new List<string>
+                {
+                    Path.Combine(_webHostEnvironment.WebRootPath, "template", "bieumaukiemke.xlsx"),
+                    Path.Combine(_webHostEnvironment.ContentRootPath, "bieumaukiemke.xlsx"),
+                    Path.GetFullPath(Path.Combine(_webHostEnvironment.ContentRootPath, "..", "bieumaukiemke.xlsx"))
+                };
+                var templatePath = candidateTemplatePaths.FirstOrDefault(System.IO.File.Exists);
+                if (string.IsNullOrEmpty(templatePath))
+                {
+                    jResult.result = 0;
+                    jResult.error = new error(0, "Không tìm thấy file biểu mẫu kiểm kê (bieumaukiemke.xlsx). Vui lòng đặt vào wwwroot/template hoặc thư mục gốc dự án.");
+                    return Json(jResult);
+                }
+
+                using (var workbook = new XLWorkbook(templatePath))
+                {
+                    void AddTemplateSheet(string sheetName, int headerRow, Dictionary<int, string> headers)
+                    {
+                        var ws = workbook.Worksheets.FirstOrDefault(x => string.Equals(x.Name, sheetName, StringComparison.OrdinalIgnoreCase))
+                                 ?? workbook.AddWorksheet(sheetName);
+                        foreach (var kv in headers)
+                        {
+                            // Excel is 1-based columns; import uses 0-based GetCell
+                            ws.Cell(headerRow, kv.Key + 1).Value = kv.Value;
+                        }
+                        ws.Range(headerRow, 1, headerRow, headers.Keys.Max() + 1).Style.Font.Bold = true;
+                        ws.Columns().AdjustToContents();
+                    }
+
+                    // 1.TM-TC (a.k.a 1.TC-TM) starts reading at rowStart = 8 in import
+                    AddTemplateSheet("1.TM-TC", 13 - 1, new Dictionary<int, string>
+                    {
+                        { 1, "IdPrivate" },
+                        { 5, "PlotName" },
+                        { 6, "LandLevelCode" },
+                        { 7, "AltitudeLowest" },
+                        { 8, "AltitudeHighest" },
+                        { 9, "PlantingMethodCode" },
+                        { 10, "PlantingDistanceCode" },
+                        { 11, "PlantingDesignDensity" },
+                        { 12, "TypeOfTreeCode" },
+                        { 13, "Area" },
+                        { 14, "HoleQuantity" },
+                        { 15, "GraftedTreeCorrectQuantity" },
+                        { 17, "GraftedTreeMixedQuantity" },
+                        { 19, "EmptyHoleQuantity" },
+                        { 21, "DensityOfGraftedTree" },
+                        { 22, "AverageNumberLeafLayer" },
+                        { 23, "ClassifyCode" },
+                        { 24, "PlantingEndDate" },
+                        { 25, "Remark" }
+                    });
+
+                    // 1.KTCB starts at rowStart = 9
+                    AddTemplateSheet("1.KTCB", 9 - 1, new Dictionary<int, string>
+                    {
+                        { 1, "IdPrivate" },
+                        { 5, "PlotOldName" },
+                        { 6, "PlotNewName" },
+                        { 7, "YearOfPlanting" },
+                        { 8, "LandLevelCode" },
+                        { 9, "AverageHeight" },
+                        { 10, "PlantingMethodCode" },
+                        { 11, "PlantingDistanceCode" },
+                        { 12, "PlantingDesignDensity" },
+                        { 13, "TypeOfTreeCode" },
+                        { 15, "Area" },
+                        { 16, "HoleQuantity" },
+                        { 17, "EffectiveTreeCorrectQuantity" },
+                        { 19, "EffectiveTreeMixedQuantity" },
+                        { 21, "IneffectiveTreeNotgrowQuantity" },
+                        { 23, "EmptyHoleQuantity" },
+                        { 25, "EffectiveTreeDensity" },
+                        { 27, "VanhAverage" },
+                        { 28, "StandardDeviation" },
+                        { 29, "RatioTreeObtain" },
+                        { 30, "MarkedExtendedGarden (x)" },
+                        { 31, "ExpectedExploitationDate" },
+                        { 32, "ClassifyCode" },
+                        { 33, "Remark" }
+                    });
+
+                    // 1.KD starts at rowStart = 11
+                    AddTemplateSheet("1.KD", 11 - 1, new Dictionary<int, string>
+                    {
+                        { 1, "IdPrivate" },
+                        { 5, "PlotOldName" },
+                        { 6, "PlotNewName" },
+                        { 7, "YearOfPlanting" },
+                        { 8, "LandLevelCode" },
+                        { 9, "AverageHeight" },
+                        { 10, "PlantingMethodCode" },
+                        { 11, "PlantingDistanceCode" },
+                        { 12, "PlantingDesignDensity" },
+                        { 13, "TypeOfTreeCode" },
+                        { 15, "Area" },
+                        { 16, "HoleQuantity" },
+                        { 17, "EffectiveTreeShavingQuantity" },
+                        { 19, "EffectiveTreeNotshavingQuantity" },
+                        { 21, "IneffectiveTreeDryQuantity" },
+                        { 23, "IneffectiveTreeNotgrowQuantity" },
+                        { 25, "EmptyHoleQuantity" },
+                        { 27, "ShavingTreeDensity" },
+                        { 28, "ShavingModeCode" },
+                        { 29, "StartExploitationDate" },
+                        { 30, "TappingAge" },
+                        { 31, "YearOfShaving" },
+                        { 32, "ShavingFaceConditionCode" },
+                        { 33, "ProductivityByArea" },
+                        { 34, "ProductivityByTree" },
+                        { 35, "TotalShavingSlice" },
+                        { 36, "ClassifyCode" },
+                        { 37, "Remark" }
+                    });
+
+                    // Prepare JSON field mappings (columnIndex -> jsonFieldKey)
+                    var mapTMTCFields = new Dictionary<int, string>
+                    {
+                        { 1, "idPrivate" },
+                        { 5, "plotName" },
+                        { 6, "landLevelCode" },
+                        { 7, "altitudeLowest" },
+                        { 8, "altitudeHighest" },
+                        { 9, "plantingMethodCode" },
+                        { 10, "plantingDistanceCode" },
+                        { 11, "plantingDesignDensity" },
+                        { 12, "typeOfTreeCode" },
+                        { 13, "area" },
+                        { 14, "holeQuantity" },
+                        { 15, "graftedTreeCorrectQuantity" },
+                        { 17, "graftedTreeMixedQuantity" },
+                        { 19, "emptyHoleQuantity" },
+                        { 21, "densityOfGraftedTree" },
+                        { 22, "averageNumberLeafLayer" },
+                        { 23, "classifyCode" },
+                        { 24, "plantingEndDate" },
+                        { 25, "remark" },
+                    };
+
+                    var mapKTCBFields = new Dictionary<int, string>
+                    {
+                        { 1, "idPrivate" },
+                        { 5, "plotOldName" },
+                        { 6, "plotNewName" },
+                        { 7, "yearOfPlanting" },
+                        { 8, "landLevelCode" },
+                        { 9, "averageHeight" },
+                        { 10, "plantingMethodCode" },
+                        { 11, "plantingDistanceCode" },
+                        { 12, "plantingDesignDensity" },
+                        { 13, "typeOfTreeCode" },
+                        { 15, "area" },
+                        { 16, "holeQuantity" },
+                        { 17, "effectiveTreeCorrectQuantity" },
+                        { 19, "effectiveTreeMixedQuantity" },
+                        { 21, "ineffectiveTreeNotgrowQuantity" },
+                        { 23, "emptyHoleQuantity" },
+                        { 25, "effectiveTreeDensity" },
+                        { 27, "vanhAverage" },
+                        { 28, "standardDeviation" },
+                        { 29, "ratioTreeObtain" },
+                        // 30 special: markedExtendedGarden -> "x"
+                        { 31, "expectedExploitationDate" },
+                        { 32, "classifyCode" },
+                        { 33, "remark" },
+                    };
+
+                    var mapKDFields = new Dictionary<int, string>
+                    {
+                        { 1, "idPrivate" },
+                        { 5, "plotOldName" },
+                        { 6, "plotNewName" },
+                        { 7, "yearOfPlanting" },
+                        { 8, "landLevelCode" },
+                        { 9, "averageHeight" },
+                        { 10, "plantingMethodCode" },
+                        { 11, "plantingDistanceCode" },
+                        { 12, "plantingDesignDensity" },
+                        { 13, "typeOfTreeCode" },
+                        { 15, "area" },
+                        { 16, "holeQuantity" },
+                        { 17, "effectiveTreeShavingQuantity" },
+                        { 19, "effectiveTreeNotshavingQuantity" },
+                        { 21, "ineffectiveTreeDryQuantity" },
+                        { 23, "ineffectiveTreeNotgrowQuantity" },
+                        { 25, "emptyHoleQuantity" },
+                        { 27, "shavingTreeDensity" },
+                        { 28, "shavingModeCode" },
+                        { 29, "startExploitationDate" },
+                        { 30, "tappingAge" },
+                        { 31, "yearOfShaving" },
+                        { 32, "shavingFaceConditionCode" },
+                        { 33, "productivityByArea" },
+                        { 34, "productivityByTree" },
+                        { 35, "totalShavingSlice" },
+                        { 36, "classifyCode" },
+                        { 37, "remark" },
+                    };
+
+                    // Load data from data.json
+                    var candidateJsonPaths = new List<string>
+                    {
+                        Path.GetFullPath(Path.Combine(_webHostEnvironment.ContentRootPath, "..", "data.json")),
+                        Path.Combine(_webHostEnvironment.ContentRootPath, "data.json"),
+                        Path.Combine(_webHostEnvironment.WebRootPath, "data.json"),
+                    };
+                    var jsonPath = candidateJsonPaths.FirstOrDefault(System.IO.File.Exists);
+                    if (string.IsNullOrEmpty(jsonPath))
+                    {
+                        jResult.result = 0;
+                        jResult.error = new error(0, "Không tìm thấy data.json để xuất dữ liệu.");
+                        return Json(jResult);
+                    }
+
+                    var jsonText = System.IO.File.ReadAllText(jsonPath);
+                    using var doc = JsonDocument.Parse(jsonText);
+                    var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement.EnumerateArray() : Enumerable.Empty<JsonElement>();
+
+                    int rowTMTC = 8;
+                    int rowKTCB = 9;
+                    int rowKD = 11;
+
+                    foreach (var item in items)
+                    {
+                        int active = item.TryGetProperty("activeStatusId", out var actEl) && actEl.TryGetInt32(out var a) ? a : 0;
+                        if (active == 14)
+                        {
+                            var ws = workbook.Worksheet("1.TM-TC");
+                            foreach (var kv in mapTMTCFields)
+                            {
+                                if (item.TryGetProperty(kv.Value, out var v))
+                                {
+                                    var cell = ws.Cell(rowTMTC, kv.Key + 1);
+                                    WriteJsonElementToCell(cell, v);
+                                }
+                            }
+                            rowTMTC++;
+                        }
+                        else if (active == 5)
+                        {
+                            var ws = workbook.Worksheet("1.KTCB");
+                            foreach (var kv in mapKTCBFields)
+                            {
+                                if (item.TryGetProperty(kv.Value, out var v))
+                                {
+                                    var cell = ws.Cell(rowKTCB, kv.Key + 1);
+                                    WriteJsonElementToCell(cell, v);
+                                }
+                            }
+                            // special column 30: markedExtendedGarden -> "x" if truthy
+                            var markedX = "";
+                            if (item.TryGetProperty("markedExtendedGarden", out var markEl))
+                            {
+                                if (markEl.ValueKind == JsonValueKind.True || (markEl.ValueKind == JsonValueKind.Number && markEl.TryGetInt32(out var mi) && mi != 0))
+                                    markedX = "x";
+                            }
+                            ws.Cell(rowKTCB, 30 + 1).Value = markedX;
+                            rowKTCB++;
+                        }
+                        else if (active == 6)
+                        {
+                            var ws = workbook.Worksheet("1.KD");
+                            foreach (var kv in mapKDFields)
+                            {
+                                if (item.TryGetProperty(kv.Value, out var v))
+                                {
+                                    var cell = ws.Cell(rowKD, kv.Key + 1);
+                                    WriteJsonElementToCell(cell, v);
+                                }
+                            }
+                            rowKD++;
+                        }
+                    }
+
+                    // Additionally, insert idPrivate list into Column B starting at Row 13 of the first worksheet as requested
+                    try
+                    {
+                        var ws0 = workbook.Worksheet(1);
+                        int rB = 13;
+                        foreach (var item in doc.RootElement.EnumerateArray())
+                        {
+                            if (item.TryGetProperty("idPrivate", out var idEl))
+                            {
+                                ws0.Cell(rB, 2).Value = idEl.GetString();
+                                rB++;
+                            }
+                        }
+                    }
+                    catch { }
+
+                    // local function to write JsonElement appropriately
+                    static void WriteJsonElementToCell(IXLCell cell, JsonElement el)
+                    {
+                        switch (el.ValueKind)
+                        {
+                            case JsonValueKind.String:
+                                cell.Value = el.GetString();
+                                break;
+                            case JsonValueKind.Number:
+                                if (el.TryGetInt64(out var l)) cell.Value = l;
+                                else if (el.TryGetDouble(out var d)) cell.Value = d;
+                                else cell.Value = el.ToString();
+                                break;
+                            case JsonValueKind.True:
+                            case JsonValueKind.False:
+                                cell.Value = el.GetBoolean();
+                                break;
+                            default:
+                                cell.Value = el.ToString();
+                                break;
+                        }
+                    }
+
+                    var exportsDir = Path.Combine(_webHostEnvironment.WebRootPath, "exports");
+                    if (!Directory.Exists(exportsDir))
+                        Directory.CreateDirectory(exportsDir);
+
+                    var timestamp = Utilities.CurrentTimeSeconds();
+                    var fileName = $"template_import_{timestamp}.xlsx";
+                    var filePath = Path.Combine(exportsDir, fileName);
+
+                    workbook.SaveAs(filePath);
+
+                    jResult.result = 1;
+                    jResult.data = $"/exports/{fileName}";
+
+                    var threadDeleteFile = new Thread(() =>
+                    {
+                        try
+                        {
+                            Thread.Sleep(5000);
+                            if (System.IO.File.Exists(filePath))
+                            {
+                                System.IO.File.Delete(filePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Unable to delete file: {ex.Message}");
+                        }
+                    });
+                    threadDeleteFile.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                jResult.result = -1;
+                jResult.error = new error(500, $"Export failed. {ex.Message}");
+            }
+            await Task.CompletedTask;
+            return Json(jResult);
         }
     }
 }

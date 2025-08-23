@@ -15,6 +15,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<PackageReference Include="ExcelDataReader" Version="3.8.0-develop00498" />
 		<PackageReference Include="Google.Analytics.Data.V1Beta" Version="2.0.0-beta03" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.30" />

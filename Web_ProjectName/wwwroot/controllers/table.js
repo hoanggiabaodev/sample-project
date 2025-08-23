@@ -337,7 +337,7 @@ function ImportExcelFromFile() {
             'RequestVerificationToken': token
         },
         success: function (res) {
-            // console.log("Dữ liệu Excel từ server:", res);
+            console.log("Dữ liệu Excel từ server:", res);
 
             if (res.result === 1) {
                 iziToast.success({ title: 'Thành công', message: res.error?.message || 'Import dữ liệu thành công!' });
@@ -386,20 +386,53 @@ function ExportExcel() {
     const variety = $selectVarietyElm.val();
     const ids = getSelectedRowIds();
 
-    $.ajax({
-        url: "/Table/ExportExcel",
-        type: "POST",
-        data: {
-            year: year,
-            variety: variety,
-            ids: ids
+    let timerInterval;
+    Swal.fire({
+        title: "Đang xử lý...",
+        html: "Vui lòng chờ <b></b> ms.",
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            const timer = Swal.getHtmlContainer().querySelector("b");
+            timerInterval = setInterval(() => {
+                if (timer) timer.textContent = `${Swal.getTimerLeft()}`;
+            }, 100);
         },
-        success: function (res) {
-            console.log("Kết quế", res);
-        },
-        error: function (xhr) {
-            console.error("Lỗi AJAX:", xhr);
-            iziToast.error({ title: 'Lỗi hệ thống', message: xhr.responseText });
+        willClose: () => {
+            clearInterval(timerInterval);
         }
-    })
+    });
+
+    $.ajax({
+        type: 'POST',
+        url: '/Table/ExportExcel',
+        data: { year: year, variety: variety, ids: ids },
+        success: function (response) {
+            if (!CheckResponseIsSuccess(response)) return;
+
+            const linkDownload = location.origin + (response.data || '');
+            if (typeof DownloadFile === 'function') {
+                DownloadFile(linkDownload);
+            } else {
+                const a = document.createElement('a');
+                a.href = linkDownload;
+                a.download = '';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+            Swal.fire('Đã tải!', 'Tệp Excel đã được tải xuống thành công.', 'success');
+        },
+        error: function (err) {
+            Swal.close();
+            CheckResponseIsSuccess({ result: -1, error: { code: err.status } });
+            Swal.fire({
+                title: 'Lỗi',
+                text: 'Có lỗi xảy ra khi tải tệp. Vui lòng thử lại sau.',
+                icon: 'error',
+                confirmButtonText: 'Đóng'
+            });
+        }
+    });
 }
