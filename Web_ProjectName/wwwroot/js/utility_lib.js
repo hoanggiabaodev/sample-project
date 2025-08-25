@@ -296,25 +296,48 @@ function ShowToastNoti(type, title, message, timeout = 2000, position = 'topRigh
     let color = '';
     let audio = document.getElementById('audio_info');
     switch (type) {
-        case 'success': icon = '<i class="iziToast-icon ico-success revealIn"></i>'; color = 'green';
-            audio = document.getElementById('audio_success'); audio.volume = 0.2; break;
+        case 'success':
+            icon = '<i class="iziToast-icon ico-success revealIn"></i>';
+            color = 'green';
+            audio = document.getElementById('audio_success');
+            if (audio) audio.volume = 0.2;
+            break;
         //var audio = new Audio('/sounds/sound1.ogg'); audio.volume = 0.2; audio.play(); break;
-        case 'warning': icon = '<i class="iziToast-icon ico-warning revealIn"></i>'; color = 'orange';
-            audio = document.getElementById('audio_warning'); audio.volume = 1; break;
+        case 'warning':
+            icon = '<i class="iziToast-icon ico-warning revealIn"></i>';
+            color = 'orange';
+            audio = document.getElementById('audio_warning');
+            if (audio) audio.volume = 1;
+            break;
         //var audio = new Audio('/sounds/sound6.ogg'); audio.volume = 0.8; audio.play(); break;
-        case 'error': icon = '<i class="iziToast-icon ico-error revealIn"></i>'; color = 'red';
-            audio = document.getElementById('audio_error'); audio.volume = 0.4; break;
+        case 'error':
+            icon = '<i class="iziToast-icon ico-error revealIn"></i>';
+            color = 'red';
+            audio = document.getElementById('audio_error');
+            if (audio) audio.volume = 0.4;
+            break;
         //var audio = new Audio('/sounds/sound5.ogg'); audio.volume = 0.4; audio.play(); break;
-        case 'info': icon = '<i class="iziToast-icon ico-info revealIn"></i>'; color = 'blue';
-            audio = document.getElementById('audio_info'); audio.volume = 0.4; break;
+        case 'info':
+            icon = '<i class="iziToast-icon ico-info revealIn"></i>';
+            color = 'blue';
+            audio = document.getElementById('audio_info');
+            if (audio) audio.volume = 0.4;
+            break;
         //var audio = new Audio('/sounds/sound7.ogg'); audio.volume = 0.4; audio.play(); break;
-        case 'question': icon = '<i class="iziToast-icon ico-question revealIn"></i>'; color = 'yellow';
-            audio = document.getElementById('audio_question'); audio.volume = 0.4; break;
+        case 'question':
+            icon = '<i class="iziToast-icon ico-question revealIn"></i>';
+            color = 'yellow';
+            audio = document.getElementById('audio_question');
+            if (audio) audio.volume = 0.4;
+            break;
         //var audio = new Audio('/sounds/sound4.ogg'); audio.volume = 0.4; audio.play(); break;
-        default: break;
+        default:
+            break;
     }
-    audio.currentTime = 0;
-    audio.play();
+    if (audio) {
+        try { audio.currentTime = 0; } catch (e) { }
+        try { audio.play(); } catch (e) { }
+    }
     iziToast.show({
         icon: icon,
         color: color,

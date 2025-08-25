@@ -544,6 +544,7 @@ namespace Web_ProjectName.Controllers
                         { 17, "effectiveTreeShavingQuantity" },
                         { 19, "effectiveTreeNotshavingQuantity" },
                         { 21, "ineffectiveTreeDryQuantity" },
+                        { 23, "ineffectiveTreeNotgrowQuantity" },
                         { 25, "emptyHoleQuantity" },
                         { 27, "shavingTreeDensity" },
                         { 28, "shavingModeCode" },
@@ -589,9 +590,12 @@ namespace Web_ProjectName.Controllers
                         int active = item.TryGetProperty("activeStatusId", out var actEl) && actEl.TryGetInt32(out var a) ? a : 0;
                         if (active == 14)
                         {
-                            var ws = workbook.Worksheet("1.TM-TC");
+                            var ws = workbook.Worksheet("1.TM-TC") ?? workbook.Worksheet("1.TC-TM");
                             ws.Row(rowTMTC).InsertRowsBelow(1);
-                            ws.Cell(rowTMTC, 1).Value = sttTMTC;
+                            var sttCell = ws.Cell(rowTMTC, 1);
+                            sttCell.Value = sttTMTC;
+                            sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             foreach (var kv in mapTMTCFields)
                             {
                                 if (item.TryGetProperty(kv.Value, out var v))
@@ -600,6 +604,9 @@ namespace Web_ProjectName.Controllers
                                     WriteJsonElementToCell(cell, v);
                                 }
                             }
+                            SetFormula(ws, rowTMTC, 15 + 1, $"=ROUND(O{rowTMTC}/N{rowTMTC}%,1)");
+                            SetFormula(ws, rowTMTC, 17 + 1, $"=ROUND(Q{rowTMTC}/N{rowTMTC}%,1)");
+                            SetFormula(ws, rowTMTC, 19 + 1, $"=ROUND(S{rowTMTC}/N{rowTMTC}%,1)");
                             rowTMTC++;
                             sttTMTC++;
                         }
@@ -607,7 +614,10 @@ namespace Web_ProjectName.Controllers
                         {
                             var ws = workbook.Worksheet("1.KTCB");
                             ws.Row(rowKTCB).InsertRowsBelow(1);
-                            ws.Cell(rowKTCB, 1).Value = sttKTCB;
+                            var sttCell = ws.Cell(rowKTCB, 1);
+                            sttCell.Value = sttKTCB;
+                            sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             foreach (var kv in mapKTCBFields)
                             {
                                 if (item.TryGetProperty(kv.Value, out var v))
@@ -616,6 +626,10 @@ namespace Web_ProjectName.Controllers
                                     WriteJsonElementToCell(cell, v);
                                 }
                             }
+                            SetFormula(ws, rowKTCB, 19, $"=ROUND(R{rowKTCB}/Q{rowKTCB}%,1)");
+                            SetFormula(ws, rowKTCB, 21, $"=ROUND(T{rowKTCB}/Q{rowKTCB}%,1)");
+                            SetFormula(ws, rowKTCB, 23, $"=ROUND(V{rowKTCB}/Q{rowKTCB}%,1)");
+                            SetFormula(ws, rowKTCB, 25, $"=ROUND(X{rowKTCB}/Q{rowKTCB}%,1)");
                             // special column 30: markedExtendedGarden -> "x" if truthy
                             var markedX = "";
                             if (item.TryGetProperty("markedExtendedGarden", out var markEl))
@@ -633,7 +647,10 @@ namespace Web_ProjectName.Controllers
                         {
                             var ws = workbook.Worksheet("1.KD");
                             ws.Row(rowKD).InsertRowsBelow(1);
-                            ws.Cell(rowKD, 1).Value = sttKD;
+                            var sttCell = ws.Cell(rowKD, 1);
+                            sttCell.Value = sttKD;
+                            sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             foreach (var kv in mapKDFields)
                             {
                                 if (item.TryGetProperty(kv.Value, out var v))
@@ -642,6 +659,11 @@ namespace Web_ProjectName.Controllers
                                     WriteJsonElementToCell(cell, v);
                                 }
                             }
+                            SetFormula(ws, rowKD, 19, $"=ROUND(R{rowKD}/Q{rowKD}%,1)");
+                            SetFormula(ws, rowKD, 21, $"=ROUND(T{rowKD}/Q{rowKD}%,1)");
+                            SetFormula(ws, rowKD, 23, $"=ROUND(V{rowKD}/Q{rowKD}%,1)");
+                            SetFormula(ws, rowKD, 25, $"=ROUND(X{rowKD}/Q{rowKD}%,1)");
+                            SetFormula(ws, rowKD, 27, $"=ROUND((Z{rowKD}/Q{rowKD}*100),2)");
                             rowKD++;
                             sttKD++;
                         }
@@ -747,6 +769,14 @@ namespace Web_ProjectName.Controllers
             }
             await Task.CompletedTask;
             return Json(jResult);
+        }
+
+        private static void SetFormula(IXLWorksheet ws, int row, int col, string formula)
+        {
+            var formulaCell = ws.Cell(row, col);
+            formulaCell.FormulaA1 = formula;
+            formulaCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            formulaCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
         }
     }
 }
