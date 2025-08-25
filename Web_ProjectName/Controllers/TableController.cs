@@ -460,7 +460,6 @@ namespace Web_ProjectName.Controllers
             M_JResult jResult = new M_JResult();
             try
             {
-                // Try to open the provided Excel template exactly (do NOT fallback silently)
                 var candidateTemplatePaths = new List<string>
                 {
                     Path.Combine(_webHostEnvironment.WebRootPath, "template", "bieumaukiemke.xlsx"),
@@ -477,127 +476,27 @@ namespace Web_ProjectName.Controllers
 
                 using (var workbook = new XLWorkbook(templatePath))
                 {
-                    void AddTemplateSheet(string sheetName, int headerRow, Dictionary<int, string> headers)
-                    {
-                        var ws = workbook.Worksheets.FirstOrDefault(x => string.Equals(x.Name, sheetName, StringComparison.OrdinalIgnoreCase))
-                                 ?? workbook.AddWorksheet(sheetName);
-                        foreach (var kv in headers)
-                        {
-                            // Excel is 1-based columns; import uses 0-based GetCell
-                            ws.Cell(headerRow, kv.Key + 1).Value = kv.Value;
-                        }
-                        ws.Range(headerRow, 1, headerRow, headers.Keys.Max() + 1).Style.Font.Bold = true;
-                        ws.Columns().AdjustToContents();
-                    }
 
-                    // 1.TM-TC (a.k.a 1.TC-TM) starts reading at rowStart = 8 in import
-                    AddTemplateSheet("1.TM-TC", 13 - 1, new Dictionary<int, string>
-                    {
-                        { 1, "IdPrivate" },
-                        { 5, "PlotName" },
-                        { 6, "LandLevelCode" },
-                        { 7, "AltitudeLowest" },
-                        { 8, "AltitudeHighest" },
-                        { 9, "PlantingMethodCode" },
-                        { 10, "PlantingDistanceCode" },
-                        { 11, "PlantingDesignDensity" },
-                        { 12, "TypeOfTreeCode" },
-                        { 13, "Area" },
-                        { 14, "HoleQuantity" },
-                        { 15, "GraftedTreeCorrectQuantity" },
-                        { 17, "GraftedTreeMixedQuantity" },
-                        { 19, "EmptyHoleQuantity" },
-                        { 21, "DensityOfGraftedTree" },
-                        { 22, "AverageNumberLeafLayer" },
-                        { 23, "ClassifyCode" },
-                        { 24, "PlantingEndDate" },
-                        { 25, "Remark" }
-                    });
-
-                    // 1.KTCB starts at rowStart = 9
-                    AddTemplateSheet("1.KTCB", 9 - 1, new Dictionary<int, string>
-                    {
-                        { 1, "IdPrivate" },
-                        { 5, "PlotOldName" },
-                        { 6, "PlotNewName" },
-                        { 7, "YearOfPlanting" },
-                        { 8, "LandLevelCode" },
-                        { 9, "AverageHeight" },
-                        { 10, "PlantingMethodCode" },
-                        { 11, "PlantingDistanceCode" },
-                        { 12, "PlantingDesignDensity" },
-                        { 13, "TypeOfTreeCode" },
-                        { 15, "Area" },
-                        { 16, "HoleQuantity" },
-                        { 17, "EffectiveTreeCorrectQuantity" },
-                        { 19, "EffectiveTreeMixedQuantity" },
-                        { 21, "IneffectiveTreeNotgrowQuantity" },
-                        { 23, "EmptyHoleQuantity" },
-                        { 25, "EffectiveTreeDensity" },
-                        { 27, "VanhAverage" },
-                        { 28, "StandardDeviation" },
-                        { 29, "RatioTreeObtain" },
-                        { 30, "MarkedExtendedGarden (x)" },
-                        { 31, "ExpectedExploitationDate" },
-                        { 32, "ClassifyCode" },
-                        { 33, "Remark" }
-                    });
-
-                    // 1.KD starts at rowStart = 11
-                    AddTemplateSheet("1.KD", 11 - 1, new Dictionary<int, string>
-                    {
-                        { 1, "IdPrivate" },
-                        { 5, "PlotOldName" },
-                        { 6, "PlotNewName" },
-                        { 7, "YearOfPlanting" },
-                        { 8, "LandLevelCode" },
-                        { 9, "AverageHeight" },
-                        { 10, "PlantingMethodCode" },
-                        { 11, "PlantingDistanceCode" },
-                        { 12, "PlantingDesignDensity" },
-                        { 13, "TypeOfTreeCode" },
-                        { 15, "Area" },
-                        { 16, "HoleQuantity" },
-                        { 17, "EffectiveTreeShavingQuantity" },
-                        { 19, "EffectiveTreeNotshavingQuantity" },
-                        { 21, "IneffectiveTreeDryQuantity" },
-                        { 23, "IneffectiveTreeNotgrowQuantity" },
-                        { 25, "EmptyHoleQuantity" },
-                        { 27, "ShavingTreeDensity" },
-                        { 28, "ShavingModeCode" },
-                        { 29, "StartExploitationDate" },
-                        { 30, "TappingAge" },
-                        { 31, "YearOfShaving" },
-                        { 32, "ShavingFaceConditionCode" },
-                        { 33, "ProductivityByArea" },
-                        { 34, "ProductivityByTree" },
-                        { 35, "TotalShavingSlice" },
-                        { 36, "ClassifyCode" },
-                        { 37, "Remark" }
-                    });
-
-                    // Prepare JSON field mappings (columnIndex -> jsonFieldKey)
                     var mapTMTCFields = new Dictionary<int, string>
                     {
                         { 1, "idPrivate" },
                         { 5, "plotName" },
                         { 6, "landLevelCode" },
-                        { 7, "altitudeLowest" },
-                        { 8, "altitudeHighest" },
-                        { 9, "plantingMethodCode" },
-                        { 10, "plantingDistanceCode" },
-                        { 11, "plantingDesignDensity" },
-                        { 12, "typeOfTreeCode" },
-                        { 13, "area" },
-                        { 14, "holeQuantity" },
-                        { 15, "graftedTreeCorrectQuantity" },
-                        { 17, "graftedTreeMixedQuantity" },
-                        { 19, "emptyHoleQuantity" },
-                        { 21, "densityOfGraftedTree" },
-                        { 22, "averageNumberLeafLayer" },
-                        { 23, "classifyCode" },
-                        { 24, "plantingEndDate" },
-                        { 25, "remark" },
+                        { 7, "AltitudeAverage" },
+                        { 8, "plantingMethodCode" },
+                        { 9, "plantingDistanceCode" },
+                        { 10, "plantingDesignDensity" },
+                        { 11, "typeOfTreeCode" },
+                        { 12, "area" },
+                        { 13, "holeQuantity" },
+                        { 14, "graftedTreeCorrectQuantity" },
+                        { 16, "graftedTreeMixedQuantity" },
+                        { 18, "emptyHoleQuantity" },
+                        { 20, "densityOfGraftedTree" },
+                        { 21, "averageNumberLeafLayer" },
+                        { 22, "classifyCode"},
+                        { 23, "plantingEndDate" },
+                        { 24, "remark" },
                     };
 
                     var mapKTCBFields = new Dictionary<int, string>
@@ -645,7 +544,6 @@ namespace Web_ProjectName.Controllers
                         { 17, "effectiveTreeShavingQuantity" },
                         { 19, "effectiveTreeNotshavingQuantity" },
                         { 21, "ineffectiveTreeDryQuantity" },
-                        { 23, "ineffectiveTreeNotgrowQuantity" },
                         { 25, "emptyHoleQuantity" },
                         { 27, "shavingTreeDensity" },
                         { 28, "shavingModeCode" },
@@ -679,9 +577,12 @@ namespace Web_ProjectName.Controllers
                     using var doc = JsonDocument.Parse(jsonText);
                     var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement.EnumerateArray() : Enumerable.Empty<JsonElement>();
 
-                    int rowTMTC = 8;
-                    int rowKTCB = 9;
+                    int rowTMTC = 11;
+                    int rowKTCB = 11;
                     int rowKD = 11;
+                    int sttTMTC = 1;
+                    int sttKTCB = 1;
+                    int sttKD = 1;
 
                     foreach (var item in items)
                     {
@@ -689,6 +590,8 @@ namespace Web_ProjectName.Controllers
                         if (active == 14)
                         {
                             var ws = workbook.Worksheet("1.TM-TC");
+                            ws.Row(rowTMTC).InsertRowsBelow(1);
+                            ws.Cell(rowTMTC, 1).Value = sttTMTC;
                             foreach (var kv in mapTMTCFields)
                             {
                                 if (item.TryGetProperty(kv.Value, out var v))
@@ -698,10 +601,14 @@ namespace Web_ProjectName.Controllers
                                 }
                             }
                             rowTMTC++;
+                            sttTMTC++;
                         }
                         else if (active == 5)
                         {
                             var ws = workbook.Worksheet("1.KTCB");
+                            ws.Row(rowKTCB).InsertRowsBelow(1);
+                            // Thêm số thứ tự vào cột A
+                            ws.Cell(rowKTCB, 1).Value = sttKTCB;
                             foreach (var kv in mapKTCBFields)
                             {
                                 if (item.TryGetProperty(kv.Value, out var v))
@@ -719,10 +626,13 @@ namespace Web_ProjectName.Controllers
                             }
                             ws.Cell(rowKTCB, 30 + 1).Value = markedX;
                             rowKTCB++;
+                            sttKTCB++;
                         }
                         else if (active == 6)
                         {
                             var ws = workbook.Worksheet("1.KD");
+                            ws.Row(rowKD).InsertRowsBelow(1);
+                            ws.Cell(rowKD, 1).Value = sttKD;
                             foreach (var kv in mapKDFields)
                             {
                                 if (item.TryGetProperty(kv.Value, out var v))
@@ -732,10 +642,10 @@ namespace Web_ProjectName.Controllers
                                 }
                             }
                             rowKD++;
+                            sttKD++;
                         }
                     }
 
-                    // Additionally, insert idPrivate list into Column B starting at Row 13 of the first worksheet as requested
                     try
                     {
                         var ws0 = workbook.Worksheet(1);
@@ -751,7 +661,6 @@ namespace Web_ProjectName.Controllers
                     }
                     catch { }
 
-                    // local function to write JsonElement appropriately
                     static void WriteJsonElementToCell(IXLCell cell, JsonElement el)
                     {
                         switch (el.ValueKind)
@@ -772,6 +681,8 @@ namespace Web_ProjectName.Controllers
                                 cell.Value = el.ToString();
                                 break;
                         }
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
 
                     var exportsDir = Path.Combine(_webHostEnvironment.WebRootPath, "exports");
