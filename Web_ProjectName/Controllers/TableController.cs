@@ -252,7 +252,7 @@ namespace Web_ProjectName.Controllers
                                             Area2 = 0.0f,
                                             Area3 = 0.0f,
                                             AreaManagementChange = 0.0f,
-                                            AverageHeight = 0,
+                                            AltitudeAverage = 0,
                                             ActiveStatusId = 14,
                                             Hecta = 0,
                                             ProductivityByArea = 0,
@@ -299,7 +299,7 @@ namespace Web_ProjectName.Controllers
                                             PlotNewName = GetCell(6)?.ToString() ?? "",
                                             YearOfPlanting = GetCell(7)?.ToString() ?? "",
                                             LandLevelCode = GetCell(8)?.ToString() ?? "",
-                                            AverageHeight = TryDouble(GetCell(9)),
+                                            AltitudeAverage = TryDouble(GetCell(9)),
                                             PlantingMethodCode = GetCell(10)?.ToString() ?? "",
                                             PlantingDistanceCode = GetCell(11)?.ToString() ?? "",
                                             PlantingDesignDensity = TryDouble(GetCell(12)),
@@ -372,7 +372,7 @@ namespace Web_ProjectName.Controllers
                                             PlotNewName = GetCell(6)?.ToString() ?? "",                            // Tên lô mới
                                             YearOfPlanting = GetCell(7)?.ToString() ?? "",                         // Năm trồng
                                             LandLevelCode = GetCell(8)?.ToString() ?? "",                          // Hạng đất (string)
-                                            AverageHeight = TryDouble(GetCell(9)),       // Cao trình trung bình (m)
+                                            AltitudeAverage = TryDouble(GetCell(9)),       // Cao trình trung bình (m)
                                             PlantingMethodCode = GetCell(10)?.ToString() ?? "", // Phương pháp trồng (string)
                                             PlantingDistanceCode = GetCell(11)?.ToString() ?? "", // Khoảng cách trồng
                                             PlantingDesignDensity = TryDouble(GetCell(12)), // Mật độ thiết kế (cây/ha)
@@ -482,7 +482,7 @@ namespace Web_ProjectName.Controllers
                         { 1, "idPrivate" },
                         { 5, "plotName" },
                         { 6, "landLevelCode" },
-                        { 7, "AltitudeAverage" },
+                        { 7, "altitudeAverage" },
                         { 8, "plantingMethodCode" },
                         { 9, "plantingDistanceCode" },
                         { 10, "plantingDesignDensity" },
@@ -506,7 +506,7 @@ namespace Web_ProjectName.Controllers
                         { 6, "plotNewName" },
                         { 7, "yearOfPlanting" },
                         { 8, "landLevelCode" },
-                        { 9, "averageHeight" },
+                        { 9, "altitudeAverage" },
                         { 10, "plantingMethodCode" },
                         { 11, "plantingDistanceCode" },
                         { 12, "plantingDesignDensity" },
@@ -534,7 +534,7 @@ namespace Web_ProjectName.Controllers
                         { 6, "plotNewName" },
                         { 7, "yearOfPlanting" },
                         { 8, "landLevelCode" },
-                        { 9, "averageHeight" },
+                        { 9, "altitudeAverage" },
                         { 10, "plantingMethodCode" },
                         { 11, "plantingDistanceCode" },
                         { 12, "plantingDesignDensity" },
