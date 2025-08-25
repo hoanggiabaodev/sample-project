@@ -607,7 +607,6 @@ namespace Web_ProjectName.Controllers
                         {
                             var ws = workbook.Worksheet("1.KTCB");
                             ws.Row(rowKTCB).InsertRowsBelow(1);
-                            // Thêm số thứ tự vào cột A
                             ws.Cell(rowKTCB, 1).Value = sttKTCB;
                             foreach (var kv in mapKTCBFields)
                             {
@@ -625,6 +624,8 @@ namespace Web_ProjectName.Controllers
                                     markedX = "x";
                             }
                             ws.Cell(rowKTCB, 30 + 1).Value = markedX;
+                            ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             rowKTCB++;
                             sttKTCB++;
                         }
@@ -692,6 +693,29 @@ namespace Web_ProjectName.Controllers
                     var timestamp = Utilities.CurrentTimeSeconds();
                     var fileName = $"template_import_{timestamp}.xlsx";
                     var filePath = Path.Combine(exportsDir, fileName);
+                    foreach (var ws in workbook.Worksheets)
+                    {
+                        int headerRow = 10;
+                        var lastRow = ws.LastRowUsed();
+
+                        if (lastRow != null)
+                        {
+                            int lastRowNumber = lastRow.RowNumber();
+
+                            ws.Columns().AdjustToContents(headerRow, lastRowNumber);
+
+                            foreach (var col in ws.ColumnsUsed())
+                            {
+                                if (col.Width < 15)
+                                    col.Width = 15;
+                            }
+                        }
+                        else
+                        {
+                            ws.Columns().AdjustToContents(headerRow, headerRow);
+                        }
+                    }
+
 
                     workbook.SaveAs(filePath);
 
@@ -719,7 +743,7 @@ namespace Web_ProjectName.Controllers
             catch (Exception ex)
             {
                 jResult.result = -1;
-                jResult.error = new error(500, $"Export failed. {ex.Message}");
+                jResult.error = new error(500, $"Xuất file thất bại. {ex.Message}");
             }
             await Task.CompletedTask;
             return Json(jResult);
