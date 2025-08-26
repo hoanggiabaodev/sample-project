@@ -190,22 +190,84 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-width: 1200px;
         }
+
+        .table th,
+        .table td {
+            min-width: 80px;
+            max-width: 120px;
+        }
+
+        .table th:nth-child(1),
+        .table td:nth-child(1) {
+            min-width: 50px;
+            max-width: 60px;
+        }
+
+        /* STT */
+        .table th:nth-child(2),
+        .table td:nth-child(2) {
+            min-width: 100px;
+            max-width: 120px;
+        }
+
+        /* Mã lô */
+        .table th:nth-child(3),
+        .table td:nth-child(3) {
+            min-width: 120px;
+            max-width: 150px;
+        }
+
+        /* Tên lô */
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            min-width: 80px;
+            max-width: 100px;
+        }
+
+        /* Năm trồng */
+        .table th:nth-child(5),
+        .table td:nth-child(5) {
+            min-width: 100px;
+            max-width: 120px;
+        }
+
+        /* Giống */
+        .table th:nth-child(6),
+        .table td:nth-child(6) {
+            min-width: 80px;
+            max-width: 100px;
+        }
+
+        /* Diện tích */
+        .table th:nth-child(13),
+        .table td:nth-child(13) {
+            min-width: 100px;
+            max-width: 120px;
+        }
+
+        /* Nông trường */
 
         .table thead th {
             background-color: #f8f9fa;
             border: none;
-            padding: 1rem;
+            padding: 0.5rem 0.3rem;
             font-weight: 600;
             color: #495057;
             border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            text-align: center;
         }
 
         .table tbody td {
-            padding: 1rem;
+            padding: 0.5rem 0.3rem;
             vertical-align: middle;
             border: none;
             border-bottom: 1px solid #f1f3f5;
+            font-size: 0.8rem;
+            white-space: nowrap;
         }
 
         .table tbody tr:hover {
@@ -299,6 +361,66 @@
 
                     .blink-warning {
                         animation: blink 1s infinite;
+                    }
+
+                    /* Dashed Border Frame for Table Container */
+                    .table-container-frame {
+                        position: relative;
+                        border: 2px dashed #7d6c6c;
+                        border-radius: 8px;
+                        padding: 20px;
+                        background-color: rgba(125, 108, 108, 0.05);
+                        margin: 20px 0;
+                        min-height: 400px;
+                    }
+
+                    /* Top-left corner bracket */
+                    .table-container-frame::before {
+                        content: '';
+                        position: absolute;
+                        top: -8px;
+                        left: -8px;
+                        width: 16px;
+                        height: 16px;
+                        border-left: 3px solid #ffffff;
+                        border-top: 3px solid #ffffff;
+                        border-radius: 2px 0 0 0;
+                    }
+
+                    /* Top-right corner bracket */
+                    .table-container-frame::after {
+                        content: '';
+                        position: absolute;
+                        top: -8px;
+                        right: -8px;
+                        width: 16px;
+                        height: 16px;
+                        border-right: 3px solid #ffffff;
+                        border-top: 3px solid #ffffff;
+                        border-radius: 0 2px 0 0;
+                    }
+
+                    /* Bottom corner brackets */
+                    .corner-bracket {
+                        position: absolute;
+                        width: 16px;
+                        height: 16px;
+                    }
+
+                    .corner-bracket-bottom-left {
+                        bottom: -8px;
+                        left: -8px;
+                        border-left: 3px solid #ffffff;
+                        border-bottom: 3px solid #ffffff;
+                        border-radius: 0 0 0 2px;
+                    }
+
+                    .corner-bracket-bottom-right {
+                        bottom: -8px;
+                        right: -8px;
+                        border-right: 3px solid #ffffff;
+                        border-bottom: 3px solid #ffffff;
+                        border-radius: 0 0 2px 0;
                     }
                 </style>
             }
@@ -394,42 +516,50 @@
                 <div class="card-body">
                     <h4 class="fw-bold text-primary border-bottom border-3 border-primary pb-2 mb-4">
                         Danh sách lô
-                        <form id="importForm" enctype="multipart/form-data">
+                        @* <form id="importForm" enctype="multipart/form-data">
                             @Html.AntiForgeryToken()
                             <input type="file" id="import_excel_file" accept=".xlsx,.xls" />
                             <button type="button" class="btn btn-outline-success rounded border border-1"
                                 onclick="ImportExcelFromFile()">
                                 <i class="fa-solid fa-file-excel me-1"></i>Import excel
                             </button>
-                        </form>
+                        </form> *@
                         <button class="btn btn-outline-success rounded border border-1" onclick="ExportExcel()">
                             <i class="fa-solid fa-file-excel me-1"></i>Xuất excel
                         </button>
                     </h4>
 
-                    <table class="table table-bordered table-striped text-center align-middle w-100" id="table_lo">
-                        <thead>
-                            <tr>
-                                <th class="text-center align-middle fw-700" rowspan="2">STT</th>
-                                <th class="text-center align-middle fw-700" rowspan="2">Lô</th>
-                                <th class="text-center align-middle fw-700" rowspan="2">Năm trồng</th>
-                                <th class="text-center align-middle fw-700" rowspan="2">Giống</th>
-                                <th class="text-center align-middle fw-700 bg-success-subtle" rowspan="2">Diện tích (ha)</th>
-                                <th class="text-center align-middle fw-700" colspan="4">Cây bị thiệt hại</th>
-                                <th class="text-center align-middle fw-700" rowspan="2">Nhánh</th>
-                                <th class="text-center align-middle fw-700" rowspan="2">Tàn cây</th>
-                                <th class="text-center align-middle fw-700" rowspan="2">Ghi chú</th>
-                            </tr>
-                            <tr>
-                                <th class="text-center align-middle fw-700">Gãy ngang</th>
-                                <th class="text-center align-middle fw-700">Bật gốc</th>
-                                <th class="text-center align-middle fw-700">Sét đánh</th>
-                                <th class="text-center align-middle fw-700 bg-warning-subtle">Cộng</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    <!-- Table Container with Dashed Border Frame -->
+                    <div class="table-container-frame">
+                        <!-- Corner brackets -->
+                        <div class="corner-bracket corner-bracket-bottom-left"></div>
+                        <div class="corner-bracket corner-bracket-bottom-right"></div>
+
+                        <table class="table table-bordered table-striped text-center align-middle w-100" id="table_lo">
+                            <thead>
+                                <tr>
+                                    <th class="text-center align-middle fw-700" rowspan="2">STT</th>
+                                    <th class="text-center align-middle fw-700" rowspan="2">Mã lô</th>
+                                    <th class="text-center align-middle fw-700" rowspan="2">Tên lô</th>
+                                    <th class="text-center align-middle fw-700" rowspan="2">Năm trồng</th>
+                                    <th class="text-center align-middle fw-700" rowspan="2">Giống</th>
+                                    <th class="text-center align-middle fw-700 bg-success-subtle" rowspan="2">Diện tích (ha)</th>
+                                    <th class="text-center align-middle fw-700" colspan="6">Thông tin cây</th>
+                                    <th class="text-center align-middle fw-700" rowspan="2">Nông trường</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center align-middle fw-700">Tổng cây</th>
+                                    <th class="text-center align-middle fw-700">Thực tế</th>
+                                    <th class="text-center align-middle fw-700">Sửa chữa</th>
+                                    <th class="text-center align-middle fw-700">Sửa thực tế</th>
+                                    <th class="text-center align-middle fw-700">Tăng dự kiến</th>
+                                    <th class="text-center align-middle fw-700 bg-warning-subtle">Tăng thực tế</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="card-arrow">
                     <div class="card-arrow-top-left"></div>

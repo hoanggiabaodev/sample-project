@@ -60,9 +60,9 @@ function HandleYearFilterChange(event) {
     if (!dataTableLo) return;
 
     if (!value || value === "0") {
-        dataTableLo.column(2).search("").draw();
+        dataTableLo.column(3).search("").draw();
     } else {
-        dataTableLo.column(2).search(`^${selectedText}$`, true, false).draw();
+        dataTableLo.column(3).search(`^${selectedText}$`, true, false).draw();
     }
 }
 
@@ -74,9 +74,9 @@ function HandleVarietyFilterChange(event) {
     if (!dataTableLo) return;
 
     if (!value || value === "0") {
-        dataTableLo.column(3).search("").draw();
+        dataTableLo.column(4).search("").draw();
     } else {
-        dataTableLo.column(3).search(`^${selectedText}$`, true, false).draw();
+        dataTableLo.column(4).search(`^${selectedText}$`, true, false).draw();
     }
 }
 
@@ -95,68 +95,76 @@ const columnTableLo = function () {
             className: "text-center"
         },
         {
-            data: "lo",
+            data: "plotId",
             className: "text-center fw-500"
         },
         {
-            data: "namTrong",
+            data: "idPrivate",
             className: "text-center fw-500"
         },
         {
-            data: "giong",
+            data: "yearOfPlanting",
             className: "text-center fw-500"
         },
         {
-            data: "dienTich",
+            data: "typeOfTreeName",
+            className: "text-center fw-500"
+        },
+        {
+            data: "area",
             className: "text-center fw-500 bg-success-subtle",
             render: function (data, type, row) {
-                return data ? parseFloat(data).toFixed(5) : "0.00000";
+                if (data) {
+                    const hectares = parseFloat(data) / 10000;
+                    return hectares.toFixed(2);
+                }
+                return "0.00";
             }
         },
         {
-            data: "gayNgang",
+            data: "treeQuantityObj.treeQuantity",
             className: "text-center fw-500",
             render: function (data, type, row) {
-                return data || "0";
+                return row.treeQuantityObj?.treeQuantity || "0";
             }
         },
         {
-            data: "batGoc",
+            data: "treeQuantityObj.treeQuantityActual",
             className: "text-center fw-500",
             render: function (data, type, row) {
-                return data || "0";
+                return row.treeQuantityObj?.treeQuantityActual || "0";
             }
         },
         {
-            data: "setDanh",
+            data: "treeQuantityObj.treeQuantityRepair",
             className: "text-center fw-500",
             render: function (data, type, row) {
-                return data || "0";
+                return row.treeQuantityObj?.treeQuantityRepair || "0";
             }
         },
         {
-            data: "cong",
+            data: "treeQuantityObj.treeQuantityActualRepair",
+            className: "text-center fw-500",
+            render: function (data, type, row) {
+                return row.treeQuantityObj?.treeQuantityActualRepair || "0";
+            }
+        },
+        {
+            data: "treeQuantityObj.treeQuantityExpectedIncrease",
+            className: "text-center fw-500",
+            render: function (data, type, row) {
+                return row.treeQuantityObj?.treeQuantityExpectedIncrease || "0";
+            }
+        },
+        {
+            data: "treeQuantityObj.treeQuantityActualIncrease",
             className: "text-center fw-500 bg-warning-subtle",
             render: function (data, type, row) {
-                return data || "0";
+                return row.treeQuantityObj?.treeQuantityActualIncrease || "0";
             }
         },
         {
-            data: "nhanh",
-            className: "text-center fw-500",
-            render: function (data, type, row) {
-                return data || "0";
-            }
-        },
-        {
-            data: "tanCay",
-            className: "text-center fw-500",
-            render: function (data, type, row) {
-                return data || "0";
-            }
-        },
-        {
-            data: "ghiChu",
+            data: "farmName",
             className: "text-center fw-500",
             render: function (data, type, row) {
                 return data || "";
@@ -252,7 +260,7 @@ function LoadDataTable() {
         scrollY: height,
         scrollX: true,
         order: [[0, 'asc']],
-        fixedColumns: { left: 2 },
+        fixedColumns: { left: 3 },
         paging: true,
         pageLength: 25,
         processing: true,
@@ -271,7 +279,7 @@ function LoadDataTable() {
             }, 500);
         }
     };
-    if ($(window).width() < 767) { options.fixedColumns = { left: 1 }; }
+    if ($(window).width() < 767) { options.fixedColumns = { left: 2 }; }
     dataTableLo = $tableMainLo.DataTable(options);
     setTimeout(function myfunction() {
         $(window).trigger('resize');
@@ -282,7 +290,7 @@ function getSelectedRowIds() {
     if (!dataTableLo) return [];
     try {
         const rows = dataTableLo.rows({ selected: true }).data().toArray();
-        const ids = rows.map(r => r?.id ?? r?.Id ?? r?.loId ?? r?.LoId ?? r?.lo ?? r?.Lo).filter(Boolean);
+        const ids = rows.map(r => r?.id ?? r?.Id).filter(Boolean);
         return Array.from(new Set(ids));
     } catch (e) {
         return [];
