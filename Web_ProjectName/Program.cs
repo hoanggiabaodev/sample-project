@@ -94,6 +94,7 @@ builder.Services.AddSingleton<IS_GoogleReCAPTCHA, S_GoogleReCAPTCHA>();
 builder.Services.AddSingleton<IS_School, S_School>();
 builder.Services.AddSingleton<IS_Introduce, S_Introduce>();
 builder.Services.AddSingleton<IS_DiaryTree, S_DiaryTree>();
+builder.Services.AddSingleton<IS_SurveyFarm, S_SurveyFarm>();
 
 builder.Services.Configure<Config_ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 builder.Services.Configure<Config_MetaSEO>(builder.Configuration.GetSection("MetaSEO"));

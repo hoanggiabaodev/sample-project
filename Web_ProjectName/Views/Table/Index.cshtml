@@ -516,14 +516,14 @@
                 <div class="card-body">
                     <h4 class="fw-bold text-primary border-bottom border-3 border-primary pb-2 mb-4">
                         Danh sách lô
-                        @* <form id="importForm" enctype="multipart/form-data">
+                        <form id="importForm" enctype="multipart/form-data">
                             @Html.AntiForgeryToken()
                             <input type="file" id="import_excel_file" accept=".xlsx,.xls" />
                             <button type="button" class="btn btn-outline-success rounded border border-1"
                                 onclick="ImportExcelFromFile()">
                                 <i class="fa-solid fa-file-excel me-1"></i>Import excel
                             </button>
-                        </form> *@
+                        </form>
                         <button class="btn btn-outline-success rounded border border-1" onclick="ExportExcel()">
                             <i class="fa-solid fa-file-excel me-1"></i>Xuất excel
                         </button>
