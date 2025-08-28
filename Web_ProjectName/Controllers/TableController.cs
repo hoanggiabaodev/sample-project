@@ -7,6 +7,8 @@ using System.Threading;
 using System.Text.Json;
 using Web_ProjectName.Services;
 using Web_ProjectName.Models;
+using System.Text;
+using System.Globalization;
 
 namespace Web_ProjectName.Controllers
 {
@@ -14,10 +16,12 @@ namespace Web_ProjectName.Controllers
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IS_DiaryTree _diaryTreeService;
-        public TableController(IWebHostEnvironment webHostEnvironment, IS_DiaryTree diaryTreeService)
+        private readonly IS_SurveyFarm _surveyFarmService;
+        public TableController(IWebHostEnvironment webHostEnvironment, IS_DiaryTree diaryTreeService, IS_SurveyFarm surveyFarm)
         {
             _webHostEnvironment = webHostEnvironment;
             _diaryTreeService = diaryTreeService;
+            _surveyFarmService = surveyFarm;
         }
         public async Task<IActionResult> Index()
         {
@@ -114,341 +118,206 @@ namespace Web_ProjectName.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult ImportExcel(int? year, string? variety, string? ids)
-        {
-            ViewBag.Year = year;
-            ViewBag.Variety = variety;
-            ViewBag.Ids = ids;
-            return View();
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<JsonResult> ImportExcel(IFormFile? file)
         {
-            M_JResult jResult = new M_JResult();
+            var jResult = new M_JResult();
             try
             {
                 if (file == null || file.Length == 0)
-                {
-                    jResult.result = 0;
-                    jResult.error = new error(0, "Vui lòng chọn file cần import.");
-                    return Json(jResult);
-                }
+                    return Json(new M_JResult { result = 0, error = new error(0, "Vui lòng chọn file cần import.") });
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-                if (ext != ".xlsx" && ext != ".xls")
-                {
-                    jResult.result = 0;
-                    jResult.error = new error(0, "Định dạng file không hỗ trợ. Vui lòng chọn .xlsx hoặc .xls.");
-                    return Json(jResult);
-                }
+                if (ext is not (".xlsx" or ".xls"))
+                    return Json(new M_JResult { result = 0, error = new error(0, "Định dạng file không hỗ trợ. Vui lòng chọn .xlsx hoặc .xls.") });
 
-                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+                // Helpers
+                string S(object v) => v?.ToString()?.Trim() ?? "";
+                int I(object v) => int.TryParse(S(v), out var i) ? i : (int)Math.Round(D(v));
+                double D(object v) => double.TryParse(S(v), NumberStyles.Any, CultureInfo.InvariantCulture, out var d) ? d : 0d;
+                string Dt(object v) => v is DateTime dt ? dt.ToString("yyyy-MM-dd") :
+                                       DateTime.TryParse(S(v), out var d) ? d.ToString("yyyy-MM-dd") : S(v);
+                bool B(object v) => !string.IsNullOrWhiteSpace(v?.ToString());
 
                 var data = new List<object>();
-                using (var stream = new MemoryStream())
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+
+                using var reader = ExcelReaderFactory.CreateReader(stream);
+                do
                 {
-                    await file.CopyToAsync(stream);
-                    stream.Position = 0;
+                    var sheet = reader.Name.ToUpperInvariant();
+                    if (!new[] { "1.TM-TC", "1.TC-TM", "1.KTCB", "1.KD", "1.TXA", "1.TXB" }.Contains(sheet)) continue;
 
-                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    int rowStart = sheet switch
                     {
-                        var sheetNamesToRead = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase) { "1.TM-TC", "1.KTCB", "1.KD" };
+                        "1.KD" or "1.KTCB" or "1.TM-TC" or "1.TC-TM" => 10,
+                        _ => 9
+                    };
 
-                        do
+                    while (reader.Read())
+                    {
+                        if (reader.Depth < rowStart) continue;
+                        object Cell(int i) => i < reader.FieldCount ? reader.GetValue(i) : null;
+
+                        // bắt buộc có IdPrivate (cột 1) và cột D (cột 4)
+                        if (string.IsNullOrWhiteSpace(S(Cell(1))) || string.IsNullOrWhiteSpace(S(Cell(3))))
                         {
-                            if (!sheetNamesToRead.Contains(reader.Name)) continue;
+                            continue;
+                        }
 
-                            int rowStart = -1;
-
-                            while (reader.Read())
+                        // TM-TC
+                        if (sheet is "1.TM-TC" or "1.TC-TM")
+                            data.Add(new
                             {
-                                if (rowStart == -1)
-                                {
-                                    var colA = reader.GetValue(0)?.ToString();
-                                    var colB = reader.GetValue(1)?.ToString();
+                                ActiveStatusCode = "TMTC",
+                                IdPrivate = S(Cell(1)),
+                                PlotName = S(Cell(5)),
+                                LandLevelCode = S(Cell(6)),
+                                AltitudeAverage = D(Cell(7)),
+                                PlantingMethodCode = S(Cell(8)),
+                                PlantingDistanceCode = S(Cell(9)),
+                                PlantingDesignDensity = D(Cell(10)),
+                                TypeOfTreeCode = S(Cell(11)),
+                                Area = D(Cell(12)),
+                                HoleQuantity = I(Cell(13)),
+                                GraftedTreeCorrectQuantity = I(Cell(14)),
+                                GraftedTreeMixedQuantity = I(Cell(16)),
+                                EmptyHoleQuantity = I(Cell(18)),
+                                DensityOfGraftedTree = I(Cell(20)),
+                                AverageNumberLeafLayer = D(Cell(21)),
+                                ClassifyCode = S(Cell(22)),
+                                PlantingEndDate = Dt(Cell(23)),
+                                Remark = S(Cell(24))
+                            });
 
-                                    if (colA == "1" && !string.IsNullOrWhiteSpace(colB) && !int.TryParse(colB, out _))
-                                    {
-                                        rowStart = reader.Depth;
-                                    }
-                                }
+                        // KTCB
+                        else if (sheet == "1.KTCB")
+                            data.Add(new
+                            {
+                                ActiveStatusCode = "KTCB",
+                                IdPrivate = S(Cell(1)),
+                                PlotOldName = S(Cell(5)),
+                                PlotNewName = S(Cell(6)),
+                                YearOfPlanting = S(Cell(7)),
+                                LandLevelCode = S(Cell(8)),
+                                AltitudeAverage = D(Cell(9)),
+                                PlantingMethodCode = S(Cell(10)),
+                                PlantingDistanceCode = S(Cell(11)),
+                                PlantingDesignDensity = D(Cell(12)),
+                                TypeOfTreeCode = S(Cell(13)),
+                                Area = D(Cell(15)),
+                                HoleQuantity = I(Cell(16)),
+                                EffectiveTreeCorrectQuantity = I(Cell(17)),
+                                EffectiveTreeMixedQuantity = I(Cell(19)),
+                                IneffectiveTreeNotgrowQuantity = I(Cell(21)),
+                                EmptyHoleQuantity = I(Cell(23)),
+                                EffectiveTreeDensity = I(Cell(25)),
+                                VanhAverage = D(Cell(27)),
+                                StandardDeviation = D(Cell(28)),
+                                RatioTreeObtain = D(Cell(29)),
+                                MarkedExtendedGarden = B(Cell(30)),
+                                ExpectedExploitationDate = Dt(Cell(31)),
+                                ClassifyCode = S(Cell(32)),
+                                Remark = S(Cell(33))
+                            });
 
-                                if (rowStart != -1 && reader.Depth >= rowStart)
-                                {
-                                    bool rowIsEmpty = true;
-                                    for (int c = 0; c < reader.FieldCount; c++)
-                                    {
-                                        var v = reader.GetValue(c);
-                                        if (v != null && !string.IsNullOrWhiteSpace(v.ToString()))
-                                        {
-                                            rowIsEmpty = false;
-                                            break;
-                                        }
-                                    }
-                                    if (rowIsEmpty) continue;
+                        // KD
+                        else if (sheet == "1.KD")
+                            data.Add(new
+                            {
+                                ActiveStatusCode = "KD",
+                                IdPrivate = S(Cell(1)),
+                                PlotOldName = S(Cell(5)),
+                                PlotNewName = S(Cell(6)),
+                                YearOfPlanting = S(Cell(7)),
+                                LandLevelCode = S(Cell(8)),
+                                AltitudeAverage = D(Cell(9)),
+                                PlantingMethodCode = S(Cell(10)),
+                                PlantingDistanceCode = S(Cell(11)),
+                                PlantingDesignDensity = D(Cell(12)),
+                                TypeOfTreeCode = S(Cell(13)),
+                                Area = D(Cell(15)),
+                                HoleQuantity = I(Cell(16)),
+                                EffectiveTreeShavingQuantity = I(Cell(17)),
+                                EffectiveTreeNotshavingQuantity = I(Cell(19)),
+                                IneffectiveTreeDryQuantity = I(Cell(21)),
+                                IneffectiveTreeNotgrowQuantity = I(Cell(23)),
+                                EmptyHoleQuantity = I(Cell(25)),
+                                ShavingTreeDensity = I(Cell(27)),
+                                ShavingModeCode = S(Cell(28)),
+                                StartExploitationDate = Dt(Cell(29)),
+                                TappingAge = I(Cell(30)),
+                                YearOfShaving = S(Cell(31)),
+                                ShavingFaceConditionCode = S(Cell(32)),
+                                ProductivityByArea = D(Cell(33)),
+                                ProductivityByTree = D(Cell(34)),
+                                TotalShavingSlice = I(Cell(35)),
+                                ClassifyCode = S(Cell(36)),
+                                Remark = S(Cell(37))
+                            });
 
-                                    object? GetCell(int idx) => idx < reader.FieldCount ? reader.GetValue(idx) : null;
+                        // TXA
+                        else if (sheet == "1.TXA")
+                            data.Add(new
+                            {
+                                ActiveStatusCode = "TX",
+                                IntercropType = 0,
+                                IdPrivate = S(Cell(1)),
+                                PlotName = S(Cell(2)),
+                                YearOfPlanting = S(Cell(3)),
+                                PlantingDistanceCode = S(Cell(4)),
+                                PlantingDesignDensity = D(Cell(5)),
+                                Area = D(Cell(6)),
+                                IntercropName = S(Cell(7)),
+                                IntercroppingYear = S(Cell(8)),
+                                IntercroppingArea = D(Cell(9)),
+                                CareContract = S(Cell(10)),
+                                ProductContract = S(Cell(11)),
+                                FinancialIncome = D(Cell(12)),
+                                IntercroppingOther = D(Cell(13)),
+                                IntercroppingCompany = S(Cell(14)),
+                                NoContribEcon = S(Cell(15)),
+                                NoContribPers = D(Cell(16)),
+                                PartContribEcon = S(Cell(17)),
+                                PartContribPers = D(Cell(18)),
+                                ShavingTreeDensity = I(Cell(19)),
+                                VanhAverage = D(Cell(20)),
+                                RatioTreeObtain = D(Cell(21)),
+                                ClassifyCode = S(Cell(22))
+                            });
 
-                                    var idPrivate = GetCell(1)?.ToString();
-                                    if (string.IsNullOrWhiteSpace(idPrivate)) continue;
-
-                                    var colD = GetCell(3)?.ToString();
-                                    if (string.IsNullOrWhiteSpace(colD)) continue;
-
-                                    double TryDouble(object? v) => double.TryParse(v?.ToString(), out var d) ? d : 0d;
-                                    int TryInt(object? v) => int.TryParse(v?.ToString(), out var i) ? i : 0;
-                                    DateTime? TryDate(object? v)
-                                    {
-                                        if (v is DateTime dt) return dt;
-                                        var s = v?.ToString();
-                                        if (string.IsNullOrWhiteSpace(s)) return null;
-                                        if (double.TryParse(s, out var oa))
-                                        {
-                                            try { return DateTime.FromOADate(oa); } catch { }
-                                        }
-                                        return DateTime.TryParse(s, out var parsed) ? parsed : null;
-                                    }
-                                    bool? TryBoolX(object? v)
-                                    {
-                                        var s = v?.ToString()?.Trim();
-                                        if (string.IsNullOrEmpty(s)) return false;
-
-                                        if (string.Equals(s, "x", StringComparison.OrdinalIgnoreCase))
-                                            return true;
-
-                                        return false;
-                                    }
-
-                                    if (reader.Name.Equals("1.TM-TC", StringComparison.OrdinalIgnoreCase) || reader.Name.Equals("1.TC-TM", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        data.Add(new
-                                        {
-                                            // Fields read from Excel (ordered by column index)
-                                            IdPrivate = idPrivate,
-                                            PlotName = GetCell(5)?.ToString() ?? "",
-                                            LandLevelCode = GetCell(6)?.ToString() ?? "",
-                                            AltitudeLowest = TryDouble(GetCell(7)),
-                                            AltitudeHighest = TryDouble(GetCell(8)),
-                                            PlantingMethodCode = GetCell(9)?.ToString() ?? "",
-                                            PlantingDistanceCode = GetCell(10)?.ToString() ?? "",
-                                            PlantingDesignDensity = TryDouble(GetCell(11)),
-                                            TypeOfTreeCode = GetCell(12)?.ToString() ?? "",
-                                            Area = TryDouble(GetCell(13)),
-                                            HoleQuantity = TryInt(GetCell(14)),
-                                            GraftedTreeCorrectQuantity = TryInt(GetCell(15)),
-                                            GraftedTreeMixedQuantity = TryInt(GetCell(17)),
-                                            EmptyHoleQuantity = TryInt(GetCell(19)),
-                                            DensityOfGraftedTree = TryInt(GetCell(21)),
-                                            AverageNumberLeafLayer = TryDouble(GetCell(22)),
-                                            ClassifyCode = GetCell(23)?.ToString() ?? "",
-                                            PlantingEndDate = TryDate(GetCell(24))?.ToString("yyyy-MM-dd") ?? GetCell(24)?.ToString() ?? "",
-                                            Remark = GetCell(25)?.ToString() ?? "",
-
-                                            // Defaulted/computed fields
-                                            SurveyBatchId = 0,
-                                            OwnerId = 0,
-                                            CultivatorId = 0,
-                                            PlotId = "",
-                                            RiskLevel = "",
-                                            PlotOldName = "",
-                                            PlotNewName = "",
-                                            LandType = "",
-                                            AreaCultivated = 0.0f,
-                                            Area1 = 0.0f,
-                                            Area2 = 0.0f,
-                                            Area3 = 0.0f,
-                                            AreaManagementChange = 0.0f,
-                                            AltitudeAverage = 0,
-                                            ActiveStatusId = 14,
-                                            Hecta = 0,
-                                            ProductivityByArea = 0,
-                                            TreeQuantity = 0,
-                                            TreeQuantityShaving = 0,
-                                            EffectiveTreeNotshavingQuantity = 0,
-                                            EffectiveTreeShavingQuantity = 0,
-                                            IneffectiveTreeNotgrowQuantity = 0,
-                                            IneffectiveTreeDryQuantity = 0,
-                                            ShavingTreeDensity = 0,
-                                            ShavingModeCode = "",
-                                            EndExploitationDate = "",
-                                            StartExploitationDate = "",
-                                            TotalShavingSlice = 0,
-                                            ShavingFaceConditionId = 0,
-                                            ShavingFaceConditionCode = "",
-                                            TappingAge = 0,
-                                            ProductivityByTree = 0,
-                                            IneffectiveTreeQuantity = 0,
-                                            EffectiveTreeCorrectQuantity = 0,
-                                            EffectiveTreeMixedQuantity = 0,
-                                            EffectiveTreeDensity = 0,
-                                            StandardDeviation = 0,
-                                            RatioTreeObtain = 0,
-                                            MarkedExtendedGarden = false,
-                                            ExpectedExploitationDate = "",
-                                            YearOfPlanting = "",
-                                            YearOfShaving = "",
-                                            GardenRatingId = 0,
-                                            VanhAverage = 0.0f,
-                                            RootTreeMixedQuantity = 0,
-                                            RootTreeCorrectQuantity = 0,
-                                            Count = 0,
-                                            TotalOutput = 0.0f
-                                        });
-                                    }
-                                    else if (reader.Name.Equals("1.KTCB", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        data.Add(new
-                                        {
-                                            // Fields read from Excel (ordered by column index)
-                                            IdPrivate = idPrivate,
-                                            PlotOldName = GetCell(5)?.ToString() ?? "",
-                                            PlotNewName = GetCell(6)?.ToString() ?? "",
-                                            YearOfPlanting = GetCell(7)?.ToString() ?? "",
-                                            LandLevelCode = GetCell(8)?.ToString() ?? "",
-                                            AltitudeAverage = TryDouble(GetCell(9)),
-                                            PlantingMethodCode = GetCell(10)?.ToString() ?? "",
-                                            PlantingDistanceCode = GetCell(11)?.ToString() ?? "",
-                                            PlantingDesignDensity = TryDouble(GetCell(12)),
-                                            TypeOfTreeCode = GetCell(13)?.ToString() ?? "",
-                                            Area = TryDouble(GetCell(15)),
-                                            HoleQuantity = TryInt(GetCell(16)),
-                                            EffectiveTreeCorrectQuantity = TryInt(GetCell(17)),
-                                            EffectiveTreeMixedQuantity = TryInt(GetCell(19)),
-                                            IneffectiveTreeNotgrowQuantity = TryInt(GetCell(21)),
-                                            EmptyHoleQuantity = TryInt(GetCell(23)),
-                                            EffectiveTreeDensity = TryInt(GetCell(25)),
-                                            VanhAverage = TryDouble(GetCell(27)),
-                                            StandardDeviation = TryDouble(GetCell(28)),
-                                            RatioTreeObtain = TryDouble(GetCell(29)),
-                                            MarkedExtendedGarden = TryBoolX(GetCell(30)),
-                                            ExpectedExploitationDate = TryDate(GetCell(31))?.ToString("yyyy-MM-dd") ?? GetCell(31)?.ToString() ?? "",
-                                            ClassifyCode = GetCell(32)?.ToString() ?? "",
-                                            Remark = GetCell(33)?.ToString() ?? "",
-
-                                            // Defaulted/computed fields
-                                            SurveyBatchId = 0,
-                                            OwnerId = 0,
-                                            CultivatorId = 0,
-                                            PlotId = "",
-                                            RiskLevel = "",
-                                            PlotName = "",
-                                            LandType = "",
-                                            AreaCultivated = 0.0f,
-                                            Area1 = 0.0f,
-                                            Area2 = 0.0f,
-                                            Area3 = 0.0f,
-                                            AltitudeLowest = 0.0f,
-                                            AltitudeHighest = 0.0f,
-                                            AreaManagementChange = 0.0f,
-                                            ActiveStatusId = 5,
-                                            Hecta = 0,
-                                            DensityOfGraftedTree = 0,
-                                            AverageNumberLeafLayer = 0,
-                                            PlantingEndDate = "",
-                                            ProductivityByArea = 0,
-                                            TreeQuantity = 0,
-                                            TreeQuantityShaving = 0,
-                                            EffectiveTreeNotshavingQuantity = 0,
-                                            EffectiveTreeShavingQuantity = 0,
-                                            IneffectiveTreeDryQuantity = 0,
-                                            ShavingTreeDensity = 0,
-                                            ShavingModeCode = "",
-                                            EndExploitationDate = "",
-                                            StartExploitationDate = "",
-                                            TotalShavingSlice = 0,
-                                            ShavingFaceConditionId = 0,
-                                            ShavingFaceConditionCode = "",
-                                            TappingAge = 0,
-                                            ProductivityByTree = 0,
-                                            IneffectiveTreeQuantity = 0,
-                                            GardenRatingId = 0,
-                                            RootTreeMixedQuantity = 0,
-                                            RootTreeCorrectQuantity = 0,
-                                            Count = 0,
-                                            TotalOutput = 0.0f
-                                        });
-                                    }
-                                    else if (reader.Name.Equals("1.KD", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        data.Add(new
-                                        {
-                                            // Fields read from Excel (ordered by column index)
-                                            IdPrivate = idPrivate,                       // Mã Lô
-                                            PlotOldName = GetCell(5)?.ToString() ?? "",                            // Tên lô cũ
-                                            PlotNewName = GetCell(6)?.ToString() ?? "",                            // Tên lô mới
-                                            YearOfPlanting = GetCell(7)?.ToString() ?? "",                         // Năm trồng
-                                            LandLevelCode = GetCell(8)?.ToString() ?? "",                          // Hạng đất (string)
-                                            AltitudeAverage = TryDouble(GetCell(9)),       // Cao trình trung bình (m)
-                                            PlantingMethodCode = GetCell(10)?.ToString() ?? "", // Phương pháp trồng (string)
-                                            PlantingDistanceCode = GetCell(11)?.ToString() ?? "", // Khoảng cách trồng
-                                            PlantingDesignDensity = TryDouble(GetCell(12)), // Mật độ thiết kế (cây/ha)
-                                            TypeOfTreeCode = GetCell(13)?.ToString() ?? "", // Giống cây trồng (mã)
-                                            Area = TryDouble(GetCell(15)),                                 // Diện tích (tổng)
-                                            HoleQuantity = TryInt(GetCell(16)),          // Tổng số hố khảo sát
-                                            EffectiveTreeShavingQuantity = TryInt(GetCell(17)),            // SL cây hữu hiệu đã cạo
-                                            EffectiveTreeNotshavingQuantity = TryInt(GetCell(19)),         // SL cây hữu hiệu chưa cạo
-                                            IneffectiveTreeDryQuantity = TryInt(GetCell(21)),              // SL cây khô mủ
-                                            IneffectiveTreeNotgrowQuantity = TryInt(GetCell(23)),          // SL cây không phát triển
-                                            EmptyHoleQuantity = TryInt(GetCell(25)),     // Số hố trống
-                                            ShavingTreeDensity = TryInt(GetCell(27)),                      // Mật độ cây cạo
-                                            ShavingModeCode = GetCell(28)?.ToString() ?? "",                        // Chế độ cạo
-                                            StartExploitationDate = GetCell(29)?.ToString() ?? "",                  // Ngày bắt đầu khai thác
-                                            TappingAge = TryInt(GetCell(30)),                              // Tuổi khai thác (năm cạo)
-                                            YearOfShaving = GetCell(31)?.ToString() ?? "",                          // Năm cạo úp
-                                            ShavingFaceConditionCode = GetCell(32)?.ToString() ?? "",               // Mã tình trạng mặt cạo
-                                            ProductivityByArea = TryDouble(GetCell(33)),                      // Năng suất theo diện tích
-                                            ProductivityByTree = TryInt(GetCell(34)),                      // Năng suất theo cây
-                                            TotalShavingSlice = TryInt(GetCell(35)),                       // Tổng số lát cạo
-                                            ClassifyCode = GetCell(36)?.ToString() ?? "",  // Xếp hạng
-                                            Remark = GetCell(37)?.ToString() ?? "",      // Ghi chú
-
-                                            // Defaulted/computed fields
-                                            SurveyBatchId = 0,                           // ID đợt khảo sát
-                                            OwnerId = 0,                                 // Chủ sở hữu
-                                            CultivatorId = 0,                            // Người canh tác
-                                            PlotId = "",                          // Mã lô
-                                            RiskLevel = "",                              // Mức độ rủi ro
-                                            PlotName = "",                               // Tên lô
-                                            LandType = "",                               // Loại đất
-                                            AreaCultivated = 0.0f,                       // Diện tích đã canh tác
-                                            Area1 = 0.0f,                                // Diện tích theo cách 1
-                                            Area2 = 0.0f,                                // Diện tích theo cách 2
-                                            Area3 = 0.0f,                                // Diện tích theo cách 3
-                                            AltitudeLowest = 0.0f,                       // Cao trình thấp nhất (double)
-                                            AltitudeHighest = 0.0f,                      // Cao trình cao nhất  (double)
-                                            AreaManagementChange = 0.0f,                   // Diện tích 
-                                            ActiveStatusId = 6,                          // Trạng thái hoạt động (mã)
-                                            Hecta = 0,                                   // Số hecta (nếu có)
-                                            GraftedTreeCorrectQuantity = 0, // SL cây ghép đúng giống
-                                            GraftedTreeMixedQuantity = 0,   // SL cây ghép lẫn giống
-                                            DensityOfGraftedTree = 0, // Mật độ cây ghép
-                                            AverageNumberLeafLayer = 0, // Số tầng lá trung bình
-                                            PlantingEndDate = "", // Ngày kết thúc trồng
-                                            TreeQuantity = 0,                            // Tổng số cây
-                                            TreeQuantityShaving = 0,                     // SL cây đã mở cạo
-                                            EndExploitationDate = "",                    // Ngày kết thúc khai thác
-                                            ShavingFaceConditionId = 0,                  // ID tình trạng mặt cạo
-                                            StandardDeviation = 0,                       // Độ lệch chuẩn (vd: vanh)
-                                            RatioTreeObtain = 0,                         // % cây đạt tiêu chuẩn
-                                            MarkedExtendedGarden = false,                    // Đánh dấu vườn kéo dài (0/1)
-                                            ExpectedExploitationDate = "",               // Tháng mở cạo
-                                            GardenRatingId = 0,                          // ID đánh giá vườn
-                                            VanhAverage = 0.0f,        // Vanh bình quân 2025
-                                            RootTreeMixedQuantity = 0,                   // SL cây gốc lẫn
-                                            RootTreeCorrectQuantity = 0,                 // SL cây gốc đúng
-                                            Count = 0,                                   // Đếm số bản ghi (nếu cần)
-                                            TotalOutput = 0.0f                           // Tổng sản lượng
-                                        });
-                                    }
-                                }
-                            }
-
-                        } while (reader.NextResult());
+                        // TXB
+                        else if (sheet == "1.TXB")
+                            data.Add(new
+                            {
+                                ActiveStatusCode = "TX",
+                                IntercropType = 1,
+                                IdPrivate = S(Cell(1)),
+                                PlotName = S(Cell(2)),
+                                YearOfPlanting = S(Cell(3)),
+                                PlantingDistanceCode = S(Cell(4)),
+                                PlantingDesignDensity = D(Cell(5)),
+                                Area = D(Cell(6)),
+                                IntercropName = S(Cell(7)),
+                                IntercroppingYear = S(Cell(8)),
+                                IntercroppingArea = D(Cell(9)),
+                                CareContract = S(Cell(10)),
+                                ProductContract = S(Cell(11)),
+                                FinancialIncome = D(Cell(12)),
+                                IntercroppingOther = D(Cell(13)),
+                                IntercroppingCompany = S(Cell(14)),
+                                NoContribEcon = S(Cell(15)),
+                                NoContribPers = D(Cell(16)),
+                                PartContribEcon = S(Cell(17)),
+                                PartContribPers = D(Cell(18))
+                            });
                     }
-                }
+                } while (reader.NextResult());
 
                 jResult.result = 1;
                 jResult.data = data;
@@ -469,23 +338,9 @@ namespace Web_ProjectName.Controllers
             M_JResult jResult = new M_JResult();
             try
             {
-                var candidateTemplatePaths = new List<string>
-                {
-                    Path.Combine(_webHostEnvironment.WebRootPath, "template", "bieumaukiemke.xlsx"),
-                    Path.Combine(_webHostEnvironment.ContentRootPath, "bieumaukiemke.xlsx"),
-                    Path.GetFullPath(Path.Combine(_webHostEnvironment.ContentRootPath, "..", "bieumaukiemke.xlsx"))
-                };
-                var templatePath = candidateTemplatePaths.FirstOrDefault(System.IO.File.Exists);
-                if (string.IsNullOrEmpty(templatePath))
-                {
-                    jResult.result = 0;
-                    jResult.error = new error(0, "Không tìm thấy file biểu mẫu kiểm kê (bieumaukiemke.xlsx). Vui lòng đặt vào wwwroot/template hoặc thư mục gốc dự án.");
-                    return Json(jResult);
-                }
-
+                var templatePath = Path.Combine(_webHostEnvironment.WebRootPath, "template/bieumaukiemke.xlsx");
                 using (var workbook = new XLWorkbook(templatePath))
                 {
-
                     var mapTMTCFields = new Dictionary<int, string>
                     {
                         { 1, "idPrivate" },
@@ -568,35 +423,73 @@ namespace Web_ProjectName.Controllers
                         { 37, "remark" },
                     };
 
-                    var candidateJsonPaths = new List<string>
-                    {
-                        Path.GetFullPath(Path.Combine(_webHostEnvironment.ContentRootPath, "..", "data.json")),
-                        Path.Combine(_webHostEnvironment.ContentRootPath, "data.json"),
-                        Path.Combine(_webHostEnvironment.WebRootPath, "data.json"),
-                    };
-                    var jsonPath = candidateJsonPaths.FirstOrDefault(System.IO.File.Exists);
-                    if (string.IsNullOrEmpty(jsonPath))
+                    var response = await _surveyFarmService.GetListSurveyFarmFullData(
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBY2NvdW50SWQiOiI3MyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Imh1eXF1b2N2bzI0MDdAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwODYyMDU0MzI3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IjA4NjIwNTQzMjciLCJTdXBwbGllcklkIjoiMSIsIkZ1bGxOYW1lIjoiSHV5IEh1eVZvRGV2MmEiLCJleHAiOjE4MTYxOTI2NzYsImlzcyI6Imh0dHA6Ly90YW5pcnVjby5jb20vIiwiYXVkIjoiaHR0cDovL3RhbmlydWNvLmNvbS8ifQ.VS-3vcomcbfvPSQLMfapUI1rIoPjXjZx7UBh2qh75Vc",
+                        null,
+                        year?.ToString(),
+                        null
+                    );
+                    if (response.result != 1 || response.data == null)
                     {
                         jResult.result = 0;
-                        jResult.error = new error(0, "Không tìm thấy data.json để xuất dữ liệu.");
+                        jResult.error = response.error ?? new error(0, "Không lấy được dữ liệu kiểm kê.");
                         return Json(jResult);
                     }
+                    var allItems = response.data ?? new List<M_SurveyFarm>();
+                    IEnumerable<M_SurveyFarm> items = allItems;
+                    if (!string.IsNullOrWhiteSpace(variety))
+                        items = items.Where(x =>
+                            (!string.IsNullOrWhiteSpace(x.TypeOfTreeObj?.Name) && x.TypeOfTreeObj.Name.Equals(variety, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(x.TypeOfTreeObj?.Code) && x.TypeOfTreeObj.Code.Equals(variety, StringComparison.OrdinalIgnoreCase)));
+                    if (!string.IsNullOrWhiteSpace(ids))
+                    {
+                        var idSet = new HashSet<string>(ids.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                        items = items.Where(x => !string.IsNullOrEmpty(x.IdPrivate) && idSet.Contains(x.IdPrivate));
+                    }
+                    var itemsList = items.ToList();
+                    if (itemsList.Count == 0)
+                    {
+                        itemsList = allItems;
+                    }
 
-                    var jsonText = System.IO.File.ReadAllText(jsonPath);
-                    using var doc = JsonDocument.Parse(jsonText);
-                    var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement.EnumerateArray() : Enumerable.Empty<JsonElement>();
-
-                    int rowTMTC = 11;
-                    int rowKTCB = 11;
-                    int rowKD = 11;
+                    int rowTMTC = 10;
+                    int rowKTCB = 10;
+                    int rowKD = 10;
+                    int rowTXA = 10;
+                    int rowTXB = 10;
                     int sttTMTC = 1;
                     int sttKTCB = 1;
                     int sttKD = 1;
+                    int sttTXA = 1;
+                    int sttTXB = 1;
 
-                    foreach (var item in items)
+                    foreach (var item in itemsList)
                     {
-                        int active = item.TryGetProperty("activeStatusId", out var actEl) && actEl.TryGetInt32(out var a) ? a : 0;
-                        if (active == 14)
+                        string active = string.Empty;
+                        if (item.ActiveStatusId.HasValue)
+                        {
+                            switch (item.ActiveStatusId.Value)
+                            {
+                                case 14: active = "TMTC"; break;
+                                case 5: active = "KTCB"; break;
+                                case 6: active = "KD"; break;
+                                case 15: active = "TXA"; break;
+                                case 0: active = "TXB"; break;
+                                default: active = item.ActiveStatusObj?.Code?.ToUpperInvariant() ?? string.Empty; break;
+                            }
+                        }
+                        if (string.IsNullOrWhiteSpace(active))
+                        {
+                            if (item.IntercropType.HasValue)
+                                active = (item.IntercropType.Value == 0) ? "TXA" : "TXB";
+                            else if (item.EffectiveTreeShavingQuantity.HasValue || item.StartExploitationDate.HasValue || item.TappingAge.HasValue)
+                                active = "KD";
+                            else if (item.EffectiveTreeCorrectQuantity.HasValue || item.ExpectedExploitationDate.HasValue || item.VanhAverage.HasValue)
+                                active = "KTCB";
+                            else
+                                active = "TMTC";
+                        }
+                        if (active == "TMTC")
                         {
                             var ws = workbook.Worksheet("1.TM-TC") ?? workbook.Worksheet("1.TC-TM");
                             ws.Row(rowTMTC).InsertRowsBelow(1);
@@ -606,11 +499,8 @@ namespace Web_ProjectName.Controllers
                             sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             foreach (var kv in mapTMTCFields)
                             {
-                                if (item.TryGetProperty(kv.Value, out var v))
-                                {
-                                    var cell = ws.Cell(rowTMTC, kv.Key + 1);
-                                    WriteJsonElementToCell(cell, v);
-                                }
+                                var cell = ws.Cell(rowTMTC, kv.Key + 1);
+                                WriteObjectToCell(cell, GetValue(item, kv.Value));
                             }
                             SetFormula(ws, rowTMTC, 15 + 1, $"=ROUND(O{rowTMTC}/N{rowTMTC}%,1)");
                             SetFormula(ws, rowTMTC, 17 + 1, $"=ROUND(Q{rowTMTC}/N{rowTMTC}%,1)");
@@ -618,7 +508,7 @@ namespace Web_ProjectName.Controllers
                             rowTMTC++;
                             sttTMTC++;
                         }
-                        else if (active == 5)
+                        else if (active == "KTCB")
                         {
                             var ws = workbook.Worksheet("1.KTCB");
                             ws.Row(rowKTCB).InsertRowsBelow(1);
@@ -628,30 +518,21 @@ namespace Web_ProjectName.Controllers
                             sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             foreach (var kv in mapKTCBFields)
                             {
-                                if (item.TryGetProperty(kv.Value, out var v))
-                                {
-                                    var cell = ws.Cell(rowKTCB, kv.Key + 1);
-                                    WriteJsonElementToCell(cell, v);
-                                }
+                                var cell = ws.Cell(rowKTCB, kv.Key + 1);
+                                WriteObjectToCell(cell, GetValue(item, kv.Value));
                             }
                             SetFormula(ws, rowKTCB, 19, $"=ROUND(R{rowKTCB}/Q{rowKTCB}%,1)");
                             SetFormula(ws, rowKTCB, 21, $"=ROUND(T{rowKTCB}/Q{rowKTCB}%,1)");
                             SetFormula(ws, rowKTCB, 23, $"=ROUND(V{rowKTCB}/Q{rowKTCB}%,1)");
                             SetFormula(ws, rowKTCB, 25, $"=ROUND(X{rowKTCB}/Q{rowKTCB}%,1)");
-                            // special column 30: markedExtendedGarden -> "x" if truthy
-                            var markedX = "";
-                            if (item.TryGetProperty("markedExtendedGarden", out var markEl))
-                            {
-                                if (markEl.ValueKind == JsonValueKind.True || (markEl.ValueKind == JsonValueKind.Number && markEl.TryGetInt32(out var mi) && mi != 0))
-                                    markedX = "x";
-                            }
+                            var markedX = (item.PlannedExtendedGarden ?? false) ? "x" : string.Empty;
                             ws.Cell(rowKTCB, 30 + 1).Value = markedX;
                             ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                             ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             rowKTCB++;
                             sttKTCB++;
                         }
-                        else if (active == 6)
+                        else if (active == "KD")
                         {
                             var ws = workbook.Worksheet("1.KD");
                             ws.Row(rowKD).InsertRowsBelow(1);
@@ -661,11 +542,8 @@ namespace Web_ProjectName.Controllers
                             sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             foreach (var kv in mapKDFields)
                             {
-                                if (item.TryGetProperty(kv.Value, out var v))
-                                {
-                                    var cell = ws.Cell(rowKD, kv.Key + 1);
-                                    WriteJsonElementToCell(cell, v);
-                                }
+                                var cell = ws.Cell(rowKD, kv.Key + 1);
+                                WriteObjectToCell(cell, GetValue(item, kv.Value));
                             }
                             SetFormula(ws, rowKD, 19, $"=ROUND(R{rowKD}/Q{rowKD}%,1)");
                             SetFormula(ws, rowKD, 21, $"=ROUND(T{rowKD}/Q{rowKD}%,1)");
@@ -675,45 +553,125 @@ namespace Web_ProjectName.Controllers
                             rowKD++;
                             sttKD++;
                         }
+                        else if (active == "TX" || active == "TXA" || active == "TXB")
+                        {
+                            bool isTXA = active == "TXA" ? true : active == "TXB" ? false : ((item.IntercropType ?? 0) == 0);
+                            var ws = workbook.Worksheet(isTXA ? "1.TXA" : "1.TXB");
+                            int currentRow = isTXA ? rowTXA : rowTXB;
+                            ws.Row(currentRow).InsertRowsBelow(1);
+                            var sttCell = ws.Cell(currentRow, 1);
+                            sttCell.Value = isTXA ? sttTXA : sttTXB;
+                            sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                            var mapTXFields = new Dictionary<int, string>
+                            {
+                                { 1, "IdPrivate" },
+                                { 2, "PlotName" },
+                                { 3, "YearOfPlanting" },
+                                { 4, "PlantingDistanceId" },
+                                { 5, "PlantingDesignDensity" },
+                                { 6, "Area" },
+                                { 7, "IntercropName" },
+                                { 8, "IntercroppingYear" },
+                                { 9, "IntercroppingArea" },
+                                { 10, "CareContract" },
+                                { 11, "ProductContract" },
+                                { 12, "FinancialIncome" },
+                                { 13, "IntercroppingOther" },
+                                { 14, "IntercroppingCompany" },
+                                { 15, "NoContribEcon" },
+                                { 16, "NoContribPers" },
+                                { 17, "PartContribEcon" },
+                                { 18, "PartContribPers" },
+                                { 19, "ShavingTreeDensity" },
+                                { 20, "VanhAverage" },
+                                { 21, "RatioTreeObtain" }
+                            };
+                            foreach (var kv in mapTXFields)
+                            {
+                                var cell = ws.Cell(currentRow, kv.Key + 1);
+                                WriteObjectToCell(cell, GetValue(item, kv.Value));
+                            }
+
+                            if (isTXA)
+                            {
+                                rowTXA++;
+                                sttTXA++;
+                            }
+                            else
+                            {
+                                rowTXB++;
+                                sttTXB++;
+                            }
+                        }
                     }
 
                     try
                     {
                         var ws0 = workbook.Worksheet(1);
                         int rB = 13;
-                        foreach (var item in doc.RootElement.EnumerateArray())
+                        foreach (var item in itemsList)
                         {
-                            if (item.TryGetProperty("idPrivate", out var idEl))
+                            if (!string.IsNullOrWhiteSpace(item.IdPrivate))
                             {
-                                ws0.Cell(rB, 2).Value = idEl.GetString();
+                                ws0.Cell(rB, 2).Value = item.IdPrivate;
                                 rB++;
                             }
                         }
                     }
                     catch { }
 
-                    static void WriteJsonElementToCell(IXLCell cell, JsonElement el)
+                    static void WriteObjectToCell(IXLCell cell, object value)
                     {
-                        switch (el.ValueKind)
+                        if (value == null)
                         {
-                            case JsonValueKind.String:
-                                cell.Value = el.GetString();
-                                break;
-                            case JsonValueKind.Number:
-                                if (el.TryGetInt64(out var l)) cell.Value = l;
-                                else if (el.TryGetDouble(out var d)) cell.Value = d;
-                                else cell.Value = el.ToString();
-                                break;
-                            case JsonValueKind.True:
-                            case JsonValueKind.False:
-                                cell.Value = el.GetBoolean();
-                                break;
-                            default:
-                                cell.Value = el.ToString();
-                                break;
+                            cell.SetValue(string.Empty);
+                        }
+                        else if (value is bool b)
+                        {
+                            cell.SetValue(b);
+                        }
+                        else if (value is DateOnly dateOnly)
+                        {
+                            cell.SetValue(dateOnly.ToString("yyyy-MM-dd"));
+                        }
+                        else if (value is DateTime dt)
+                        {
+                            cell.SetValue(dt.ToString("yyyy-MM-dd"));
+                        }
+                        else if (value is sbyte || value is byte || value is short || value is ushort || value is int || value is uint || value is long || value is ulong)
+                        {
+                            cell.SetValue(Convert.ToInt64(value));
+                        }
+                        else if (value is float f)
+                        {
+                            cell.SetValue((double)f);
+                        }
+                        else if (value is double dbl)
+                        {
+                            cell.SetValue(dbl);
+                        }
+                        else if (value is decimal dec)
+                        {
+                            cell.SetValue(dec);
+                        }
+                        else if (value is string s)
+                        {
+                            cell.SetValue(s);
+                        }
+                        else
+                        {
+                            cell.SetValue(value.ToString());
                         }
                         cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    }
+
+                    static object GetValue(M_SurveyFarm item, string propertyName)
+                    {
+                        var prop = typeof(M_SurveyFarm).GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+                        return prop?.GetValue(item);
                     }
 
                     var exportsDir = Path.Combine(_webHostEnvironment.WebRootPath, "exports");
@@ -725,26 +683,69 @@ namespace Web_ProjectName.Controllers
                     var filePath = Path.Combine(exportsDir, fileName);
                     foreach (var ws in workbook.Worksheets)
                     {
-                        int headerRow = 10;
-                        var lastRow = ws.LastRowUsed();
-
-                        if (lastRow != null)
+                        Dictionary<int, string>? mapFields = ws.Name switch
                         {
-                            int lastRowNumber = lastRow.RowNumber();
+                            "1.TM-TC" or "1.TC-TM" => mapTMTCFields,
+                            "1.KTCB" => mapKTCBFields,
+                            "1.KD" => mapKDFields,
+                            "1.TXA" => new Dictionary<int, string>
+                                {
+                                    { 1, "IdPrivate" }, { 2, "PlotName" }, { 3, "YearOfPlanting" },
+                                    { 4, "PlantingDistanceId" }, { 5, "PlantingDesignDensity" }, { 6, "Area" },
+                                    { 7, "IntercropName" }, { 8, "IntercroppingYear" }, { 9, "IntercroppingArea" },
+                                    { 10, "CareContract" }, { 11, "ProductContract" }, { 12, "FinancialIncome" },
+                                    { 13, "IntercroppingOther" }, { 14, "IntercroppingCompany" },
+                                    { 15, "NoContribEcon" }, { 16, "NoContribPers" }, { 17, "PartContribEcon" },
+                                    { 18, "PartContribPers" }, { 19, "ShavingTreeDensity" },
+                                    { 20, "VanhAverage" }, { 21, "RatioTreeObtain" }, { 22, "classifyCode" }
+                                },
+                            "1.TXB" => new Dictionary<int, string>
+                                {
+                                    { 1, "IdPrivate" }, { 2, "PlotName" }, { 3, "YearOfPlanting" },
+                                    { 4, "PlantingDistanceId" }, { 5, "PlantingDesignDensity" }, { 6, "Area" },
+                                    { 7, "IntercropName" }, { 8, "IntercroppingYear" }, { 9, "IntercroppingArea" },
+                                    { 10, "CareContract" }, { 11, "ProductContract" }, { 12, "FinancialIncome" },
+                                    { 13, "IntercroppingOther" }, { 14, "IntercroppingCompany" },
+                                    { 15, "NoContribEcon" }, { 16, "NoContribPers" },
+                                    { 17, "PartContribEcon" }, { 18, "PartContribPers" }
+                                },
+                            _ => null
+                        };
 
-                            ws.Columns().AdjustToContents(headerRow, lastRowNumber);
 
-                            foreach (var col in ws.ColumnsUsed())
+                        if (mapFields != null)
+                        {
+                            foreach (var colIndex in mapFields.Keys)
                             {
-                                if (col.Width < 15)
-                                    col.Width = 15;
+                                var col = ws.Column(colIndex + 1);
+
+                                double maxWidth = 15;
+
+                                for (int row = 10; row <= ws.LastRowUsed().RowNumber(); row++)
+                                {
+                                    var cell = ws.Cell(row, colIndex + 1);
+                                    try
+                                    {
+                                        var cellValue = cell.Value.ToString();
+                                        if (!string.IsNullOrWhiteSpace(cellValue))
+                                        {
+                                            double contentWidth = EstimateContentWidth(cellValue);
+                                            if (contentWidth > maxWidth)
+                                            {
+                                                maxWidth = contentWidth;
+                                            }
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        continue;
+                                    }
+                                }
+                                col.Width = maxWidth;
                             }
                         }
-                        else
-                        {
-                            ws.Columns().AdjustToContents(headerRow, headerRow);
-                        }
                     }
+
 
                     workbook.SaveAs(filePath);
 
@@ -784,6 +785,18 @@ namespace Web_ProjectName.Controllers
             formulaCell.FormulaA1 = formula;
             formulaCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             formulaCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+        }
+
+        private static double EstimateContentWidth(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+                return 0;
+
+            double estimatedWidth = content.Length * 1.2 + 2;
+            if (estimatedWidth > 50)
+                estimatedWidth = 50;
+
+            return estimatedWidth;
         }
     }
 }
