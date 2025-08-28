@@ -429,6 +429,7 @@ namespace Web_ProjectName.Controllers
                         year?.ToString(),
                         null
                     );
+
                     if (response.result != 1 || response.data == null)
                     {
                         jResult.result = 0;
@@ -452,9 +453,9 @@ namespace Web_ProjectName.Controllers
                         itemsList = allItems;
                     }
 
-                    int rowTMTC = 10;
-                    int rowKTCB = 10;
-                    int rowKD = 10;
+                    int rowTMTC = 11;
+                    int rowKTCB = 11;
+                    int rowKD = 11;
                     int rowTXA = 10;
                     int rowTXB = 10;
                     int sttTMTC = 1;
@@ -462,6 +463,10 @@ namespace Web_ProjectName.Controllers
                     int sttKD = 1;
                     int sttTXA = 1;
                     int sttTXB = 1;
+
+                    // Thu thập dữ liệu cho KTCB và KD để ghi theo nhóm năm
+                    var ktcbData = new List<M_SurveyFarm>();
+                    var kdData = new List<M_SurveyFarm>();
 
                     foreach (var item in itemsList)
                     {
@@ -510,48 +515,11 @@ namespace Web_ProjectName.Controllers
                         }
                         else if (active == "KTCB")
                         {
-                            var ws = workbook.Worksheet("1.KTCB");
-                            ws.Row(rowKTCB).InsertRowsBelow(1);
-                            var sttCell = ws.Cell(rowKTCB, 1);
-                            sttCell.Value = sttKTCB;
-                            sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                            foreach (var kv in mapKTCBFields)
-                            {
-                                var cell = ws.Cell(rowKTCB, kv.Key + 1);
-                                WriteObjectToCell(cell, GetValue(item, kv.Value));
-                            }
-                            SetFormula(ws, rowKTCB, 19, $"=ROUND(R{rowKTCB}/Q{rowKTCB}%,1)");
-                            SetFormula(ws, rowKTCB, 21, $"=ROUND(T{rowKTCB}/Q{rowKTCB}%,1)");
-                            SetFormula(ws, rowKTCB, 23, $"=ROUND(V{rowKTCB}/Q{rowKTCB}%,1)");
-                            SetFormula(ws, rowKTCB, 25, $"=ROUND(X{rowKTCB}/Q{rowKTCB}%,1)");
-                            var markedX = (item.PlannedExtendedGarden ?? false) ? "x" : string.Empty;
-                            ws.Cell(rowKTCB, 30 + 1).Value = markedX;
-                            ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                            rowKTCB++;
-                            sttKTCB++;
+                            ktcbData.Add(item);
                         }
                         else if (active == "KD")
                         {
-                            var ws = workbook.Worksheet("1.KD");
-                            ws.Row(rowKD).InsertRowsBelow(1);
-                            var sttCell = ws.Cell(rowKD, 1);
-                            sttCell.Value = sttKD;
-                            sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                            foreach (var kv in mapKDFields)
-                            {
-                                var cell = ws.Cell(rowKD, kv.Key + 1);
-                                WriteObjectToCell(cell, GetValue(item, kv.Value));
-                            }
-                            SetFormula(ws, rowKD, 19, $"=ROUND(R{rowKD}/Q{rowKD}%,1)");
-                            SetFormula(ws, rowKD, 21, $"=ROUND(T{rowKD}/Q{rowKD}%,1)");
-                            SetFormula(ws, rowKD, 23, $"=ROUND(V{rowKD}/Q{rowKD}%,1)");
-                            SetFormula(ws, rowKD, 25, $"=ROUND(X{rowKD}/Q{rowKD}%,1)");
-                            SetFormula(ws, rowKD, 27, $"=ROUND((Z{rowKD}/Q{rowKD}*100),2)");
-                            rowKD++;
-                            sttKD++;
+                            kdData.Add(item);
                         }
                         else if (active == "TX" || active == "TXA" || active == "TXB")
                         {
@@ -607,6 +575,134 @@ namespace Web_ProjectName.Controllers
                         }
                     }
 
+                    if (ktcbData.Any())
+                    {
+                        var ws = workbook.Worksheet("1.KTCB");
+                        var groups = ktcbData
+                            .GroupBy(x => x.YearOfPlanting)
+                            .OrderBy(g => g.Key);
+                        foreach (var g in groups)
+                        {
+                            var plantingYear = g.Key;
+                            var yearItems = g.ToList();
+
+                            foreach (var item in yearItems)
+                            {
+                                ws.Row(rowKTCB).InsertRowsBelow(1);
+                                var sttCell = ws.Cell(rowKTCB, 1);
+                                sttCell.Value = sttKTCB;
+                                sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                                foreach (var kv in mapKTCBFields)
+                                {
+                                    var cell = ws.Cell(rowKTCB, kv.Key + 1);
+                                    WriteObjectToCell(cell, GetValue(item, kv.Value));
+                                }
+                                SetFormula(ws, rowKTCB, 19, $"=ROUND(R{rowKTCB}/Q{rowKTCB}%,1)");
+                                SetFormula(ws, rowKTCB, 21, $"=ROUND(T{rowKTCB}/Q{rowKTCB}%,1)");
+                                SetFormula(ws, rowKTCB, 23, $"=ROUND(V{rowKTCB}/Q{rowKTCB}%,1)");
+                                SetFormula(ws, rowKTCB, 25, $"=ROUND(X{rowKTCB}/Q{rowKTCB}%,1)");
+                                var markedX = (item.PlannedExtendedGarden ?? false) ? "x" : string.Empty;
+                                ws.Cell(rowKTCB, 30 + 1).Value = markedX;
+                                ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                ws.Cell(rowKTCB, 30 + 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                                rowKTCB++;
+                                sttKTCB++;
+                            }
+
+                            ws.Row(rowKTCB).InsertRowsBelow(1);
+                            ws.Cell(rowKTCB, 8).Value = $"Cộng {plantingYear}";
+                            ws.Cell(rowKTCB, 8).Style.Font.Bold = true;
+
+                            var startRow = rowKTCB - yearItems.Count;
+                            var endRow = rowKTCB - 1;
+
+                            SetFormula(ws, rowKTCB, 16, $"=SUM(P{startRow}:P{endRow})");
+                            SetFormula(ws, rowKTCB, 17, $"=SUM(Q{startRow}:Q{endRow})");
+                            SetFormula(ws, rowKTCB, 18, $"=SUM(R{startRow}:R{endRow})");
+                            SetFormula(ws, rowKTCB, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)");
+                            SetFormula(ws, rowKTCB, 20, $"=SUM(T{startRow}:T{endRow})");
+                            SetFormula(ws, rowKTCB, 21, $"=ROUND(AVERAGE(U{startRow}:U{endRow}),1)");
+                            SetFormula(ws, rowKTCB, 23, $"=ROUND(AVERAGE(W{startRow}:W{endRow}),1)");
+                            SetFormula(ws, rowKTCB, 24, $"=SUM(X{startRow}:X{endRow})");
+                            SetFormula(ws, rowKTCB, 25, $"=ROUND(AVERAGE(Y{startRow}:Y{endRow}),1)");
+                            SetFormula(ws, rowKTCB, 26, $"=ROUND(AVERAGE(Z{startRow}:Z{endRow}),1)");
+                            SetFormula(ws, rowKTCB, 28, $"=ROUND(AVERAGE(AB{startRow}:AB{endRow}),2)");
+                            SetFormula(ws, rowKTCB, 29, $"=ROUND(AVERAGE(AC{startRow}:AC{endRow}),2)");
+                            SetFormula(ws, rowKTCB, 30, $"=ROUND(AVERAGE(AD{startRow}:AD{endRow}),2)");
+
+                            var summaryRow = ws.Row(rowKTCB);
+                            summaryRow.Style.Font.Bold = true;
+                            //summaryRow.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                            rowKTCB++;
+                        }
+                    }
+
+                    if (kdData.Any())
+                    {
+                        var wsKD = workbook.Worksheet("1.KD");
+                        var groups = kdData
+                            .GroupBy(x => x.YearOfPlanting)
+                            .OrderBy(g => g.Key);
+                        foreach (var g in groups)
+                        {
+                            var plantingYear = g.Key;
+                            var yearItems = g.ToList();
+
+                            foreach (var item in yearItems)
+                            {
+                                wsKD.Row(rowKD).InsertRowsBelow(1);
+                                var sttCell = wsKD.Cell(rowKD, 1);
+                                sttCell.Value = sttKD;
+                                sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                                foreach (var kv in mapKDFields)
+                                {
+                                    var cell = wsKD.Cell(rowKD, kv.Key + 1);
+                                    WriteObjectToCell(cell, GetValue(item, kv.Value));
+                                }
+                                SetFormula(wsKD, rowKD, 19, $"=ROUND(R{rowKD}/Q{rowKD}%,1)");
+                                SetFormula(wsKD, rowKD, 21, $"=ROUND(T{rowKD}/Q{rowKD}%,1)");
+                                SetFormula(wsKD, rowKD, 23, $"=ROUND(V{rowKD}/Q{rowKD}%,1)");
+                                SetFormula(wsKD, rowKD, 25, $"=ROUND(X{rowKD}/Q{rowKD}%,1)");
+                                SetFormula(wsKD, rowKD, 27, $"=ROUND((Z{rowKD}/Q{rowKD}*100),2)");
+                                rowKD++;
+                                sttKD++;
+                            }
+
+                            // Dòng tổng kết của nhóm năm
+                            wsKD.Row(rowKD).InsertRowsBelow(1);
+                            wsKD.Cell(rowKD, 8).Value = $"Cộng {plantingYear}";
+                            wsKD.Cell(rowKD, 8).Style.Font.Bold = true;
+
+                            var startRow = rowKD - yearItems.Count;
+                            var endRow = rowKD - 1;
+                            SetFormula(wsKD, rowKD, 16, $"=SUM(P{startRow}:P{endRow})");
+                            SetFormula(wsKD, rowKD, 17, $"=SUM(Q{startRow}:Q{endRow})");
+                            SetFormula(wsKD, rowKD, 18, $"=SUM(R{startRow}:R{endRow})");
+                            SetFormula(wsKD, rowKD, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 20, $"=SUM(T{startRow}:T{endRow})");
+                            SetFormula(wsKD, rowKD, 21, $"=ROUND(AVERAGE(U{startRow}:U{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 22, $"=SUM(V{startRow}:V{endRow})");
+                            SetFormula(wsKD, rowKD, 23, $"=ROUND(AVERAGE(W{startRow}:W{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 24, $"=SUM(X{startRow}:X{endRow})");
+                            SetFormula(wsKD, rowKD, 25, $"=ROUND(AVERAGE(Y{startRow}:Y{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 26, $"=SUM(Z{startRow}:Z{endRow})");
+                            SetFormula(wsKD, rowKD, 27, $"=ROUND(AVERAGE(AA{startRow}:AA{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 28, $"=ROUND(AVERAGE(AB{startRow}:AB{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 34, $"=ROUND(AVERAGE(AH{startRow}:AH{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 35, $"=ROUND(AVERAGE(AI{startRow}:AI{endRow}),1)");
+                            SetFormula(wsKD, rowKD, 36, $"=ROUND(AVERAGE(AJ{startRow}:AJ{endRow}),1)");
+
+                            var summaryRow = wsKD.Row(rowKD);
+                            summaryRow.Style.Font.Bold = true;
+                            summaryRow.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                            rowKD++;
+                        }
+                    }
+
                     try
                     {
                         var ws0 = workbook.Worksheet(1);
@@ -622,7 +718,7 @@ namespace Web_ProjectName.Controllers
                     }
                     catch { }
 
-                    static void WriteObjectToCell(IXLCell cell, object value)
+                    static void WriteObjectToCell(IXLCell cell, object? value)
                     {
                         if (value == null)
                         {
@@ -668,7 +764,7 @@ namespace Web_ProjectName.Controllers
                         cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
 
-                    static object GetValue(M_SurveyFarm item, string propertyName)
+                    static object? GetValue(M_SurveyFarm item, string propertyName)
                     {
                         var prop = typeof(M_SurveyFarm).GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
                         return prop?.GetValue(item);
@@ -721,7 +817,8 @@ namespace Web_ProjectName.Controllers
 
                                 double maxWidth = 15;
 
-                                for (int row = 10; row <= ws.LastRowUsed().RowNumber(); row++)
+                                var lastRow = ws.LastRowUsed()?.RowNumber() ?? 10;
+                                for (int row = 10; row <= lastRow; row++)
                                 {
                                     var cell = ws.Cell(row, colIndex + 1);
                                     try
@@ -745,7 +842,6 @@ namespace Web_ProjectName.Controllers
                             }
                         }
                     }
-
 
                     workbook.SaveAs(filePath);
 

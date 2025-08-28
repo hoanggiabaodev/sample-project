@@ -13,6 +13,13 @@
     <None Remove="EditModels\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="bieumaukiemke.xlsx">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
