@@ -5,27 +5,33 @@ namespace Web_ProjectName.Services
 {
     public interface IS_SurveyFarm
     {
-        Task<ResponseData<List<M_SurveyFarm>>> GetListSurveyFarmFullData(string accessToken, string? supplierId, string? year, string? season);
+        Task<ResponseData<List<M_SurveyFarm>>> GetListSurveyFarmFullData(string accessToken, int? surveyBatchId, int? activeStatusId);
     }
 
     public class S_SurveyFarm : IS_SurveyFarm
     {
         private readonly ICallBaseApi _callApi;
+
         public S_SurveyFarm(ICallBaseApi callApi)
         {
             _callApi = callApi;
         }
 
-        public async Task<ResponseData<List<M_SurveyFarm>>> GetListSurveyFarmFullData(string accessToken, string? supplierId, string? year, string? season)
+        public async Task<ResponseData<List<M_SurveyFarm>>> GetListSurveyFarmFullData(string accessToken, int? surveyBatchId, int? activeStatusId)
         {
-            Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>
-            {
-                { "supplierId", supplierId },
-                { "year", year },
-                { "season", season }
-            };
+            Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>();
 
-            return await _callApi.GetResponseDataAsync<List<M_SurveyFarm>>("SurveyFarm/GetListSurveyFarmFullData", dictPars, accessToken);
+            if (surveyBatchId.HasValue)
+                dictPars.Add("surveyBatchId", surveyBatchId.Value);
+
+            if (activeStatusId.HasValue)
+                dictPars.Add("activeStatusId", activeStatusId.Value);
+
+            return await _callApi.GetResponseDataAsync<List<M_SurveyFarm>>(
+                "SurveyFarm/GetListSurveyFarmFullData",
+                dictPars,
+                accessToken
+            );
         }
     }
 }

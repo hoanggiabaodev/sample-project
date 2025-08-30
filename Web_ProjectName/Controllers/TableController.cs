@@ -333,7 +333,7 @@ namespace Web_ProjectName.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> ExportExcel(int? year, string? variety, string? ids)
+        public async Task<JsonResult> ExportExcel(int? surveyBatchId = 3, int? activeStatusId = null)
         {
             M_JResult jResult = new M_JResult();
             try
@@ -341,16 +341,31 @@ namespace Web_ProjectName.Controllers
                 var templatePath = Path.Combine(_webHostEnvironment.WebRootPath, "template/bieumaukiemke.xlsx");
                 using (var workbook = new XLWorkbook(templatePath))
                 {
+                    var response = await _surveyFarmService.GetListSurveyFarmFullData(
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBY2NvdW50SWQiOiI3MyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Imh1eXF1b2N2bzI0MDdAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwODYyMDU0MzI3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IjA4NjIwNTQzMjciLCJTdXBwbGllcklkIjoiMSIsIkZ1bGxOYW1lIjoiSHV5IEh1eVZvRGV2MmEiLCJleHAiOjE4MTYxOTI2NzYsImlzcyI6Imh0dHA6Ly90YW5pcnVjby5jb20vIiwiYXVkIjoiaHR0cDovL3RhbmlydWNvLmNvbS8ifQ.VS-3vcomcbfvPSQLMfapUI1rIoPjXjZx7UBh2qh75Vc",
+                        surveyBatchId,
+                        activeStatusId
+                    );
+
+                    if (response.result != 1 || response.data == null)
+                    {
+                        jResult.result = 0;
+                        jResult.error = response.error ?? new error(0, "Không lấy được dữ liệu kiểm kê.");
+                        return Json(jResult);
+                    }
+                    var allItems = response.data ?? new List<M_SurveyFarm>();
+                    var itemsList = allItems.ToList();
+
                     var mapTMTCFields = new Dictionary<int, string>
                     {
                         { 1, "idPrivate" },
                         { 5, "plotName" },
-                        { 6, "landLevelCode" },
+                        { 6, "landLevelObj.code" },
                         { 7, "altitudeAverage" },
-                        { 8, "plantingMethodCode" },
-                        { 9, "plantingDistanceCode" },
+                        { 8, "plantingMethodObj.code" },
+                        { 9, "plantingDistanceObj.code" },
                         { 10, "plantingDesignDensity" },
-                        { 11, "typeOfTreeCode" },
+                        { 11, "TypeOfTreeObj.code" },
                         { 12, "area" },
                         { 13, "holeQuantity" },
                         { 14, "graftedTreeCorrectQuantity" },
@@ -358,7 +373,7 @@ namespace Web_ProjectName.Controllers
                         { 18, "emptyHoleQuantity" },
                         { 20, "densityOfGraftedTree" },
                         { 21, "averageNumberLeafLayer" },
-                        { 22, "classifyCode"},
+                        { 22, "classifyObj.code"},
                         { 23, "plantingEndDate" },
                         { 24, "remark" },
                     };
@@ -369,12 +384,12 @@ namespace Web_ProjectName.Controllers
                         { 5, "plotOldName" },
                         { 6, "plotNewName" },
                         { 7, "yearOfPlanting" },
-                        { 8, "landLevelCode" },
+                        { 8, "landLevelObj.code" },
                         { 9, "altitudeAverage" },
-                        { 10, "plantingMethodCode" },
-                        { 11, "plantingDistanceCode" },
+                        { 10, "plantingMethodObj.code" },
+                        { 11, "plantingDistanceObj.code" },
                         { 12, "plantingDesignDensity" },
-                        { 13, "typeOfTreeCode" },
+                        { 13, "TypeOfTreeObj.code" },
                         { 15, "area" },
                         { 16, "holeQuantity" },
                         { 17, "effectiveTreeCorrectQuantity" },
@@ -387,7 +402,7 @@ namespace Web_ProjectName.Controllers
                         { 29, "ratioTreeObtain" },
                         // 30 special: markedExtendedGarden -> "x"
                         { 31, "expectedExploitationDate" },
-                        { 32, "classifyCode" },
+                        { 32, "gardenRatingObj.code" },
                         { 33, "remark" },
                     };
 
@@ -397,12 +412,12 @@ namespace Web_ProjectName.Controllers
                         { 5, "plotOldName" },
                         { 6, "plotNewName" },
                         { 7, "yearOfPlanting" },
-                        { 8, "landLevelCode" },
+                        { 8, "landLevelObj.code" },
                         { 9, "altitudeAverage" },
-                        { 10, "plantingMethodCode" },
-                        { 11, "plantingDistanceCode" },
+                        { 10, "plantingMethodObj.code" },
+                        { 11, "plantingDistanceObj.code" },
                         { 12, "plantingDesignDensity" },
-                        { 13, "typeOfTreeCode" },
+                        { 13, "TypeOfTreeObj.code" },
                         { 15, "area" },
                         { 16, "holeQuantity" },
                         { 17, "effectiveTreeShavingQuantity" },
@@ -419,39 +434,60 @@ namespace Web_ProjectName.Controllers
                         { 33, "productivityByArea" },
                         { 34, "productivityByTree" },
                         { 35, "totalShavingSlice" },
-                        { 36, "classifyCode" },
+                        { 36, "gardenRatingObj.code" },
                         { 37, "remark" },
                     };
 
-                    var response = await _surveyFarmService.GetListSurveyFarmFullData(
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBY2NvdW50SWQiOiI3MyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Imh1eXF1b2N2bzI0MDdAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwODYyMDU0MzI3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IjA4NjIwNTQzMjciLCJTdXBwbGllcklkIjoiMSIsIkZ1bGxOYW1lIjoiSHV5IEh1eVZvRGV2MmEiLCJleHAiOjE4MTYxOTI2NzYsImlzcyI6Imh0dHA6Ly90YW5pcnVjby5jb20vIiwiYXVkIjoiaHR0cDovL3RhbmlydWNvLmNvbS8ifQ.VS-3vcomcbfvPSQLMfapUI1rIoPjXjZx7UBh2qh75Vc",
-                        null,
-                        year?.ToString(),
-                        null
-                    );
+                    var mapTXAFields = new Dictionary<int, string>
+                    {
+                        { 1, "idPrivate" },
+                        { 2, "plotName" },
+                        { 3, "yearOfPlanting" },
+                        { 4, "plantingDistanceObj.code" },
+                        { 5, "plantingDesignDensity" },
+                        { 6, "area" },
+                        { 7, "intercropName" },
+                        { 8, "intercroppingYear" },
+                        { 9, "intercroppingArea" },
+                        { 10, "careContract" },
+                        { 11, "productContract" },
+                        { 12, "financialIncome" },
+                        { 13, "intercroppingOther" },
+                        { 14, "intercroppingCompany" },
+                        { 15, "noContribEcon" },
+                        { 16, "noContribPers" },
+                        { 17, "partContribEcon" },
+                        { 18, "partContribPers" },
+                        { 19, "shavingTreeDensity" },
+                        { 20, "vanhAverage" },
+                        { 21, "ratioTreeObtain" },
+                        { 22, "classifyObj.code" },
+                    };
 
-                    if (response.result != 1 || response.data == null)
+                    var mapTXBFields = new Dictionary<int, string>
                     {
-                        jResult.result = 0;
-                        jResult.error = response.error ?? new error(0, "Không lấy được dữ liệu kiểm kê.");
-                        return Json(jResult);
-                    }
-                    var allItems = response.data ?? new List<M_SurveyFarm>();
-                    IEnumerable<M_SurveyFarm> items = allItems;
-                    if (!string.IsNullOrWhiteSpace(variety))
-                        items = items.Where(x =>
-                            (!string.IsNullOrWhiteSpace(x.TypeOfTreeObj?.Name) && x.TypeOfTreeObj.Name.Equals(variety, StringComparison.OrdinalIgnoreCase)) ||
-                            (!string.IsNullOrWhiteSpace(x.TypeOfTreeObj?.Code) && x.TypeOfTreeObj.Code.Equals(variety, StringComparison.OrdinalIgnoreCase)));
-                    if (!string.IsNullOrWhiteSpace(ids))
-                    {
-                        var idSet = new HashSet<string>(ids.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-                        items = items.Where(x => !string.IsNullOrEmpty(x.IdPrivate) && idSet.Contains(x.IdPrivate));
-                    }
-                    var itemsList = items.ToList();
-                    if (itemsList.Count == 0)
-                    {
-                        itemsList = allItems;
-                    }
+                        { 1, "idPrivate" },
+                        { 2, "plotName" },
+                        { 3, "yearOfPlanting" },
+                        { 4, "plantingDistanceObj.code" },
+                        { 5, "plantingDesignDensity" },
+                        { 6, "area" },
+                        { 7, "intercropName" },
+                        { 8, "intercroppingYear" },
+                        { 9, "intercroppingArea" },
+                        { 10, "careContract" },
+                        { 11, "productContract" },
+                        { 12, "financialIncome" },
+                        { 13, "intercroppingOther" },
+                        { 14, "intercroppingCompany" },
+                        { 15, "noContribEcon" },
+                        { 16, "noContribPers" },
+                        { 17, "partContribEcon" },
+                        { 18, "partContribPers" },
+                        { 19, "shavingTreeDensity" },
+                        { 20, "vanhAverage" },
+                        { 21, "ratioTreeObtain" },
+                    };
 
                     int rowTMTC = 11;
                     int rowKTCB = 11;
@@ -464,25 +500,13 @@ namespace Web_ProjectName.Controllers
                     int sttTXA = 1;
                     int sttTXB = 1;
 
-                    // Thu thập dữ liệu cho KTCB và KD để ghi theo nhóm năm
                     var ktcbData = new List<M_SurveyFarm>();
                     var kdData = new List<M_SurveyFarm>();
 
                     foreach (var item in itemsList)
                     {
-                        string active = string.Empty;
-                        if (item.ActiveStatusId.HasValue)
-                        {
-                            switch (item.ActiveStatusId.Value)
-                            {
-                                case 14: active = "TMTC"; break;
-                                case 5: active = "KTCB"; break;
-                                case 6: active = "KD"; break;
-                                case 15: active = "TXA"; break;
-                                case 0: active = "TXB"; break;
-                                default: active = item.ActiveStatusObj?.Code?.ToUpperInvariant() ?? string.Empty; break;
-                            }
-                        }
+                        string active = item.ActiveStatusObj?.Code;
+
                         if (string.IsNullOrWhiteSpace(active))
                         {
                             if (item.IntercropType.HasValue)
@@ -521,9 +545,9 @@ namespace Web_ProjectName.Controllers
                         {
                             kdData.Add(item);
                         }
-                        else if (active == "TX" || active == "TXA" || active == "TXB")
+                        else if (active == "TX")
                         {
-                            bool isTXA = active == "TXA" ? true : active == "TXB" ? false : ((item.IntercropType ?? 0) == 0);
+                            bool isTXA = (item.IntercropType ?? 0) == 0;
                             var ws = workbook.Worksheet(isTXA ? "1.TXA" : "1.TXB");
                             int currentRow = isTXA ? rowTXA : rowTXB;
                             ws.Row(currentRow).InsertRowsBelow(1);
@@ -532,31 +556,8 @@ namespace Web_ProjectName.Controllers
                             sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                             sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                            var mapTXFields = new Dictionary<int, string>
-                            {
-                                { 1, "IdPrivate" },
-                                { 2, "PlotName" },
-                                { 3, "YearOfPlanting" },
-                                { 4, "PlantingDistanceId" },
-                                { 5, "PlantingDesignDensity" },
-                                { 6, "Area" },
-                                { 7, "IntercropName" },
-                                { 8, "IntercroppingYear" },
-                                { 9, "IntercroppingArea" },
-                                { 10, "CareContract" },
-                                { 11, "ProductContract" },
-                                { 12, "FinancialIncome" },
-                                { 13, "IntercroppingOther" },
-                                { 14, "IntercroppingCompany" },
-                                { 15, "NoContribEcon" },
-                                { 16, "NoContribPers" },
-                                { 17, "PartContribEcon" },
-                                { 18, "PartContribPers" },
-                                { 19, "ShavingTreeDensity" },
-                                { 20, "VanhAverage" },
-                                { 21, "RatioTreeObtain" }
-                            };
-                            foreach (var kv in mapTXFields)
+                            var txMap = isTXA ? mapTXAFields : mapTXBFields;
+                            foreach (var kv in txMap)
                             {
                                 var cell = ws.Cell(currentRow, kv.Key + 1);
                                 WriteObjectToCell(cell, GetValue(item, kv.Value));
@@ -617,7 +618,7 @@ namespace Web_ProjectName.Controllers
                             var startRow = rowKTCB - yearItems.Count;
                             var endRow = rowKTCB - 1;
 
-                            SetFormula(ws, rowKTCB, 16, $"=SUM(P{startRow}:P{endRow})");
+                            SetFormula(ws, rowKTCB, 16, $"=ROUND(SUM(P{startRow}:P{endRow}), 5)");
                             SetFormula(ws, rowKTCB, 17, $"=SUM(Q{startRow}:Q{endRow})");
                             SetFormula(ws, rowKTCB, 18, $"=SUM(R{startRow}:R{endRow})");
                             SetFormula(ws, rowKTCB, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)");
@@ -633,7 +634,7 @@ namespace Web_ProjectName.Controllers
 
                             var summaryRow = ws.Row(rowKTCB);
                             summaryRow.Style.Font.Bold = true;
-                            //summaryRow.Style.Fill.BackgroundColor = XLColor.LightGray;
+                            summaryRow.Style.Fill.BackgroundColor = XLColor.LightGray;
 
                             rowKTCB++;
                         }
@@ -766,16 +767,35 @@ namespace Web_ProjectName.Controllers
 
                     static object? GetValue(M_SurveyFarm item, string propertyName)
                     {
-                        var prop = typeof(M_SurveyFarm).GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
-                        return prop?.GetValue(item);
+                        if (propertyName.Contains('.'))
+                        {
+                            var parts = propertyName.Split('.');
+                            object? currentObj = item;
+
+                            foreach (var part in parts)
+                            {
+                                if (currentObj == null) return null;
+
+                                var prop = currentObj.GetType().GetProperty(part, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+                                if (prop == null) return null;
+
+                                currentObj = prop.GetValue(currentObj);
+                            }
+
+                            return currentObj;
+                        }
+                        else
+                        {
+                            var prop = typeof(M_SurveyFarm).GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+                            return prop?.GetValue(item);
+                        }
                     }
 
                     var exportsDir = Path.Combine(_webHostEnvironment.WebRootPath, "exports");
                     if (!Directory.Exists(exportsDir))
                         Directory.CreateDirectory(exportsDir);
 
-                    var timestamp = Utilities.CurrentTimeSeconds();
-                    var fileName = $"template_import_{timestamp}.xlsx";
+                    var fileName = "export_kiemke.xlsx";
                     var filePath = Path.Combine(exportsDir, fileName);
                     foreach (var ws in workbook.Worksheets)
                     {
@@ -784,30 +804,10 @@ namespace Web_ProjectName.Controllers
                             "1.TM-TC" or "1.TC-TM" => mapTMTCFields,
                             "1.KTCB" => mapKTCBFields,
                             "1.KD" => mapKDFields,
-                            "1.TXA" => new Dictionary<int, string>
-                                {
-                                    { 1, "IdPrivate" }, { 2, "PlotName" }, { 3, "YearOfPlanting" },
-                                    { 4, "PlantingDistanceId" }, { 5, "PlantingDesignDensity" }, { 6, "Area" },
-                                    { 7, "IntercropName" }, { 8, "IntercroppingYear" }, { 9, "IntercroppingArea" },
-                                    { 10, "CareContract" }, { 11, "ProductContract" }, { 12, "FinancialIncome" },
-                                    { 13, "IntercroppingOther" }, { 14, "IntercroppingCompany" },
-                                    { 15, "NoContribEcon" }, { 16, "NoContribPers" }, { 17, "PartContribEcon" },
-                                    { 18, "PartContribPers" }, { 19, "ShavingTreeDensity" },
-                                    { 20, "VanhAverage" }, { 21, "RatioTreeObtain" }, { 22, "classifyCode" }
-                                },
-                            "1.TXB" => new Dictionary<int, string>
-                                {
-                                    { 1, "IdPrivate" }, { 2, "PlotName" }, { 3, "YearOfPlanting" },
-                                    { 4, "PlantingDistanceId" }, { 5, "PlantingDesignDensity" }, { 6, "Area" },
-                                    { 7, "IntercropName" }, { 8, "IntercroppingYear" }, { 9, "IntercroppingArea" },
-                                    { 10, "CareContract" }, { 11, "ProductContract" }, { 12, "FinancialIncome" },
-                                    { 13, "IntercroppingOther" }, { 14, "IntercroppingCompany" },
-                                    { 15, "NoContribEcon" }, { 16, "NoContribPers" },
-                                    { 17, "PartContribEcon" }, { 18, "PartContribPers" }
-                                },
+                            "1.TXA" => mapTXAFields,
+                            "1.TXB" => mapTXBFields,
                             _ => null
                         };
-
 
                         if (mapFields != null)
                         {
@@ -881,7 +881,10 @@ namespace Web_ProjectName.Controllers
             formulaCell.FormulaA1 = formula;
             formulaCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             formulaCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            formulaCell.Style.NumberFormat.Format = "#,##0";
         }
+
 
         private static double EstimateContentWidth(string content)
         {
