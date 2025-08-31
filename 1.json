@@ -1,0 +1,217 @@
+{
+    "result": 1,
+    "time": 1756522154,
+    "dataDescription": "",
+    "data": {
+        "listPlaceMarkKDByYearObjs": [
+            {
+                "period": "D0",
+                "tappingAge": 1,
+                "area": 526.6465,
+                "areaOld": 0,
+                "treeQuantity": 286201,
+                "effectiveTreeShavingQuantity": 218095,
+                "effectiveTreeNotshavingQuantity": 63501,
+                "shavingTreeDensity": 414,
+                "effectiveTreeDensity": 534,
+                "productivityByArea": null,
+                "productivityByTree": null,
+                "totalShavingSlice": 74,
+                "remark": ""
+            }
+        ],
+        "listPlaceMarkKDByFarmGroupObjs": [
+            {
+                "farmName": "Bến Củi",
+                "area": 472.07803,
+                "areaOld": 373.03577,
+                "treeQuantity": 253395,
+                "effectiveTreeShavingQuantity": 228911,
+                "effectiveTreeNotshavingQuantity": 16066,
+                "shavingTreeDensity": 484,
+                "effectiveTreeDensity": 518,
+                "totalShavingSlice": 83,
+                "productivityByArea": null,
+                "productivityByTree": null,
+                "actualLaborQuantity": null,
+                "laborProductivity": null
+            }
+        ],
+        "listPlaceMarkKTCBObjs": [
+            {
+                "idPrivate": "1.12TN.CK.18.154",
+                "farmCode": "BH",
+                "farmGroupCode": "NHOM2",
+                "plotName": null,
+                "plotOldName": "G06",
+                "yearOfPlanting": "2018",
+                "landLevelCode": "--",
+                "altitudeAverage": 14.95,
+                "plantingMethodCode": "B1",
+                "plantingDistanceCode": "6X3",
+                "typeOfTreeCode": "RRIV 1",
+                "area": 10.10424,
+                "treeQuantity": 6401,
+                "effectiveTreeQuantity": 6029,
+                "vanh_50": null,
+                "vanh_45_49": null,
+                "vanh_40_44": null,
+                "vanh_35_39": null,
+                "vanh_34": null,
+                "barkThickness": null,
+                "ratioTreeObtain_50": null,
+                "ratioTreeObtain_45_49": null,
+                "totalVanh": null,
+                "effectiveTreeDensity": 597,
+                "productivityByArea": null
+            }
+        ],
+        "listPlaceMarkKDByTypeOfTreeObjs": [
+            {
+                "tappingAge": 1,
+                "typeOfTreeObjs": [
+                    {
+                        "typeOfTreeName": "RRIV 124",
+                        "company": null,
+                        "area": 145.1141,
+                        "productivityByArea": 14613.051
+                    },
+                    {
+                        "typeOfTreeName": "RRIV 106",
+                        "company": null,
+                        "area": 49.59708,
+                        "productivityByArea": 7367
+                    },
+                    {
+                        "typeOfTreeName": "RRIV 209",
+                        "company": null,
+                        "area": 20.28724,
+                        "productivityByArea": 1657
+                    },
+                    {
+                        "typeOfTreeName": "RRIV 120",
+                        "company": null,
+                        "area": 65.15661,
+                        "productivityByArea": 4827.3623
+                    },
+                    {
+                        "typeOfTreeName": "RRIV 114",
+                        "company": null,
+                        "area": 59.87139,
+                        "productivityByArea": 6658.7124
+                    },
+                    {
+                        "typeOfTreeName": "RRIV 115",
+                        "company": null,
+                        "area": 24.46119,
+                        "productivityByArea": 1374
+                    },
+                    {
+                        "typeOfTreeName": "PB 255",
+                        "company": null,
+                        "area": 45.11289,
+                        "productivityByArea": 6100.5107
+                    },
+                    {
+                        "typeOfTreeName": "IRCA 130",
+                        "company": null,
+                        "area": 22.56659,
+                        "productivityByArea": 4264.503
+                    },
+                    {
+                        "typeOfTreeName": "RRIV 1",
+                        "company": null,
+                        "area": 64.81096,
+                        "productivityByArea": 4264.407
+                    }
+                ]
+            }
+        ],
+        "listPlaceMarkKDByLandLevelObjs": [
+            {
+                "tappingAge": 1,
+                "landLevelObjs": {
+                    "rank1": 0,
+                    "rank2": 260.72409,
+                    "rank3": 61.51581,
+                    "company": 322.2399,
+                    "productivityRank1": 0,
+                    "productivityRank2": 0,
+                    "productivityRank3": 0,
+                    "productivityCompany": 0
+                }
+            }
+        ],
+        "listPlaceMarkKDByGardenRatingObjs": [
+            {
+                "tappingAge": 1,
+                "totalHecta": 496.97806,
+                "ratingObjs": {
+                    "q1": 452.0545,
+                    "q2": 23.89712,
+                    "q3": 21.02643,
+                    "q4": 0,
+                    "percentQ1": 90.961,
+                    "percentQ2": 4.808,
+                    "percentQ3": 4.231,
+                    "percentQ4": 0
+                }
+            }
+        ],
+        "getListPlaceMarkKTCBByGardenRatingYearObjs": [
+            {
+                "farmName": null,
+                "yearOfPlanting": "2021",
+                "totalArea": 279.5004,
+                "ratingObjs": {
+                    "tC1": 0,
+                    "tC2": 0,
+                    "tC3": 0,
+                    "k1": 73.81026,
+                    "k2": 49.57102,
+                    "k3": 156.1191,
+                    "k4": 0,
+                    "k5": 0,
+                    "percentTC1": 0,
+                    "percentTC2": 0,
+                    "percentTC3": 0,
+                    "percentK1": 26.41,
+                    "percentK2": 17.74,
+                    "percentK3": 55.86,
+                    "percentK4": 0,
+                    "percentK5": 0
+                }
+            }
+        ],
+        "getListPlaceMarkKTCBByGardenRatingFarmGroupObjs": [
+            {
+                "farmName": "Bình Linh",
+                "yearOfPlanting": null,
+                "totalArea": 92.15981,
+                "ratingObjs": {
+                    "tC1": 0,
+                    "tC2": 0,
+                    "tC3": 0,
+                    "k1": 15.11052,
+                    "k2": 77.04929,
+                    "k3": 0,
+                    "k4": 0,
+                    "k5": 0,
+                    "percentTC1": 0,
+                    "percentTC2": 0,
+                    "percentTC3": 0,
+                    "percentK1": 16.396,
+                    "percentK2": 83.604,
+                    "percentK3": 0,
+                    "percentK4": 0,
+                    "percentK5": 0
+                }
+            }
+        ]
+    },
+    "data2nd": null,
+    "error": {
+        "code": 200,
+        "message": ""
+    }
+}

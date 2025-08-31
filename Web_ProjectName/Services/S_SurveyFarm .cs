@@ -6,6 +6,7 @@ namespace Web_ProjectName.Services
     public interface IS_SurveyFarm
     {
         Task<ResponseData<List<M_SurveyFarm>>> GetListSurveyFarmFullData(string accessToken, int? surveyBatchId, int? activeStatusId);
+        Task<ResponseData<M_SurveyFarmStatistic>> GetListStatictis(string accessToken, int? surveyBatchId, int? sequenceStatus);
     }
 
     public class S_SurveyFarm : IS_SurveyFarm
@@ -29,6 +30,23 @@ namespace Web_ProjectName.Services
 
             return await _callApi.GetResponseDataAsync<List<M_SurveyFarm>>(
                 "SurveyFarm/GetListSurveyFarmFullData",
+                dictPars,
+                accessToken
+            );
+        }
+
+        public async Task<ResponseData<M_SurveyFarmStatistic>> GetListStatictis(string accessToken, int? surveyBatchId, int? sequenceStatus)
+        {
+            Dictionary<string, dynamic> dictPars = new Dictionary<string, dynamic>();
+
+            if (surveyBatchId.HasValue)
+                dictPars.Add("surveyBatchId", surveyBatchId.Value);
+
+            if (sequenceStatus.HasValue)
+                dictPars.Add("sequenceStatus", sequenceStatus.Value);
+
+            return await _callApi.GetResponseDataAsync<M_SurveyFarmStatistic>(
+                "SurveyFarm/GetListSurveyFarmStatistic",
                 dictPars,
                 accessToken
             );
