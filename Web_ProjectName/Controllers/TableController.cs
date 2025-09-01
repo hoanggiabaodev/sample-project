@@ -379,7 +379,7 @@ namespace Web_ProjectName.Controllers
                     ProcessKDSheet(workbook, itemsList);
                     ProcessTXASheet(workbook, itemsList);
                     ProcessTXBSheet(workbook, itemsList);
-                    ProcessSummarySheet(workbook, itemsList);
+                    // ProcessSummarySheet(workbook, itemsList);
 
                     // Process each sheet for Statictis SurveyFarm Model
                     Process2aKDSheet(workbook, listKDByYear);
@@ -885,28 +885,28 @@ namespace Web_ProjectName.Controllers
             }
         }
 
-        private void ProcessSummarySheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
-        {
-            try
-            {
-                var ws = workbook.Worksheet(1);
-                if (ws == null) return;
+        // private void ProcessSummarySheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
+        // {
+        //     try
+        //     {
+        //         var ws = workbook.Worksheet(1);
+        //         if (ws == null) return;
 
-                int row = 13;
-                foreach (var item in itemsList)
-                {
-                    if (!string.IsNullOrWhiteSpace(item.IdPrivate))
-                    {
-                        ws.Cell(row, 2).Value = item.IdPrivate;
-                        row++;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error processing summary sheet: {ex.Message}");
-            }
-        }
+        //         int row = 13;
+        //         foreach (var item in itemsList)
+        //         {
+        //             if (!string.IsNullOrWhiteSpace(item.IdPrivate))
+        //             {
+        //                 ws.Cell(row, 2).Value = item.IdPrivate;
+        //                 row++;
+        //             }
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine($"Error processing summary sheet: {ex.Message}");
+        //     }
+        // }
 
         private void Process2aKDSheet(XLWorkbook workbook, List<M_SurveyFarmBusinessFarm> placeMarkKDByYearList)
         {
@@ -1164,6 +1164,7 @@ namespace Web_ProjectName.Controllers
             int metricsRow = 8;
             int col = 3;
 
+            // STT, Tuổi cạo
             var sttHeaderRange = ws.Range(headerRow, 1, metricsRow, 1);
             sttHeaderRange.Merge();
             sttHeaderRange.Value = "STT";
@@ -1186,6 +1187,7 @@ namespace Web_ProjectName.Controllers
                 .OrderBy(x => x)
                 .ToList();
 
+            // Các header theo giống
             foreach (var treeType in allTreeTypes)
             {
                 var treeTypeRange = ws.Range(subHeaderRow, col, subHeaderRow, col + 1);
@@ -1211,6 +1213,7 @@ namespace Web_ProjectName.Controllers
                 col += 2;
             }
 
+            // Cột Công ty
             var congTyRange = ws.Range(subHeaderRow, col, subHeaderRow, col + 1);
             congTyRange.Merge();
             congTyRange.Value = "Công ty";
@@ -1229,6 +1232,7 @@ namespace Web_ProjectName.Controllers
 
             col += 2;
 
+            // GHI CHÚ
             var ghiChuRange = ws.Range(headerRow, col, metricsRow, col);
             ghiChuRange.Merge();
             ghiChuRange.Value = "GHI CHÚ";
@@ -1236,6 +1240,7 @@ namespace Web_ProjectName.Controllers
             ghiChuRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             ghiChuRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
+            // "Giống" header (ở hàng 6 ghép ngang)
             int giongEndCol = col - 1;
             var giongHeaderRange = ws.Range(headerRow, 3, headerRow, giongEndCol);
             giongHeaderRange.Merge();
@@ -1244,11 +1249,17 @@ namespace Web_ProjectName.Controllers
             giongHeaderRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             giongHeaderRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
+            // LƯU lastCol để dùng sau (quan trọng)
+            int lastCol = col;
+
             int dataRow = 10;
             int stt = 1;
 
             foreach (var item in placeMarkKDByTypeOfTreeList)
             {
+                // Insert 1 dòng (theo pattern bạn dùng ở chỗ khác)
+                ws.Row(dataRow).InsertRowsBelow(1);
+
                 var sttCell = ws.Cell(dataRow, 1);
                 sttCell.Value = stt;
                 sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -1279,10 +1290,11 @@ namespace Web_ProjectName.Controllers
 
                 col += 2;
 
-                var ghiChuCell = ws.Cell(dataRow, col);
+                var ghiChuCell = ws.Cell(dataRow, lastCol); // ghi chú ở lastCol
                 ghiChuCell.Value = "";
 
-                var dataRange = ws.Range(dataRow, 1, dataRow, col);
+                // DÙNG lastCol ở đây (không dùng 'col' đã bị mutate)
+                var dataRange = ws.Range(dataRow, 1, dataRow, lastCol);
                 dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
                 dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
 
@@ -1290,7 +1302,25 @@ namespace Web_ProjectName.Controllers
                 stt++;
             }
 
-            // var totalRow = dataRow;
+            var tableRange = ws.Range(headerRow, 1, dataRow - 1, lastCol);
+            tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            var emptyRow = dataRow;
+            int totalRow = dataRow + 1;
+
+            var emptyRowBorderRange = ws.Range(emptyRow, 1, emptyRow, lastCol);
+            emptyRowBorderRange.Style.Border.TopBorder = XLBorderStyleValues.Thin;
+            emptyRowBorderRange.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+            emptyRowBorderRange.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+            emptyRowBorderRange.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+
+            var tongCongBorderRange = ws.Range(totalRow, 1, totalRow, lastCol);
+            tongCongBorderRange.Style.Border.TopBorder = XLBorderStyleValues.Thin;
+            tongCongBorderRange.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+            tongCongBorderRange.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+            tongCongBorderRange.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+
             // ws.Row(totalRow).InsertRowsBelow(1);
 
             // var tongCongRange = ws.Range(totalRow, 1, totalRow, 2);
