@@ -373,6 +373,14 @@ namespace Web_ProjectName.Controllers
                     var listKTCBByGardenRatingYear = allStaticItems.GetListPlaceMarkKTCBByGardenRatingYearObjs ?? new List<M_SurveyFarmKTCBGardenRating>();
                     var listKTCBByGardenRatingFarmGroup = allStaticItems.GetListPlaceMarkKTCBByGardenRatingFarmGroupObjs ?? new List<M_SurveyFarmKTCBGardenRating>();
 
+                    // Process each sheet for SurveyFarm Model
+                    ProcessTMTCSheet(workbook, itemsList);
+                    ProcessKTCBSheet(workbook, itemsList);
+                    ProcessKDSheet(workbook, itemsList);
+                    ProcessTXASheet(workbook, itemsList);
+                    ProcessTXBSheet(workbook, itemsList);
+                    ProcessSummarySheet(workbook, itemsList);
+
                     // Process each sheet for Statictis SurveyFarm Model
                     Process2aKDSheet(workbook, listKDByYear);
                     Process2bKDSheet(workbook, listKDByFarmGroup);
@@ -382,14 +390,6 @@ namespace Web_ProjectName.Controllers
                     Process4KDSheet(workbook, listKDByGardenRating);
                     Process2aKTCBSheet(workbook, listKTCBByGardenRatingYear);
                     Process2bKTCBSheet(workbook, listKTCBByGardenRatingFarmGroup);
-
-                    // Process each sheet for SurveyFarm Model
-                    ProcessTMTCSheet(workbook, itemsList);
-                    ProcessKTCBSheet(workbook, itemsList);
-                    ProcessKDSheet(workbook, itemsList);
-                    ProcessTXASheet(workbook, itemsList);
-                    ProcessTXBSheet(workbook, itemsList);
-                    ProcessSummarySheet(workbook, itemsList);
 
                     // Auto-resize columns
                     AutoResizeColumns(workbook);
@@ -593,7 +593,6 @@ namespace Web_ProjectName.Controllers
                     stt++;
                 }
 
-                // Summary row for the year group
                 ws.Row(row).InsertRowsBelow(1);
                 ws.Cell(row, 8).Value = $"Cộng {plantingYear}";
                 ws.Cell(row, 8).Style.Font.Bold = true;
@@ -715,7 +714,6 @@ namespace Web_ProjectName.Controllers
                     stt++;
                 }
 
-                // Summary row for the year group
                 ws.Row(row).InsertRowsBelow(1);
                 ws.Cell(row, 8).Value = $"Cộng {plantingYear}";
                 ws.Cell(row, 8).Style.Font.Bold = true;
@@ -931,7 +929,7 @@ namespace Web_ProjectName.Controllers
                 { 12, "remark" },
             };
 
-            int row = 9;
+            int row = 10;
             int stt = 1;
 
             foreach (var item in placeMarkKDByYearList)
@@ -948,9 +946,32 @@ namespace Web_ProjectName.Controllers
                     WriteObjectToCell(cell, GetValue(item, kv.Value));
                 }
 
+                var dataRange = ws.Range(row, 1, row, map2aKDFields.Count + 1);
+                dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
                 row++;
                 stt++;
             }
+
+            // var totalRow = row;
+            // ws.Row(totalRow).InsertRowsBelow(1);
+
+            // ws.Cell(totalRow, 2).Value = "Cộng";
+            // ws.Cell(totalRow, 2).Style.Font.Bold = true;
+            // ws.Cell(totalRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // SetFormula(ws, totalRow, 4, $"SUM(D10:D{row - 1})", "0.00000");
+            // SetFormula(ws, totalRow, 5, $"SUM(E10:E{row - 1})", "0.00000");
+            // SetFormula(ws, totalRow, 6, $"SUM(F10:F{row - 1})", "0.00000");
+
+            // SetFormula(ws, totalRow, 7, $"SUM(G10:G{row - 1})");
+
+            // SetFormula(ws, totalRow, 8, $"AVERAGE(H10:H{row - 1})");
+            // SetFormula(ws, totalRow, 9, $"AVERAGE(I10:I{row - 1})");
+            // SetFormula(ws, totalRow, 11, $"AVERAGE(K10:K{row - 1})");
+            // SetFormula(ws, totalRow, 12, $"AVERAGE(L10:L{row - 1})");
+            // SetFormula(ws, totalRow, 12, $"AVERAGE(L10:L{row - 1})");
         }
 
         private void Process2bKDSheet(XLWorkbook workbook, List<M_SurveyFarmBusinessFarmByFarmGroup> placeMarkKDByFarmGroupList)
@@ -975,7 +996,7 @@ namespace Web_ProjectName.Controllers
                 { 13, "remark" },
             };
 
-            int row = 9;
+            int row = 10;
             int stt = 1;
 
             foreach (var item in placeMarkKDByFarmGroupList)
@@ -992,9 +1013,34 @@ namespace Web_ProjectName.Controllers
                     WriteObjectToCell(cell, GetValue(item, kv.Value));
                 }
 
+                var dataRange = ws.Range(row, 1, row, map2bKDFields.Count + 1);
+                dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
                 row++;
                 stt++;
             }
+
+            // var totalRow = row;
+            // ws.Row(totalRow).InsertRowsBelow(1);
+
+            // ws.Cell(totalRow, 2).Value = "Cộng";
+
+            // ws.Row(totalRow).Style.Font.Bold = true;
+            // ws.Row(totalRow).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // SetFormula(ws, totalRow, 3, $"SUM(C10:C{row - 1})", "0.00000");
+            // SetFormula(ws, totalRow, 4, $"SUM(D10:D{row - 1})", "0.00000");
+
+            // SetFormula(ws, totalRow, 5, $"SUM(E10:E{row - 1})");
+            // SetFormula(ws, totalRow, 6, $"SUM(F10:F{row - 1})");
+
+            // SetFormula(ws, totalRow, 7, $"SUM(F10:F{row - 1})/SUM(D10:D{row - 1})", "0.00000");
+            // SetFormula(ws, totalRow, 8, $"AVERAGE(H10:H{row - 1})");
+            // SetFormula(ws, totalRow, 10, $"SUM(J10:J{row - 1})", "0");
+            // SetFormula(ws, totalRow, 11, $"AVERAGE(K10:K{row - 1})");
+            // SetFormula(ws, totalRow, 12, $"AVERAGE(L10:L{row - 1})");
+            // SetFormula(ws, totalRow, 13, $"AVERAGE(M10:M{row - 1})");
         }
 
         private void Process3KTCBSheet(XLWorkbook workbook, List<M_SurveyFarmKTCB> placeMarkKTCBList)
@@ -1031,9 +1077,38 @@ namespace Web_ProjectName.Controllers
             };
 
             int row = 12;
+            int startRowOfYear = row;
+            string? currentYear = null;
 
             foreach (var item in placeMarkKTCBList)
             {
+                var year = GetValue(item, "yearOfPlanting")?.ToString();
+
+                if (currentYear != null && currentYear != year)
+                {
+                    ws.Row(row).InsertRowsBelow(1);
+
+                    ws.Range(row, 1, row, 5).Merge();
+                    var labelCell = ws.Cell(row, 1);
+                    labelCell.Value = $"Cộng {currentYear}";
+                    labelCell.Style.Font.Bold = true;
+                    labelCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    labelCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                    SetFormula(ws, row, 12, $"SUM(L{startRowOfYear}:L{row - 1})");
+                    SetFormula(ws, row, 13, $"SUM(M{startRowOfYear}:M{row - 1})");
+                    SetFormula(ws, row, 14, $"SUM(N{startRowOfYear}:N{row - 1})");
+
+                    SetFormula(ws, row, 20, $"AVERAGE(T{startRowOfYear}:T{row - 1})");
+                    SetFormula(ws, row, 21, $"AVERAGE(U{startRowOfYear}:U{row - 1})");
+                    SetFormula(ws, row, 22, $"AVERAGE(V{startRowOfYear}:V{row - 1})");
+                    SetFormula(ws, row, 24, $"AVERAGE(X{startRowOfYear}:X{row - 1})");
+                    SetFormula(ws, row, 25, $"AVERAGE(Y{startRowOfYear}:Y{row - 1})");
+
+                    row++;
+                    startRowOfYear = row;
+                }
+
                 ws.Row(row).InsertRowsBelow(1);
 
                 foreach (var kv in map3KTCBFields)
@@ -1042,8 +1117,41 @@ namespace Web_ProjectName.Controllers
                     WriteObjectToCell(cell, GetValue(item, kv.Value));
                 }
 
+                var dataRange = ws.Range(row, 1, row, map3KTCBFields.Keys.Max());
+                dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
+                currentYear = year;
                 row++;
             }
+
+            if (currentYear != null)
+            {
+                ws.Row(row).InsertRowsBelow(1);
+
+                ws.Range(row, 1, row, 5).Merge();
+                var labelCell = ws.Cell(row, 1);
+                labelCell.Value = $"Cộng {currentYear}";
+                labelCell.Style.Font.Bold = true;
+                labelCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                labelCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                SetFormula(ws, row, 12, $"SUM(L{startRowOfYear}:L{row - 1})");
+                SetFormula(ws, row, 13, $"SUM(M{startRowOfYear}:M{row - 1})");
+                SetFormula(ws, row, 14, $"SUM(N{startRowOfYear}:N{row - 1})");
+
+                SetFormula(ws, row, 20, $"AVERAGE(T{startRowOfYear}:T{row - 1})");
+                SetFormula(ws, row, 21, $"AVERAGE(U{startRowOfYear}:U{row - 1})");
+                SetFormula(ws, row, 22, $"AVERAGE(V{startRowOfYear}:V{row - 1})");
+                SetFormula(ws, row, 24, $"AVERAGE(X{startRowOfYear}:X{row - 1})");
+                SetFormula(ws, row, 25, $"AVERAGE(Y{startRowOfYear}:Y{row - 1})");
+
+                row++;
+            }
+
+            var tableRange = ws.Range(12, 1, row - 1, map3KTCBFields.Keys.Max());
+            tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
         }
 
         private void Process3aKDSheet(XLWorkbook workbook, List<M_SurveyFarmTypeOfTree> placeMarkKDByTypeOfTreeList)
@@ -1141,8 +1249,6 @@ namespace Web_ProjectName.Controllers
 
             foreach (var item in placeMarkKDByTypeOfTreeList)
             {
-                ws.Row(dataRow).InsertRowsBelow(1);
-
                 var sttCell = ws.Cell(dataRow, 1);
                 sttCell.Value = stt;
                 sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -1176,24 +1282,36 @@ namespace Web_ProjectName.Controllers
                 var ghiChuCell = ws.Cell(dataRow, col);
                 ghiChuCell.Value = "";
 
+                var dataRange = ws.Range(dataRow, 1, dataRow, col);
+                dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
                 dataRow++;
                 stt++;
             }
 
+            // var totalRow = dataRow;
+            // ws.Row(totalRow).InsertRowsBelow(1);
 
-            var tongCongRange = ws.Range(31, 1, 31, 2);
-            tongCongRange.Merge();
-            tongCongRange.Value = "TỔNG CỘNG";
-            tongCongRange.Style.Font.Bold = true;
-            tongCongRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            tongCongRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            // var tongCongRange = ws.Range(totalRow, 1, totalRow, 2);
+            // tongCongRange.Merge();
+            // tongCongRange.Value = "TỔNG CỘNG";
+            // tongCongRange.Style.Font.Bold = true;
+            // tongCongRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            // tongCongRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-            int lastCol = col;
-            int lastRow = 31;
+            // int formulaCol = 3;
+            // while (formulaCol < col)
+            // {
+            //     SetFormula(ws, totalRow, formulaCol, $"SUM({ws.Cell(10, formulaCol).Address}:{ws.Cell(dataRow - 1, formulaCol).Address})", "0.000");
+            //     SetFormula(ws, totalRow, formulaCol + 1, $"AVERAGE({ws.Cell(10, formulaCol + 1).Address}:{ws.Cell(dataRow - 1, formulaCol + 1).Address})", "0.000");
+            //     formulaCol += 2;
+            // }
 
-            var range = ws.Range(headerRow, 1, lastRow, lastCol);
-            range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-            range.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+            // int lastCol = col;
+            // var range = ws.Range(headerRow, 1, totalRow, lastCol);
+            // range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            // range.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
         }
 
         private void Process3bKDSheet(XLWorkbook workbook, List<M_SurveyFarmKDLandLevel> placeMarkKDByLandLevelList)
@@ -1214,7 +1332,8 @@ namespace Web_ProjectName.Controllers
                 { 9, "productivityCompany"},
             };
 
-            int row = 9;
+            int startRow = 9;
+            int row = startRow;
             int stt = 1;
 
             foreach (var item in placeMarkKDByLandLevelList)
@@ -1224,12 +1343,11 @@ namespace Web_ProjectName.Controllers
                 {
                     ws.Row(row).InsertRowsBelow(1);
 
-
                     foreach (var kv in map3KDFields)
                     {
                         var cell = ws.Cell(row, kv.Key + 1);
-
                         object? value = null;
+
                         if (kv.Value == "tappingAge")
                         {
                             value = item.TappingAge;
@@ -1242,10 +1360,48 @@ namespace Web_ProjectName.Controllers
                         WriteObjectToCell(cell, value);
                     }
 
+                    var dataRange = ws.Range(row, 1, row, map3KDFields.Keys.Max() + 1);
+                    dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                    dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
                     row++;
                     stt++;
                 }
             }
+
+            // var tongCongRow = row + 1;
+
+            // var tongCongHeaderRange = ws.Range(tongCongRow, 1, tongCongRow, 2);
+            // tongCongHeaderRange.Merge();
+            // tongCongHeaderRange.Value = "TỔNG CỘNG";
+            // tongCongHeaderRange.Style.Font.Bold = true;
+            // tongCongHeaderRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            // tongCongHeaderRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            // int dataEndRow = row - 1;
+
+            // foreach (var colIndex in new[] { 2, 3, 4, 5 })
+            // {
+            //     string colLetter = ws.Column(colIndex + 1).ColumnLetter();
+            //     SetFormula(ws, tongCongRow, colIndex + 1, $"SUM({colLetter}{startRow}:{colLetter}{dataEndRow})");
+            // }
+
+            // var mapping = new Dictionary<int, int>
+            // {
+            //     { 6, 2 },
+            //     { 7, 3 },
+            //     { 8, 4 },
+            //     { 9, 5 },
+            // };
+
+            // foreach (var kv in mapping)
+            // {
+            //     string areaCol = ws.Column(kv.Value + 1).ColumnLetter();
+            //     string prodCol = ws.Column(kv.Key + 1).ColumnLetter();
+            //     SetFormula(ws, tongCongRow, kv.Key + 1,
+            //         $"IF(SUM({areaCol}{startRow}:{areaCol}{dataEndRow})=0,\"\",SUMPRODUCT({areaCol}{startRow}:{areaCol}{dataEndRow},{prodCol}{startRow}:{prodCol}{dataEndRow})/SUM({areaCol}{startRow}:{areaCol}{dataEndRow}))",
+            //         "0.00000");
+            // }
         }
 
         private void Process4KDSheet(XLWorkbook workbook, List<M_SurveyFarmKDGardenRating> placeMarkKDByGardenRatingList)
@@ -1267,7 +1423,8 @@ namespace Web_ProjectName.Controllers
                 { 10, "percentQ4" }
             };
 
-            int row = 10;
+            int startRow = 10;
+            int row = startRow;
             int stt = 1;
 
             foreach (var item in placeMarkKDByGardenRatingList)
@@ -1301,9 +1458,34 @@ namespace Web_ProjectName.Controllers
                     WriteObjectToCell(cell, value);
                 }
 
+                var dataRange = ws.Range(row, 1, row, map4KDFields.Keys.Max() + 1);
+                dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
                 row++;
                 stt++;
             }
+
+            // int tongCongRow = row + 1;
+            // int dataEndRow = row - 1;
+
+            // var tongCongHeaderRange = ws.Range(tongCongRow, 1, tongCongRow, 2);
+            // tongCongHeaderRange.Merge();
+            // tongCongHeaderRange.Value = "TỔNG CỘNG";
+            // tongCongHeaderRange.Style.Font.Bold = true;
+            // tongCongHeaderRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            // tongCongHeaderRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            // foreach (var colIndex in new[] { 2, 3, 4, 5, 6 })
+            // {
+            //     string colLetter = ws.Column(colIndex + 1).ColumnLetter();
+            //     SetFormula(ws, tongCongRow, colIndex + 1, $"SUM({colLetter}{startRow}:{colLetter}{dataEndRow})");
+            // }
+
+            // SetFormula(ws, tongCongRow, 8, $"C{tongCongRow}/C{tongCongRow}", "0.00%");
+            // SetFormula(ws, tongCongRow, 9, $"D{tongCongRow}/C{tongCongRow}", "0.00%");
+            // SetFormula(ws, tongCongRow, 10, $"E{tongCongRow}/C{tongCongRow}", "0.00%");
+            // SetFormula(ws, tongCongRow, 11, $"F{tongCongRow}/C{tongCongRow}", "0.00%");
         }
 
         private void Process2aKTCBSheet(XLWorkbook workbook, List<M_SurveyFarmKTCBGardenRating> placeMarkKTCBByGardenRatingYearList)
@@ -1319,7 +1501,7 @@ namespace Web_ProjectName.Controllers
                 { 4, "percentTC1" },
                 { 5, "tc2" },
                 { 6, "percentTC2" },
-                { 7, "k2" },
+                { 7, "tc3" },
                 { 8, "percentTC3" },
                 { 9, "k1" },
                 { 10, "percentK1" },
@@ -1333,7 +1515,8 @@ namespace Web_ProjectName.Controllers
                 { 18, "percentK5" }
             };
 
-            int row = 10;
+            int startRow = 10;
+            int row = startRow;
             int stt = 1;
 
             foreach (var item in placeMarkKTCBByGardenRatingYearList)
@@ -1351,9 +1534,6 @@ namespace Web_ProjectName.Controllers
                     object? value = null;
                     switch (kv.Value)
                     {
-                        case "farmName":
-                            value = item.FarmName;
-                            break;
                         case "yearOfPlanting":
                             value = item.YearOfPlanting;
                             break;
@@ -1369,9 +1549,43 @@ namespace Web_ProjectName.Controllers
                     WriteObjectToCell(cell, value);
                 }
 
+                var dataRange = ws.Range(row, 1, row, map2aKTCBFields.Keys.Max() + 1);
+                dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
                 row++;
                 stt++;
             }
+
+            int tongCongRow = row + 1;
+
+            var headerRange = ws.Range(tongCongRow, 1, tongCongRow, 2);
+            headerRange.Merge();
+            headerRange.Value = "TỔNG CỘNG";
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            // int dataEndRow = row - 1;
+            // string totalAreaCol = ws.Column(3).ColumnLetter();
+
+            // foreach (var kv in map2aKTCBFields)
+            // {
+            //     int colIndex = kv.Key + 1;
+            //     string colLetter = ws.Column(colIndex).ColumnLetter();
+
+            //     if (kv.Value.StartsWith("percent", StringComparison.OrdinalIgnoreCase))
+            //     {
+            //         string correspondingCol = ws.Column(colIndex - 1).ColumnLetter();
+            //         SetFormula(ws, tongCongRow, colIndex,
+            //             $"SUM({correspondingCol}{startRow}:{correspondingCol}{dataEndRow})/SUM({totalAreaCol}{startRow}:{totalAreaCol}{dataEndRow})", "0.00%");
+            //     }
+            //     else if (kv.Value != "yearOfPlanting")
+            //     {
+            //         SetFormula(ws, tongCongRow, colIndex,
+            //             $"SUM({colLetter}{startRow}:{colLetter}{dataEndRow})");
+            //     }
+            // }
         }
 
         private void Process2bKTCBSheet(XLWorkbook workbook, List<M_SurveyFarmKTCBGardenRating> placeMarkKTCBByGardenRatingFarmGroupList)
@@ -1387,7 +1601,7 @@ namespace Web_ProjectName.Controllers
                 { 4, "percentTC1" },
                 { 5, "tc2" },
                 { 6, "percentTC2" },
-                { 7, "k2" },
+                { 7, "tc3" },
                 { 8, "percentTC3" },
                 { 9, "k1" },
                 { 10, "percentK1" },
@@ -1437,9 +1651,36 @@ namespace Web_ProjectName.Controllers
                     WriteObjectToCell(cell, value);
                 }
 
+                var dataRange = ws.Range(row, 1, row, map2bKTCBFields.Keys.Max() + 1);
+                dataRange.Style.Border.TopBorder = XLBorderStyleValues.Dashed;
+                dataRange.Style.Border.BottomBorder = XLBorderStyleValues.Dashed;
+
                 row++;
                 stt++;
             }
+
+            // var totalRow = row;
+            // ws.Cell(totalRow, 1).Value = "Tổng cộng";
+            // ws.Range(totalRow, 1, totalRow, 2).Merge().Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+            // foreach (var kv in map2bKTCBFields)
+            // {
+            //     int col = kv.Key + 1;
+
+            //     if (kv.Value.StartsWith("percent"))
+            //     {
+            //         string hạng = kv.Value.Replace("percent", "").ToLowerInvariant();
+            //         var hạngCol = map2bKTCBFields.FirstOrDefault(x => x.Value.Equals(hạng, StringComparison.OrdinalIgnoreCase)).Key + 1;
+
+            //         string formula = $"SUM(R{10}C{hạngCol}:R{row - 1}C{hạngCol})/SUM(R{10}C2:R{row - 1}C2)";
+            //         SetFormula(ws, totalRow, col, formula);
+            //     }
+            //     else if (kv.Value != "yearOfPlanting" && kv.Value != "farmName")
+            //     {
+            //         string formula = $"SUM(R{10}C{col}:R{row - 1}C{col})";
+            //         SetFormula(ws, totalRow, col, formula);
+            //     }
+            // }
         }
 
         private void AutoResizeColumns(XLWorkbook workbook)
@@ -1622,14 +1863,13 @@ namespace Web_ProjectName.Controllers
             }
         }
 
-        private static void SetFormula(IXLWorksheet ws, int row, int col, string formula)
+        private static void SetFormula(IXLWorksheet ws, int row, int col, string formula, string numberFormat = "#,##0")
         {
             var formulaCell = ws.Cell(row, col);
             formulaCell.FormulaA1 = formula;
             formulaCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             formulaCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-            formulaCell.Style.NumberFormat.Format = "#,##0";
+            formulaCell.Style.NumberFormat.Format = numberFormat;
         }
 
         private static double EstimateContentWidth(string content)
