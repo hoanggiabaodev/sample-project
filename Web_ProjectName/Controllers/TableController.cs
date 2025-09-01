@@ -134,7 +134,6 @@ namespace Web_ProjectName.Controllers
 
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-                // Helpers
                 string S(object v) => v?.ToString()?.Trim() ?? "";
                 int I(object v) => int.TryParse(S(v), out var i) ? i : (int)Math.Round(D(v));
                 double D(object v) => double.TryParse(S(v), NumberStyles.Any, CultureInfo.InvariantCulture, out var d) ? d : 0d;
@@ -164,13 +163,11 @@ namespace Web_ProjectName.Controllers
                         if (reader.Depth < rowStart) continue;
                         object Cell(int i) => i < reader.FieldCount ? reader.GetValue(i) : null;
 
-                        // bắt buộc có IdPrivate (cột 1) và cột D (cột 4)
                         if (string.IsNullOrWhiteSpace(S(Cell(1))) || string.IsNullOrWhiteSpace(S(Cell(3))))
                         {
                             continue;
                         }
 
-                        // TM-TC
                         if (sheet is "1.TM-TC" or "1.TC-TM")
                             data.Add(new
                             {
@@ -195,7 +192,6 @@ namespace Web_ProjectName.Controllers
                                 Remark = S(Cell(24))
                             });
 
-                        // KTCB
                         else if (sheet == "1.KTCB")
                             data.Add(new
                             {
@@ -226,7 +222,6 @@ namespace Web_ProjectName.Controllers
                                 Remark = S(Cell(33))
                             });
 
-                        // KD
                         else if (sheet == "1.KD")
                             data.Add(new
                             {
@@ -261,7 +256,6 @@ namespace Web_ProjectName.Controllers
                                 Remark = S(Cell(37))
                             });
 
-                        // TXA
                         else if (sheet == "1.TXA")
                             data.Add(new
                             {
@@ -291,7 +285,6 @@ namespace Web_ProjectName.Controllers
                                 ClassifyCode = S(Cell(22))
                             });
 
-                        // TXB
                         else if (sheet == "1.TXB")
                             data.Add(new
                             {
@@ -1057,30 +1050,396 @@ namespace Web_ProjectName.Controllers
         {
             var ws = workbook.Worksheet("3a.KD");
             if (ws == null) return;
+
+            int headerRow = 6;
+            int subHeaderRow = 7;
+            int metricsRow = 8;
+            int col = 3;
+
+            var sttHeaderRange = ws.Range(headerRow, 1, metricsRow, 1);
+            sttHeaderRange.Merge();
+            sttHeaderRange.Value = "STT";
+            sttHeaderRange.Style.Font.Bold = true;
+            sttHeaderRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            sttHeaderRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            var tuoiCaoHeaderRange = ws.Range(headerRow, 2, metricsRow, 2);
+            tuoiCaoHeaderRange.Merge();
+            tuoiCaoHeaderRange.Value = "Tuổi cạo";
+            tuoiCaoHeaderRange.Style.Font.Bold = true;
+            tuoiCaoHeaderRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            tuoiCaoHeaderRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            var allTreeTypes = placeMarkKDByTypeOfTreeList
+                .Where(x => x.TypeOfTreeObjs != null)
+                .SelectMany(x => x.TypeOfTreeObjs)
+                .Select(x => x.TypeOfTreeName)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            foreach (var treeType in allTreeTypes)
+            {
+                var treeTypeRange = ws.Range(subHeaderRow, col, subHeaderRow, col + 1);
+                treeTypeRange.Merge();
+                treeTypeRange.Value = treeType;
+                treeTypeRange.Style.Font.Bold = true;
+                treeTypeRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                var dtCell = ws.Cell(metricsRow, col);
+                dtCell.Value = "DT\n(ha)";
+                dtCell.Style.Font.Bold = true;
+                dtCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                dtCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                dtCell.Style.Alignment.WrapText = true;
+
+                var nsCell = ws.Cell(metricsRow, col + 1);
+                nsCell.Value = "NS\n(kg/ha)";
+                nsCell.Style.Font.Bold = true;
+                nsCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                nsCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                nsCell.Style.Alignment.WrapText = true;
+
+                col += 2;
+            }
+
+            var congTyRange = ws.Range(subHeaderRow, col, subHeaderRow, col + 1);
+            congTyRange.Merge();
+            congTyRange.Value = "Công ty";
+            congTyRange.Style.Font.Bold = true;
+            congTyRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            var congTyDtCell = ws.Cell(metricsRow, col);
+            congTyDtCell.Value = "DT";
+            congTyDtCell.Style.Font.Bold = true;
+            congTyDtCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            var congTyNsCell = ws.Cell(metricsRow, col + 1);
+            congTyNsCell.Value = "NS";
+            congTyNsCell.Style.Font.Bold = true;
+            congTyNsCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            col += 2;
+
+            var ghiChuRange = ws.Range(headerRow, col, metricsRow, col);
+            ghiChuRange.Merge();
+            ghiChuRange.Value = "GHI CHÚ";
+            ghiChuRange.Style.Font.Bold = true;
+            ghiChuRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ghiChuRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            int giongEndCol = col - 1;
+            var giongHeaderRange = ws.Range(headerRow, 3, headerRow, giongEndCol);
+            giongHeaderRange.Merge();
+            giongHeaderRange.Value = "Giống";
+            giongHeaderRange.Style.Font.Bold = true;
+            giongHeaderRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            giongHeaderRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            int dataRow = 10;
+            int stt = 1;
+
+            foreach (var item in placeMarkKDByTypeOfTreeList)
+            {
+                ws.Row(dataRow).InsertRowsBelow(1);
+
+                var sttCell = ws.Cell(dataRow, 1);
+                sttCell.Value = stt;
+                sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                var tappingAgeCell = ws.Cell(dataRow, 2);
+                WriteObjectToCell(tappingAgeCell, item.TappingAge);
+
+                col = 3;
+                foreach (var treeType in allTreeTypes)
+                {
+                    var matchingTreeType = item.TypeOfTreeObjs?.FirstOrDefault(x => x.TypeOfTreeName == treeType);
+
+                    var areaCell = ws.Cell(dataRow, col);
+                    WriteObjectToCell(areaCell, matchingTreeType?.Area ?? 0);
+
+                    var productivityCell = ws.Cell(dataRow, col + 1);
+                    WriteObjectToCell(productivityCell, matchingTreeType?.ProductivityByArea ?? 0);
+
+                    col += 2;
+                }
+
+                var congTyAreaCell = ws.Cell(dataRow, col);
+                WriteObjectToCell(congTyAreaCell, 0);
+
+                var congTyProductivityCell = ws.Cell(dataRow, col + 1);
+                WriteObjectToCell(congTyProductivityCell, 0);
+
+                col += 2;
+
+                var ghiChuCell = ws.Cell(dataRow, col);
+                ghiChuCell.Value = "";
+
+                dataRow++;
+                stt++;
+            }
+
+
+            var tongCongRange = ws.Range(31, 1, 31, 2);
+            tongCongRange.Merge();
+            tongCongRange.Value = "TỔNG CỘNG";
+            tongCongRange.Style.Font.Bold = true;
+            tongCongRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            tongCongRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            int lastCol = col;
+            int lastRow = 31;
+
+            var range = ws.Range(headerRow, 1, lastRow, lastCol);
+            range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            range.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
         }
 
         private void Process3bKDSheet(XLWorkbook workbook, List<M_SurveyFarmKDLandLevel> placeMarkKDByLandLevelList)
         {
             var ws = workbook.Worksheet("3b.KD");
             if (ws == null) return;
+
+            var map3KDFields = new Dictionary<int, string>
+            {
+                { 1, "tappingAge" },
+                { 2, "rank1" },
+                { 3, "rank2" },
+                { 4, "rank3" },
+                { 5, "company"},
+                { 6, "productivityRank1"},
+                { 7, "productivityRank2"},
+                { 8, "productivityRank3"},
+                { 9, "productivityCompany"},
+            };
+
+            int row = 9;
+            int stt = 1;
+
+            foreach (var item in placeMarkKDByLandLevelList)
+            {
+                var landLevel = item.LandLevelObjs;
+                if (landLevel != null)
+                {
+                    ws.Row(row).InsertRowsBelow(1);
+
+
+                    foreach (var kv in map3KDFields)
+                    {
+                        var cell = ws.Cell(row, kv.Key + 1);
+
+                        object? value = null;
+                        if (kv.Value == "tappingAge")
+                        {
+                            value = item.TappingAge;
+                        }
+                        else
+                        {
+                            value = GetValue(landLevel, kv.Value);
+                        }
+
+                        WriteObjectToCell(cell, value);
+                    }
+
+                    row++;
+                    stt++;
+                }
+            }
         }
 
         private void Process4KDSheet(XLWorkbook workbook, List<M_SurveyFarmKDGardenRating> placeMarkKDByGardenRatingList)
         {
             var ws = workbook.Worksheet("4.KD");
             if (ws == null) return;
+
+            var map4KDFields = new Dictionary<int, string>
+            {
+                { 1, "tappingAge" },
+                { 2, "totalHecta" },
+                { 3, "q1" },
+                { 4, "q2" },
+                { 5, "q3" },
+                { 6, "q4" },
+                { 7, "percentQ1" },
+                { 8, "percentQ2" },
+                { 9, "percentQ3" },
+                { 10, "percentQ4" }
+            };
+
+            int row = 10;
+            int stt = 1;
+
+            foreach (var item in placeMarkKDByGardenRatingList)
+            {
+                ws.Row(row).InsertRowsBelow(1);
+
+                var sttCell = ws.Cell(row, 1);
+                sttCell.Value = stt;
+                sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                foreach (var kv in map4KDFields)
+                {
+                    var cell = ws.Cell(row, kv.Key + 1);
+
+                    object? value = null;
+                    switch (kv.Value)
+                    {
+                        case "tappingAge":
+                            value = item.TappingAge;
+                            break;
+                        case "totalHecta":
+                            value = item.TotalHecta;
+                            break;
+                        default:
+                            if (item.RatingObjs != null)
+                                value = GetValue(item.RatingObjs, kv.Value);
+                            break;
+                    }
+
+                    WriteObjectToCell(cell, value);
+                }
+
+                row++;
+                stt++;
+            }
         }
 
         private void Process2aKTCBSheet(XLWorkbook workbook, List<M_SurveyFarmKTCBGardenRating> placeMarkKTCBByGardenRatingYearList)
         {
             var ws = workbook.Worksheet("2a.KTCB");
             if (ws == null) return;
+
+            var map2aKTCBFields = new Dictionary<int, string>
+            {
+                { 1, "yearOfPlanting" },
+                { 2, "totalArea" },
+                { 3, "tc1" },
+                { 4, "percentTC1" },
+                { 5, "tc2" },
+                { 6, "percentTC2" },
+                { 7, "k2" },
+                { 8, "percentTC3" },
+                { 9, "k1" },
+                { 10, "percentK1" },
+                { 11, "k2" },
+                { 12, "percentK2" },
+                { 13, "k3" },
+                { 14, "percentK3" },
+                { 15, "k4" },
+                { 16, "percentK4" },
+                { 17, "k5" },
+                { 18, "percentK5" }
+            };
+
+            int row = 10;
+            int stt = 1;
+
+            foreach (var item in placeMarkKTCBByGardenRatingYearList)
+            {
+                ws.Row(row).InsertRowsBelow(1);
+                var sttCell = ws.Cell(row, 1);
+                sttCell.Value = stt;
+                sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                foreach (var kv in map2aKTCBFields)
+                {
+                    var cell = ws.Cell(row, kv.Key + 1);
+
+                    object? value = null;
+                    switch (kv.Value)
+                    {
+                        case "farmName":
+                            value = item.FarmName;
+                            break;
+                        case "yearOfPlanting":
+                            value = item.YearOfPlanting;
+                            break;
+                        case "totalArea":
+                            value = item.TotalArea;
+                            break;
+                        default:
+                            if (item.RatingObjs != null)
+                                value = GetValue(item.RatingObjs, kv.Value);
+                            break;
+                    }
+
+                    WriteObjectToCell(cell, value);
+                }
+
+                row++;
+                stt++;
+            }
         }
 
         private void Process2bKTCBSheet(XLWorkbook workbook, List<M_SurveyFarmKTCBGardenRating> placeMarkKTCBByGardenRatingFarmGroupList)
         {
             var ws = workbook.Worksheet("2b.KTCB");
             if (ws == null) return;
+
+            var map2bKTCBFields = new Dictionary<int, string>
+            {
+                { 1, "yearOfPlanting" },
+                { 2, "totalArea" },
+                { 3, "tc1" },
+                { 4, "percentTC1" },
+                { 5, "tc2" },
+                { 6, "percentTC2" },
+                { 7, "k2" },
+                { 8, "percentTC3" },
+                { 9, "k1" },
+                { 10, "percentK1" },
+                { 11, "k2" },
+                { 12, "percentK2" },
+                { 13, "k3" },
+                { 14, "percentK3" },
+                { 15, "k4" },
+                { 16, "percentK4" },
+                { 17, "k5" },
+                { 18, "percentK5" }
+            };
+
+            int row = 10;
+            int stt = 1;
+
+            foreach (var item in placeMarkKTCBByGardenRatingFarmGroupList)
+            {
+                ws.Row(row).InsertRowsBelow(1);
+                var sttCell = ws.Cell(row, 1);
+                sttCell.Value = stt;
+                sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                foreach (var kv in map2bKTCBFields)
+                {
+                    var cell = ws.Cell(row, kv.Key + 1);
+
+                    object? value = null;
+                    switch (kv.Value)
+                    {
+                        case "farmName":
+                            value = item.FarmName;
+                            break;
+                        case "yearOfPlanting":
+                            value = item.YearOfPlanting;
+                            break;
+                        case "totalArea":
+                            value = item.TotalArea;
+                            break;
+                        default:
+                            if (item.RatingObjs != null)
+                                value = GetValue(item.RatingObjs, kv.Value);
+                            break;
+                    }
+
+                    WriteObjectToCell(cell, value);
+                }
+
+                row++;
+                stt++;
+            }
         }
 
         private void AutoResizeColumns(XLWorkbook workbook)
@@ -1272,7 +1631,6 @@ namespace Web_ProjectName.Controllers
 
             formulaCell.Style.NumberFormat.Format = "#,##0";
         }
-
 
         private static double EstimateContentWidth(string content)
         {
