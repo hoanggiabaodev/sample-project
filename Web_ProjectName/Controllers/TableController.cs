@@ -600,9 +600,16 @@ namespace Web_ProjectName.Controllers
                 { 27, "vanhAverage" },
                 { 28, "standardDeviation" },
                 { 29, "ratioTreeObtain" },
-                { 31, "expectedExploitationDate" },
-                { 32, "gardenRatingObj.code" },
-                { 33, "remark" },
+                { 30, "vanh50" },
+                { 31, "vanh4549" },
+                { 32, "vanh4044" },
+                { 33, "vanh3539" },
+                { 34, "vanh34" },
+                { 35, "barkThickness" },
+                { 36, "plannedExtendedGarden"},
+                { 37, "expectedExploitationDate" },
+                { 38, "gardenRatingObj.code" },
+                { 39, "remark" },
             };
 
             var ktcbData = itemsList.Where(item =>
@@ -723,11 +730,13 @@ namespace Web_ProjectName.Controllers
                 { 30, "tappingAge" },
                 { 31, "yearOfShaving" },
                 { 32, "shavingFaceConditionCode" },
-                { 33, "productivityByArea" },
-                { 34, "productivityByTree" },
-                { 35, "totalShavingSlice" },
-                { 36, "gardenRatingObj.code" },
-                { 37, "remark" },
+                { 33, "totalOutput"},
+                { 34, "totalStaff"},
+                { 35, "productivityByArea" },
+                { 36, "productivityByTree" },
+                { 37, "totalShavingSlice" },
+                { 38, "gardenRatingObj.code" },
+                { 39, "remark" },
             };
 
             var kdData = itemsList.Where(item =>
@@ -824,7 +833,7 @@ namespace Web_ProjectName.Controllers
 
             int nextRow = ProcessTXASheet(workbook, itemsList, ws, 10);
 
-            nextRow += 9;
+            nextRow += 10;
             ProcessTXBSheet(workbook, itemsList, ws, nextRow);
         }
 
@@ -1105,6 +1114,9 @@ namespace Web_ProjectName.Controllers
 
         private void Process3KTCBSheet(XLWorkbook workbook, List<M_SurveyFarmKTCB> placeMarkKTCBList)
         {
+            if (placeMarkKTCBList == null || !placeMarkKTCBList.Any())
+                return;
+
             var ws = workbook.Worksheet("3.KTCB.MC");
             if (ws == null) return;
 
