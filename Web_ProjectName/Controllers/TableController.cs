@@ -377,8 +377,7 @@ namespace Web_ProjectName.Controllers
                     ProcessTMTCSheet(workbook, itemsList);
                     ProcessKTCBSheet(workbook, itemsList);
                     ProcessKDSheet(workbook, itemsList);
-                    ProcessTXASheet(workbook, itemsList);
-                    ProcessTXBSheet(workbook, itemsList);
+                    ProcessTXSheet(workbook, itemsList);
                     // ProcessSummarySheet(workbook, itemsList);
 
                     // Process each sheet for Statictis SurveyFarm Model
@@ -390,6 +389,78 @@ namespace Web_ProjectName.Controllers
                     Process4KDSheet(workbook, listKDByGardenRating);
                     Process2aKTCBSheet(workbook, listKTCBByGardenRatingYear);
                     Process2bKTCBSheet(workbook, listKTCBByGardenRatingFarmGroup);
+
+                    // Auto-resize columns
+                    AutoResizeColumns(workbook);
+
+                    var exportsDir = Path.Combine(_webHostEnvironment.WebRootPath, "exports");
+                    if (!Directory.Exists(exportsDir))
+                        Directory.CreateDirectory(exportsDir);
+
+                    var fileName = "export_kiemke.xlsx";
+                    var filePath = Path.Combine(exportsDir, fileName);
+                    workbook.SaveAs(filePath);
+
+                    jResult.result = 1;
+                    jResult.data = $"/exports/{fileName}";
+
+                    var threadDeleteFile = new Thread(() =>
+                    {
+                        try
+                        {
+                            Thread.Sleep(5000);
+                            if (System.IO.File.Exists(filePath))
+                            {
+                                System.IO.File.Delete(filePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Unable to delete file: {ex.Message}");
+                        }
+                    });
+                    threadDeleteFile.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                jResult.result = -1;
+                jResult.error = new error(500, $"Xuất file thất bại. {ex.Message}");
+            }
+            await Task.CompletedTask;
+            return Json(jResult);
+        }
+
+        public async Task<JsonResult> ExportExcelOfSystem(int? surveyBatchId = 3, int? activeStatusId = null)
+        {
+            M_JResult jResult = new M_JResult();
+            try
+            {
+                var templatePath = Path.Combine(_webHostEnvironment.WebRootPath, "template/bieumaukiemkeimport.xlsx");
+                using (var workbook = new XLWorkbook(templatePath))
+                {
+                    var surFarmRes = await _surveyFarmService.GetListSurveyFarmFullData(
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBY2NvdW50SWQiOiI3MyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Imh1eXF1b2N2bzI0MDdAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwODYyMDU0MzI3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IjA4NjIwNTQzMjciLCJTdXBwbGllcklkIjoiMSIsIkZ1bGxOYW1lIjoiSHV5IEh1eVZvRGV2MmEiLCJleHAiOjE4MTYxOTI2NzYsImlzcyI6Imh0dHA6Ly90YW5pcnVjby5jb20vIiwiYXVkIjoiaHR0cDovL3RhbmlydWNvLmNvbS8ifQ.VS-3vcomcbfvPSQLMfapUI1rIoPjXjZx7UBh2qh75Vc",
+                        surveyBatchId,
+                        activeStatusId
+                    );
+
+                    if (surFarmRes.result != 1 || surFarmRes.data == null)
+                    {
+                        jResult.result = 0;
+                        jResult.error = surFarmRes.error ?? new error(0, "Không lấy được dữ liệu kiểm kê.");
+                        return Json(jResult);
+                    }
+                    var allItems = surFarmRes.data ?? new List<M_SurveyFarm>();
+                    var itemsList = allItems.ToList();
+
+                    // Process each sheet for SurveyFarm Model
+                    ProcessTMTCSheet(workbook, itemsList);
+                    ProcessKTCBSheet(workbook, itemsList);
+                    ProcessKDSheet(workbook, itemsList);
+                    ProcessTXASheet(workbook, itemsList);
+                    ProcessTXBSheet(workbook, itemsList);
+                    // ProcessSummarySheet(workbook, itemsList);
 
                     // Auto-resize columns
                     AutoResizeColumns(workbook);
@@ -746,10 +817,21 @@ namespace Web_ProjectName.Controllers
             }
         }
 
-        private void ProcessTXASheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
+        private void ProcessTXSheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
         {
-            var ws = workbook.Worksheet("1.TXA");
+            var ws = workbook.Worksheet("1.TX");
             if (ws == null) return;
+
+            int nextRow = ProcessTXASheet(workbook, itemsList, ws, 10);
+
+            nextRow += 9;
+            ProcessTXBSheet(workbook, itemsList, ws, nextRow);
+        }
+
+        private int ProcessTXASheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList, IXLWorksheet? wsOverride = null, int startRow = 10)
+        {
+            var ws = wsOverride ?? workbook.Worksheet("1.TXA");
+            if (ws == null) return startRow;
 
             var mapTXAFields = new Dictionary<int, string>
             {
@@ -779,7 +861,7 @@ namespace Web_ProjectName.Controllers
 
             var txaItems = itemsList.Where(item =>
             {
-                string active = item.ActiveStatusObj?.Code;
+                string? active = item.ActiveStatusObj?.Code;
                 if (string.IsNullOrWhiteSpace(active))
                 {
                     if (item.IntercropType.HasValue)
@@ -794,7 +876,7 @@ namespace Web_ProjectName.Controllers
                 return active == "TX" && (item.IntercropType ?? 0) == 0;
             }).ToList();
 
-            int row = 10;
+            int row = startRow;
             int stt = 1;
 
             foreach (var item in txaItems)
@@ -814,12 +896,14 @@ namespace Web_ProjectName.Controllers
                 row++;
                 stt++;
             }
+
+            return row;
         }
 
-        private void ProcessTXBSheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
+        private int ProcessTXBSheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList, IXLWorksheet? wsOverride = null, int startRow = 10)
         {
-            var ws = workbook.Worksheet("1.TXB");
-            if (ws == null) return;
+            var ws = wsOverride ?? workbook.Worksheet("1.TXB");
+            if (ws == null) return startRow;
 
             var mapTXBFields = new Dictionary<int, string>
             {
@@ -841,9 +925,6 @@ namespace Web_ProjectName.Controllers
                 { 16, "noContribPers" },
                 { 17, "partContribEcon" },
                 { 18, "partContribPers" },
-                { 19, "shavingTreeDensity" },
-                { 20, "vanhAverage" },
-                { 21, "ratioTreeObtain" },
             };
 
             var txbItems = itemsList.Where(item =>
@@ -863,7 +944,7 @@ namespace Web_ProjectName.Controllers
                 return active == "TX" && (item.IntercropType ?? 0) == 1;
             }).ToList();
 
-            int row = 10;
+            int row = startRow;
             int stt = 1;
 
             foreach (var item in txbItems)
@@ -883,30 +964,9 @@ namespace Web_ProjectName.Controllers
                 row++;
                 stt++;
             }
+
+            return row;
         }
-
-        // private void ProcessSummarySheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
-        // {
-        //     try
-        //     {
-        //         var ws = workbook.Worksheet(1);
-        //         if (ws == null) return;
-
-        //         int row = 13;
-        //         foreach (var item in itemsList)
-        //         {
-        //             if (!string.IsNullOrWhiteSpace(item.IdPrivate))
-        //             {
-        //                 ws.Cell(row, 2).Value = item.IdPrivate;
-        //                 row++;
-        //             }
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"Error processing summary sheet: {ex.Message}");
-        //     }
-        // }
 
         private void Process2aKDSheet(XLWorkbook workbook, List<M_SurveyFarmBusinessFarm> placeMarkKDByYearList)
         {
