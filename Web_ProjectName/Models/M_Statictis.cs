@@ -19,6 +19,7 @@ namespace Web_ProjectName.Models
         public float? ProductivityByArea { get; set; }//Năng suất hằng năm (kg/ha) (KD)
         public float? ProductivityByTree { get; set; }//Năng suất hằng năm (kg/cây) (KD)
         public int? TotalShavingSlice { get; set; }//Tong so lat cao
+        public int? TotalStaff { get; set; }
         public string Remark { get; set; }
     }
 

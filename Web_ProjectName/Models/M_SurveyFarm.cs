@@ -4,7 +4,7 @@ using Web_ProjectName.Models.Common;
 
 namespace Web_ProjectName.Models
 {
-    public class M_SurveyFarm: M_BaseModel.BaseCustom
+    public class M_SurveyFarm : M_BaseModel.BaseCustom
     {
         public int Id { get; set; }
         public int PlaceMarkId { get; set; }
@@ -103,6 +103,9 @@ namespace Web_ProjectName.Models
         public CustomIdName ShavingModeObj { get; set; }
         public CustomIdName ShavingFaceConditionObj { get; set; }
         public CustomIdName GardenRatingObj { get; set; }
+
+        public CustomIdName FarmGroupObj { get; set; }
+        public CustomIdName FarmObj { get; set; }
     }
 
     public class M_PlaceMark : M_BaseModel.BaseCustom
@@ -133,6 +136,7 @@ namespace Web_ProjectName.Models
         public string LandType { get; set; }
         public float? AreaCultivated { get; set; }
         public float? Area { get; set; }
+        public float? AreaOld { get; set; }
         public float? Area1 { get; set; }
         public float? Area2 { get; set; }
         public float? Area3 { get; set; }

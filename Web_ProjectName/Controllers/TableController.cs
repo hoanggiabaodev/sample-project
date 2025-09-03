@@ -456,8 +456,8 @@ namespace Web_ProjectName.Controllers
 
                     // Process each sheet for SurveyFarm Model
                     ProcessTMTCSheet(workbook, itemsList);
-                    ProcessKTCBSheet(workbook, itemsList);
-                    ProcessKDSheet(workbook, itemsList);
+                    ProcessKTCBSystemSheet(workbook, itemsList);
+                    ProcessKDSystemSheet(workbook, itemsList);
                     ProcessTXASheet(workbook, itemsList);
                     ProcessTXBSheet(workbook, itemsList);
                     // ProcessSummarySheet(workbook, itemsList);
@@ -512,12 +512,12 @@ namespace Web_ProjectName.Controllers
             {
                 { 1, "idPrivate" },
                 { 5, "plotName" },
-                { 6, "landLevelObj.code" },
+                { 6, "landLevelObj.Code" },
                 { 7, "altitudeAverage" },
-                { 8, "plantingMethodObj.code" },
-                { 9, "plantingDistanceObj.code" },
+                { 8, "plantingMethodObj.Code" },
+                { 9, "plantingDistanceObj.Code" },
                 { 10, "plantingDesignDensity" },
-                { 11, "TypeOfTreeObj.code" },
+                { 11, "typeOfTreeObj.Code" },
                 { 12, "area" },
                 { 13, "holeQuantity" },
                 { 14, "graftedTreeCorrectQuantity" },
@@ -525,7 +525,7 @@ namespace Web_ProjectName.Controllers
                 { 18, "emptyHoleQuantity" },
                 { 20, "densityOfGraftedTree" },
                 { 21, "averageNumberLeafLayer" },
-                { 22, "classifyObj.code"},
+                { 22, "classifyObj.Code"},
                 { 23, "plantingEndDate" },
                 { 24, "remark" },
             };
@@ -581,15 +581,144 @@ namespace Web_ProjectName.Controllers
             var mapKTCBFields = new Dictionary<int, string>
             {
                 { 1, "idPrivate" },
+                { 3, "farmObj.Code" },
+                { 4, "farmGroupObj.Name" },
                 { 5, "plotOldName" },
                 { 6, "plotNewName" },
                 { 7, "yearOfPlanting" },
-                { 8, "landLevelObj.code" },
+                { 8, "landLevelObj.Code" },
                 { 9, "altitudeAverage" },
-                { 10, "plantingMethodObj.code" },
-                { 11, "plantingDistanceObj.code" },
+                { 10, "plantingMethodObj.Code" },
+                { 11, "plantingDistanceObj.Code" },
                 { 12, "plantingDesignDensity" },
-                { 13, "TypeOfTreeObj.code" },
+                { 13, "typeOfTreeObj.Code" },
+                { 14, "areaOld" },
+                { 15, "area" },
+                { 16, "holeQuantity" },
+                { 17, "effectiveTreeCorrectQuantity" },
+                { 19, "effectiveTreeMixedQuantity" },
+                { 21, "IneffectiveTreeQuantity" },
+                { 23, "emptyHoleQuantity" },
+                { 25, "effectiveTreeDensity" },
+                { 27, "vanhAverage" },
+                { 28, "standardDeviation" },
+                { 29, "ratioTreeObtain" },
+                { 30, "plannedExtendedGarden" },
+                { 31, "expectedExploitationDate" },
+                { 32, "gardenRatingObj.Code" },
+                { 33, "remark" },
+            };
+
+            var ktcbData = itemsList.Where(item =>
+            {
+                string? active = item.ActiveStatusObj?.Code;
+                if (string.IsNullOrWhiteSpace(active))
+                {
+                    if (item.IntercropType.HasValue)
+                        active = (item.IntercropType.Value == 0) ? "TXA" : "TXB";
+                    else if (item.EffectiveTreeShavingQuantity.HasValue || item.StartExploitationDate.HasValue || item.TappingAge.HasValue)
+                        active = "KD";
+                    else if (item.EffectiveTreeCorrectQuantity.HasValue || item.ExpectedExploitationDate.HasValue || item.VanhAverage.HasValue)
+                        active = "KTCB";
+                    else
+                        active = "TMTC";
+                }
+                return active == "KTCB";
+            }).ToList();
+
+            if (!ktcbData.Any()) return;
+
+            int row = 11;
+            int stt = 1;
+
+            var groups = ktcbData
+                .GroupBy(x => x.YearOfPlanting)
+                .OrderBy(g => g.Key);
+
+            foreach (var g in groups)
+            {
+                var plantingYear = g.Key;
+                var yearItems = g.ToList();
+
+                foreach (var item in yearItems)
+                {
+                    ws.Row(row).InsertRowsBelow(1);
+                    var sttCell = ws.Cell(row, 1);
+                    sttCell.Value = stt;
+                    sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                    foreach (var kv in mapKTCBFields)
+                    {
+                        var cell = ws.Cell(row, kv.Key + 1);
+                        WriteObjectToCell(cell, GetValue(item, kv.Value));
+                    }
+
+                    SetFormula(ws, row, 19, $"=ROUND(R{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 21, $"=ROUND(T{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 23, $"=ROUND(V{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 25, $"=ROUND(X{row}/Q{row}%,1)", "0.#");
+
+                    var markedX = (item.PlannedExtendedGarden ?? false) ? "x" : string.Empty;
+                    ws.Cell(row, 30 + 1).Value = markedX;
+                    ws.Cell(row, 30 + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Cell(row, 30 + 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                    row++;
+                    stt++;
+                }
+
+                ws.Row(row).InsertRowsBelow(1);
+                ws.Cell(row, 8).Value = $"Cộng {plantingYear}";
+                ws.Cell(row, 8).Style.Font.Bold = true;
+                ws.Cell(row, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Cell(row, 8).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+
+                var startRow = row - yearItems.Count;
+                var endRow = row - 1;
+
+                SetFormula(ws, row, 16, $"=ROUND(SUM(P{startRow}:P{endRow}), 5)", "0.#####");
+                SetFormula(ws, row, 17, $"=SUM(Q{startRow}:Q{endRow})");
+                SetFormula(ws, row, 18, $"=SUM(R{startRow}:R{endRow})");
+                SetFormula(ws, row, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)", "0.#");
+                SetFormula(ws, row, 20, $"=SUM(T{startRow}:T{endRow})");
+                SetFormula(ws, row, 21, $"=ROUND(AVERAGE(U{startRow}:U{endRow}),1)", "0.#");
+                SetFormula(ws, row, 22, $"=SUM(V{startRow}:V{endRow})");
+                SetFormula(ws, row, 23, $"=ROUND(AVERAGE(W{startRow}:W{endRow}),1)", "0.#");
+                SetFormula(ws, row, 24, $"=SUM(X{startRow}:X{endRow})");
+                SetFormula(ws, row, 25, $"=ROUND(AVERAGE(Y{startRow}:Y{endRow}),1)", "0.#");
+                SetFormula(ws, row, 26, $"=ROUND(AVERAGE(Z{startRow}:Z{endRow}),1)", "0.#");
+                SetFormula(ws, row, 28, $"=ROUND(AVERAGE(AB{startRow}:AB{endRow}),2)", "0.##");
+                SetFormula(ws, row, 29, $"=ROUND(AVERAGE(AC{startRow}:AC{endRow}),2)", "0.##");
+                SetFormula(ws, row, 30, $"=ROUND(AVERAGE(AD{startRow}:AD{endRow}),2)", "0.##");
+
+                var summaryRow = ws.Row(row);
+                summaryRow.Style.Font.Bold = true;
+                summaryRow.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                row++;
+            }
+        }
+        private void ProcessKTCBSystemSheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
+        {
+            var ws = workbook.Worksheet("1.KTCB");
+            if (ws == null) return;
+
+            var mapKTCBFields = new Dictionary<int, string>
+            {
+                { 1, "idPrivate" },
+                { 3, "farmObj.Code" },
+                { 4, "farmGroupObj.Name" },
+                { 5, "plotOldName" },
+                { 6, "plotNewName" },
+                { 7, "yearOfPlanting" },
+                { 8, "landLevelObj.Code" },
+                { 9, "altitudeAverage" },
+                { 10, "plantingMethodObj.Code" },
+                { 11, "plantingDistanceObj.Code" },
+                { 12, "plantingDesignDensity" },
+                { 13, "typeOfTreeObj.Code" },
                 { 15, "area" },
                 { 16, "holeQuantity" },
                 { 17, "effectiveTreeCorrectQuantity" },
@@ -608,13 +737,13 @@ namespace Web_ProjectName.Controllers
                 { 35, "barkThickness" },
                 { 36, "plannedExtendedGarden"},
                 { 37, "expectedExploitationDate" },
-                { 38, "gardenRatingObj.code" },
+                { 38, "gardenRatingObj.Code" },
                 { 39, "remark" },
             };
 
             var ktcbData = itemsList.Where(item =>
             {
-                string active = item.ActiveStatusObj?.Code;
+                string? active = item.ActiveStatusObj?.Code;
                 if (string.IsNullOrWhiteSpace(active))
                 {
                     if (item.IntercropType.HasValue)
@@ -674,11 +803,14 @@ namespace Web_ProjectName.Controllers
                 ws.Row(row).InsertRowsBelow(1);
                 ws.Cell(row, 8).Value = $"Cộng {plantingYear}";
                 ws.Cell(row, 8).Style.Font.Bold = true;
+                ws.Cell(row, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Cell(row, 8).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
 
                 var startRow = row - yearItems.Count;
                 var endRow = row - 1;
 
-                SetFormula(ws, row, 16, $"=ROUND(SUM(P{startRow}:P{endRow}), 5)");
+                SetFormula(ws, row, 16, $"=ROUND(SUM(P{startRow}:P{endRow}), 5)", "0.#####");
                 SetFormula(ws, row, 17, $"=SUM(Q{startRow}:Q{endRow})");
                 SetFormula(ws, row, 18, $"=SUM(R{startRow}:R{endRow})");
                 SetFormula(ws, row, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)");
@@ -708,15 +840,141 @@ namespace Web_ProjectName.Controllers
             var mapKDFields = new Dictionary<int, string>
             {
                 { 1, "idPrivate" },
+                { 3, "farmObj.Code" },
+                { 4, "farmGroupObj.Name" },
                 { 5, "plotOldName" },
                 { 6, "plotNewName" },
                 { 7, "yearOfPlanting" },
-                { 8, "landLevelObj.code" },
+                { 8, "landLevelObj.Code" },
                 { 9, "altitudeAverage" },
-                { 10, "plantingMethodObj.code" },
-                { 11, "plantingDistanceObj.code" },
+                { 10, "plantingMethodObj.Code" },
+                { 11, "plantingDistanceObj.Code" },
                 { 12, "plantingDesignDensity" },
-                { 13, "TypeOfTreeObj.code" },
+                { 13, "typeOfTreeObj.Code" },
+                { 14, "areaOld" },
+                { 15, "area" },
+                { 16, "treeQuantity" },
+                { 17, "EffectiveTreeShavingQuantity" },
+                { 19, "EffectiveTreeNotshavingQuantity" },
+                { 21, "IneffectiveTreeDryQuantity" },
+                { 23, "IneffectiveTreeNotgrowQuantity" },
+                { 25, "emptyHoleQuantity" },
+                { 27, "shavingTreeDensity" },
+                { 28, "shavingModeObj.Code" },
+                { 29, "startExploitationDate" },
+                { 30, "tappingAge" },
+                { 31, "yearOfShaving" },
+                { 32, "shavingFaceConditionObj.Code" },
+                { 33, "productivityByArea" },
+                { 34, "productivityByTree" },
+                { 35, "totalShavingSlice" },
+                { 36, "gardenRatingObj.Code"},
+                { 37, "remark" },
+            };
+
+            var kdData = itemsList.Where(item =>
+            {
+                string active = item.ActiveStatusObj?.Code;
+                if (string.IsNullOrWhiteSpace(active))
+                {
+                    if (item.IntercropType.HasValue)
+                        active = (item.IntercropType.Value == 0) ? "TXA" : "TXB";
+                    else if (item.EffectiveTreeShavingQuantity.HasValue || item.StartExploitationDate.HasValue || item.TappingAge.HasValue)
+                        active = "KD";
+                    else if (item.EffectiveTreeCorrectQuantity.HasValue || item.ExpectedExploitationDate.HasValue || item.VanhAverage.HasValue)
+                        active = "KTCB";
+                    else
+                        active = "TMTC";
+                }
+                return active == "KD";
+            }).ToList();
+
+            if (!kdData.Any()) return;
+
+            int row = 11;
+            int stt = 1;
+
+            var groups = kdData
+                .GroupBy(x => x.YearOfPlanting)
+                .OrderBy(g => g.Key);
+
+            foreach (var g in groups)
+            {
+                var plantingYear = g.Key;
+                var yearItems = g.ToList();
+
+                foreach (var item in yearItems)
+                {
+                    ws.Row(row).InsertRowsBelow(1);
+                    var sttCell = ws.Cell(row, 1);
+                    sttCell.Value = stt;
+                    sttCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    sttCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                    foreach (var kv in mapKDFields)
+                    {
+                        var cell = ws.Cell(row, kv.Key + 1);
+                        WriteObjectToCell(cell, GetValue(item, kv.Value));
+                    }
+
+                    SetFormula(ws, row, 19, $"=ROUND(R{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 21, $"=ROUND(T{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 23, $"=ROUND(V{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 25, $"=ROUND(X{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 27, $"=ROUND((Z{row}/Q{row}*100),2)", "0.##");
+
+                    row++;
+                    stt++;
+                }
+
+                ws.Row(row).InsertRowsBelow(1);
+                ws.Cell(row, 8).Value = $"Cộng {plantingYear}";
+                ws.Cell(row, 8).Style.Font.Bold = true;
+
+                var startRow = row - yearItems.Count;
+                var endRow = row - 1;
+
+                SetFormula(ws, row, 16, $"=SUM(P{startRow}:P{endRow})", "0.#####");
+                SetFormula(ws, row, 17, $"=SUM(Q{startRow}:Q{endRow})");
+                SetFormula(ws, row, 18, $"=SUM(R{startRow}:R{endRow})");
+                SetFormula(ws, row, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)", "0.#");
+                SetFormula(ws, row, 20, $"=SUM(T{startRow}:T{endRow})");
+                SetFormula(ws, row, 21, $"=ROUND(AVERAGE(U{startRow}:U{endRow}),1)", "0.#");
+                SetFormula(ws, row, 22, $"=SUM(V{startRow}:V{endRow})");
+                SetFormula(ws, row, 23, $"=ROUND(AVERAGE(W{startRow}:W{endRow}),1)", "0.#");
+                SetFormula(ws, row, 24, $"=SUM(X{startRow}:X{endRow})");
+                SetFormula(ws, row, 25, $"=ROUND(AVERAGE(Y{startRow}:Y{endRow}),1)", "0.#");
+                SetFormula(ws, row, 26, $"=SUM(Z{startRow}:Z{endRow})");
+                SetFormula(ws, row, 27, $"=ROUND(AVERAGE(AA{startRow}:AA{endRow}),1)", "0.#");
+                SetFormula(ws, row, 28, $"=ROUND(AVERAGE(AB{startRow}:AB{endRow}),1)", "0.#");
+                SetFormula(ws, row, 34, $"=ROUND(AVERAGE(AH{startRow}:AH{endRow}),1)", "0.#");
+                SetFormula(ws, row, 35, $"=ROUND(AVERAGE(AI{startRow}:AI{endRow}),1)", "0.#");
+                SetFormula(ws, row, 36, $"=ROUND(AVERAGE(AJ{startRow}:AJ{endRow}),1)", "0.#");
+
+                var summaryRow = ws.Row(row);
+                summaryRow.Style.Font.Bold = true;
+                summaryRow.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                row++;
+            }
+        }
+        private void ProcessKDSystemSheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
+        {
+            var ws = workbook.Worksheet("1.KD");
+            if (ws == null) return;
+
+            var mapKDFields = new Dictionary<int, string>
+            {
+                { 1, "idPrivate" },
+                { 5, "plotOldName" },
+                { 6, "plotNewName" },
+                { 7, "yearOfPlanting" },
+                { 8, "landLevelObj.Code" },
+                { 9, "altitudeAverage" },
+                { 10, "plantingMethodObj.Code" },
+                { 11, "plantingDistanceObj.Code" },
+                { 12, "plantingDesignDensity" },
+                { 13, "typeOfTreeObj.Code" },
                 { 15, "area" },
                 { 16, "holeQuantity" },
                 { 17, "effectiveTreeShavingQuantity" },
@@ -735,7 +993,7 @@ namespace Web_ProjectName.Controllers
                 { 35, "productivityByArea" },
                 { 36, "productivityByTree" },
                 { 37, "totalShavingSlice" },
-                { 38, "gardenRatingObj.code" },
+                { 38, "gardenRatingObj.Code" },
                 { 39, "remark" },
             };
 
@@ -847,7 +1105,7 @@ namespace Web_ProjectName.Controllers
                 { 1, "idPrivate" },
                 { 2, "plotName" },
                 { 3, "yearOfPlanting" },
-                { 4, "plantingDistanceObj.code" },
+                { 4, "plantingDistanceObj.Code" },
                 { 5, "plantingDesignDensity" },
                 { 6, "area" },
                 { 7, "intercropName" },
@@ -865,7 +1123,7 @@ namespace Web_ProjectName.Controllers
                 { 19, "shavingTreeDensity" },
                 { 20, "vanhAverage" },
                 { 21, "ratioTreeObtain" },
-                { 22, "classifyObj.code" },
+                { 22, "classifyObj.Code" },
             };
 
             var txaItems = itemsList.Where(item =>
@@ -919,7 +1177,7 @@ namespace Web_ProjectName.Controllers
                 { 1, "idPrivate" },
                 { 2, "plotName" },
                 { 3, "yearOfPlanting" },
-                { 4, "plantingDistanceObj.code" },
+                { 4, "plantingDistanceObj.Code" },
                 { 5, "plantingDesignDensity" },
                 { 6, "area" },
                 { 7, "intercropName" },
@@ -1058,7 +1316,7 @@ namespace Web_ProjectName.Controllers
                 { 6, "shavingTreeDensity" },
                 { 7, "effectiveTreeDensity" },
                 { 8, "totalShavingSlice" },
-                { 9, "actualLaborQuantity" },
+                { 9, "totalStaff" },
                 { 10, "laborProductivity" },
                 { 11, "productivityByTree" },
                 { 12, "productivityByArea" },
@@ -1793,46 +2051,46 @@ namespace Web_ProjectName.Controllers
                 {
                     "1.TM-TC" or "1.TC-TM" => new Dictionary<int, string>
                     {
-                        { 1, "idPrivate" }, { 5, "plotName" }, { 6, "landLevelObj.code" }, { 7, "altitudeAverage" },
-                        { 8, "plantingMethodObj.code" }, { 9, "plantingDistanceObj.code" }, { 10, "plantingDesignDensity" },
-                        { 11, "TypeOfTreeObj.code" }, { 12, "area" }, { 13, "holeQuantity" }, { 14, "graftedTreeCorrectQuantity" },
+                        { 1, "idPrivate" }, { 5, "plotName" }, { 6, "landLevelObj.Code" }, { 7, "altitudeAverage" },
+                        { 8, "plantingMethodObj.Code" }, { 9, "plantingDistanceObj.Code" }, { 10, "plantingDesignDensity" },
+                        { 11, "typeOfTreeObj.Code" }, { 12, "area" }, { 13, "holeQuantity" }, { 14, "graftedTreeCorrectQuantity" },
                         { 16, "graftedTreeMixedQuantity" }, { 18, "emptyHoleQuantity" }, { 20, "densityOfGraftedTree" },
-                        { 21, "averageNumberLeafLayer" }, { 22, "classifyObj.code"}, { 23, "plantingEndDate" }, { 24, "remark" }
+                        { 21, "averageNumberLeafLayer" }, { 22, "classifyObj.Code"}, { 23, "plantingEndDate" }, { 24, "remark" }
                     },
                     "1.KTCB" => new Dictionary<int, string>
                     {
                         { 1, "idPrivate" }, { 5, "plotOldName" }, { 6, "plotNewName" }, { 7, "yearOfPlanting" },
-                        { 8, "landLevelObj.code" }, { 9, "altitudeAverage" }, { 10, "plantingMethodObj.code" },
-                        { 11, "plantingDistanceObj.code" }, { 12, "plantingDesignDensity" }, { 13, "TypeOfTreeObj.code" },
+                        { 8, "landLevelObj.Code" }, { 9, "altitudeAverage" }, { 10, "plantingMethodObj.Code" },
+                        { 11, "plantingDistanceObj.Code" }, { 12, "plantingDesignDensity" }, { 13, "typeOfTreeObj.Code" },
                         { 15, "area" }, { 16, "holeQuantity" }, { 17, "effectiveTreeCorrectQuantity" },
                         { 19, "effectiveTreeMixedQuantity" }, { 21, "ineffectiveTreeNotgrowQuantity" }, { 23, "emptyHoleQuantity" },
                         { 25, "effectiveTreeDensity" }, { 27, "vanhAverage" }, { 28, "standardDeviation" },
-                        { 29, "ratioTreeObtain" }, { 31, "expectedExploitationDate" }, { 32, "gardenRatingObj.code" }, { 33, "remark" }
+                        { 29, "ratioTreeObtain" }, { 31, "expectedExploitationDate" }, { 32, "gardenRatingObj.Code" }, { 33, "remark" }
                     },
                     "1.KD" => new Dictionary<int, string>
                     {
                         { 1, "idPrivate" }, { 5, "plotOldName" }, { 6, "plotNewName" }, { 7, "yearOfPlanting" },
-                        { 8, "landLevelObj.code" }, { 9, "altitudeAverage" }, { 10, "plantingMethodObj.code" },
-                        { 11, "plantingDistanceObj.code" }, { 12, "plantingDesignDensity" }, { 13, "TypeOfTreeObj.code" },
+                        { 8, "landLevelObj.Code" }, { 9, "altitudeAverage" }, { 10, "plantingMethodObj.Code" },
+                        { 11, "plantingDistanceObj.Code" }, { 12, "plantingDesignDensity" }, { 13, "typeOfTreeObj.Code" },
                         { 15, "area" }, { 16, "holeQuantity" }, { 17, "effectiveTreeShavingQuantity" },
                         { 19, "effectiveTreeNotshavingQuantity" }, { 21, "ineffectiveTreeDryQuantity" },
                         { 23, "ineffectiveTreeNotgrowQuantity" }, { 25, "emptyHoleQuantity" }, { 27, "shavingTreeDensity" },
                         { 28, "shavingModeCode" }, { 29, "startExploitationDate" }, { 30, "tappingAge" },
                         { 31, "yearOfShaving" }, { 32, "shavingFaceConditionCode" }, { 33, "productivityByArea" },
-                        { 34, "productivityByTree" }, { 35, "totalShavingSlice" }, { 36, "gardenRatingObj.code" }, { 37, "remark" }
+                        { 34, "productivityByTree" }, { 35, "totalShavingSlice" }, { 36, "gardenRatingObj.Code" }, { 37, "remark" }
                     },
                     "1.TXA" => new Dictionary<int, string>
                     {
-                        { 1, "idPrivate" }, { 2, "plotName" }, { 3, "yearOfPlanting" }, { 4, "plantingDistanceObj.code" },
+                        { 1, "idPrivate" }, { 2, "plotName" }, { 3, "yearOfPlanting" }, { 4, "plantingDistanceObj.Code" },
                         { 5, "plantingDesignDensity" }, { 6, "area" }, { 7, "intercropName" }, { 8, "intercroppingYear" },
                         { 9, "intercroppingArea" }, { 10, "careContract" }, { 11, "productContract" }, { 12, "financialIncome" },
                         { 13, "intercroppingOther" }, { 14, "intercroppingCompany" }, { 15, "noContribEcon" },
                         { 16, "noContribPers" }, { 17, "partContribEcon" }, { 18, "partContribPers" },
-                        { 19, "shavingTreeDensity" }, { 20, "vanhAverage" }, { 21, "ratioTreeObtain" }, { 22, "classifyObj.code" }
+                        { 19, "shavingTreeDensity" }, { 20, "vanhAverage" }, { 21, "ratioTreeObtain" }, { 22, "classifyObj.Code" }
                     },
                     "1.TXB" => new Dictionary<int, string>
                     {
-                        { 1, "idPrivate" }, { 2, "plotName" }, { 3, "yearOfPlanting" }, { 4, "plantingDistanceObj.code" },
+                        { 1, "idPrivate" }, { 2, "plotName" }, { 3, "yearOfPlanting" }, { 4, "plantingDistanceObj.Code" },
                         { 5, "plantingDesignDensity" }, { 6, "area" }, { 7, "intercropName" }, { 8, "intercroppingYear" },
                         { 9, "intercroppingArea" }, { 10, "careContract" }, { 11, "productContract" }, { 12, "financialIncome" },
                         { 13, "intercroppingOther" }, { 14, "intercroppingCompany" }, { 15, "noContribEcon" },
@@ -1971,8 +2229,31 @@ namespace Web_ProjectName.Controllers
             formulaCell.FormulaA1 = formula;
             formulaCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             formulaCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-            formulaCell.Style.NumberFormat.Format = numberFormat;
+
+            if (formulaCell.Value.Type == XLDataType.Number)
+            {
+                double val = formulaCell.GetDouble();
+                if (val == 0)
+                {
+                    return;
+                }
+
+                // Nếu là số nguyên thì format không có dấu chấm
+                if (val == Math.Floor(val))
+                {
+                    formulaCell.Style.NumberFormat.Format = "0";
+                }
+                else
+                {
+                    formulaCell.Style.NumberFormat.Format = numberFormat;
+                }
+            }
+            else
+            {
+                formulaCell.Style.NumberFormat.Format = numberFormat;
+            }
         }
+
 
         private static double EstimateContentWidth(string content)
         {
