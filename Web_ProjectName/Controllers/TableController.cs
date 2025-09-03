@@ -564,9 +564,9 @@ namespace Web_ProjectName.Controllers
                     WriteObjectToCell(cell, GetValue(item, kv.Value));
                 }
 
-                SetFormula(ws, row, 15 + 1, $"=ROUND(O{row}/N{row}%,1)");
-                SetFormula(ws, row, 17 + 1, $"=ROUND(Q{row}/N{row}%,1)");
-                SetFormula(ws, row, 19 + 1, $"=ROUND(S{row}/N{row}%,1)");
+                SetFormula(ws, row, 15 + 1, $"=ROUND(O{row}/N{row}%,1)", "0.#");
+                SetFormula(ws, row, 17 + 1, $"=ROUND(Q{row}/N{row}%,1)", "0.#");
+                SetFormula(ws, row, 19 + 1, $"=ROUND(S{row}/N{row}%,1)", "0.#");
 
                 row++;
                 stt++;
@@ -700,6 +700,7 @@ namespace Web_ProjectName.Controllers
                 row++;
             }
         }
+
         private void ProcessKTCBSystemSheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
         {
             var ws = workbook.Worksheet("1.KTCB");
@@ -723,7 +724,7 @@ namespace Web_ProjectName.Controllers
                 { 16, "holeQuantity" },
                 { 17, "effectiveTreeCorrectQuantity" },
                 { 19, "effectiveTreeMixedQuantity" },
-                { 21, "ineffectiveTreeNotgrowQuantity" },
+                { 21, "ineffectiveTreeQuantity" },
                 { 23, "emptyHoleQuantity" },
                 { 25, "effectiveTreeDensity" },
                 { 27, "vanhAverage" },
@@ -786,15 +787,15 @@ namespace Web_ProjectName.Controllers
                         WriteObjectToCell(cell, GetValue(item, kv.Value));
                     }
 
-                    SetFormula(ws, row, 19, $"=ROUND(R{row}/Q{row}%,1)");
-                    SetFormula(ws, row, 21, $"=ROUND(T{row}/Q{row}%,1)");
-                    SetFormula(ws, row, 23, $"=ROUND(V{row}/Q{row}%,1)");
-                    SetFormula(ws, row, 25, $"=ROUND(X{row}/Q{row}%,1)");
+                    SetFormula(ws, row, 19, $"=ROUND(R{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 21, $"=ROUND(T{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 23, $"=ROUND(V{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 25, $"=ROUND(X{row}/Q{row}%,1)", "0.#");
 
                     var markedX = (item.PlannedExtendedGarden ?? false) ? "x" : string.Empty;
-                    ws.Cell(row, 30 + 1).Value = markedX;
-                    ws.Cell(row, 30 + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    ws.Cell(row, 30 + 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    ws.Cell(row, 37).Value = markedX;
+                    ws.Cell(row, 37).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Cell(row, 37).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
                     row++;
                     stt++;
@@ -813,16 +814,17 @@ namespace Web_ProjectName.Controllers
                 SetFormula(ws, row, 16, $"=ROUND(SUM(P{startRow}:P{endRow}), 5)", "0.#####");
                 SetFormula(ws, row, 17, $"=SUM(Q{startRow}:Q{endRow})");
                 SetFormula(ws, row, 18, $"=SUM(R{startRow}:R{endRow})");
-                SetFormula(ws, row, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)");
+                SetFormula(ws, row, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)", "0.#");
                 SetFormula(ws, row, 20, $"=SUM(T{startRow}:T{endRow})");
-                SetFormula(ws, row, 21, $"=ROUND(AVERAGE(U{startRow}:U{endRow}),1)");
-                SetFormula(ws, row, 23, $"=ROUND(AVERAGE(W{startRow}:W{endRow}),1)");
+                SetFormula(ws, row, 21, $"=ROUND(AVERAGE(U{startRow}:U{endRow}),1)", "0.#");
+                SetFormula(ws, row, 22, $"=SUM(V{startRow}:V{endRow})");
+                SetFormula(ws, row, 23, $"=ROUND(AVERAGE(W{startRow}:W{endRow}),1)", "0.#");
                 SetFormula(ws, row, 24, $"=SUM(X{startRow}:X{endRow})");
-                SetFormula(ws, row, 25, $"=ROUND(AVERAGE(Y{startRow}:Y{endRow}),1)");
-                SetFormula(ws, row, 26, $"=ROUND(AVERAGE(Z{startRow}:Z{endRow}),1)");
-                SetFormula(ws, row, 28, $"=ROUND(AVERAGE(AB{startRow}:AB{endRow}),2)");
-                SetFormula(ws, row, 29, $"=ROUND(AVERAGE(AC{startRow}:AC{endRow}),2)");
-                SetFormula(ws, row, 30, $"=ROUND(AVERAGE(AD{startRow}:AD{endRow}),2)");
+                SetFormula(ws, row, 25, $"=ROUND(AVERAGE(Y{startRow}:Y{endRow}),1)", "0.#");
+                SetFormula(ws, row, 26, $"=ROUND(AVERAGE(Z{startRow}:Z{endRow}),1)", "0.#");
+                SetFormula(ws, row, 28, $"=ROUND(AVERAGE(AB{startRow}:AB{endRow}),2)", "0.##");
+                SetFormula(ws, row, 29, $"=ROUND(AVERAGE(AC{startRow}:AC{endRow}),2)", "0.##");
+                SetFormula(ws, row, 30, $"=ROUND(AVERAGE(AD{startRow}:AD{endRow}),2)", "0.##");
 
                 var summaryRow = ws.Row(row);
                 summaryRow.Style.Font.Bold = true;
@@ -966,6 +968,8 @@ namespace Web_ProjectName.Controllers
             var mapKDFields = new Dictionary<int, string>
             {
                 { 1, "idPrivate" },
+                { 3, "farmObj.Code" },
+                { 4, "farmGroupObj.Name" },
                 { 5, "plotOldName" },
                 { 6, "plotNewName" },
                 { 7, "yearOfPlanting" },
@@ -976,18 +980,18 @@ namespace Web_ProjectName.Controllers
                 { 12, "plantingDesignDensity" },
                 { 13, "typeOfTreeObj.Code" },
                 { 15, "area" },
-                { 16, "holeQuantity" },
+                { 16, "treeQuantity" },
                 { 17, "effectiveTreeShavingQuantity" },
                 { 19, "effectiveTreeNotshavingQuantity" },
                 { 21, "ineffectiveTreeDryQuantity" },
                 { 23, "ineffectiveTreeNotgrowQuantity" },
                 { 25, "emptyHoleQuantity" },
                 { 27, "shavingTreeDensity" },
-                { 28, "shavingModeCode" },
+                { 28, "shavingModeObj.Code" },
                 { 29, "startExploitationDate" },
                 { 30, "tappingAge" },
                 { 31, "yearOfShaving" },
-                { 32, "shavingFaceConditionCode" },
+                { 32, "shavingFaceConditionObj.Code" },
                 { 33, "totalOutput"},
                 { 34, "totalStaff"},
                 { 35, "productivityByArea" },
@@ -1042,11 +1046,11 @@ namespace Web_ProjectName.Controllers
                         WriteObjectToCell(cell, GetValue(item, kv.Value));
                     }
 
-                    SetFormula(ws, row, 19, $"=ROUND(R{row}/Q{row}%,1)");
-                    SetFormula(ws, row, 21, $"=ROUND(T{row}/Q{row}%,1)");
-                    SetFormula(ws, row, 23, $"=ROUND(V{row}/Q{row}%,1)");
-                    SetFormula(ws, row, 25, $"=ROUND(X{row}/Q{row}%,1)");
-                    SetFormula(ws, row, 27, $"=ROUND((Z{row}/Q{row}*100),2)");
+                    SetFormula(ws, row, 19, $"=ROUND(R{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 21, $"=ROUND(T{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 23, $"=ROUND(V{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 25, $"=ROUND(X{row}/Q{row}%,1)", "0.#");
+                    SetFormula(ws, row, 27, $"=ROUND((Z{row}/Q{row}*100),2)", "0.##");
 
                     row++;
                     stt++;
@@ -1059,9 +1063,9 @@ namespace Web_ProjectName.Controllers
                 var startRow = row - yearItems.Count;
                 var endRow = row - 1;
 
-                SetFormula(ws, row, 16, $"=SUM(P{startRow}:P{endRow})");
-                SetFormula(ws, row, 17, $"=SUM(Q{startRow}:Q{endRow})");
-                SetFormula(ws, row, 18, $"=SUM(R{startRow}:R{endRow})");
+                SetFormula(ws, row, 16, $"=SUM(P{startRow}:P{endRow})", "0");
+                SetFormula(ws, row, 17, $"=SUM(Q{startRow}:Q{endRow})", "0");
+                SetFormula(ws, row, 18, $"=SUM(R{startRow}:R{endRow})", "0");
                 SetFormula(ws, row, 19, $"=ROUND(AVERAGE(S{startRow}:S{endRow}),1)");
                 SetFormula(ws, row, 20, $"=SUM(T{startRow}:T{endRow})");
                 SetFormula(ws, row, 21, $"=ROUND(AVERAGE(U{startRow}:U{endRow}),1)");
@@ -2238,7 +2242,6 @@ namespace Web_ProjectName.Controllers
                     return;
                 }
 
-                // Nếu là số nguyên thì format không có dấu chấm
                 if (val == Math.Floor(val))
                 {
                     formulaCell.Style.NumberFormat.Format = "0";
