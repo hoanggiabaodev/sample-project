@@ -511,6 +511,8 @@ namespace Web_ProjectName.Controllers
             var mapTMTCFields = new Dictionary<int, string>
             {
                 { 1, "idPrivate" },
+                { 3, "farmObj.Code" },
+                { 4, "farmGroupObj.Name" },
                 { 5, "plotName" },
                 { 6, "landLevelObj.Code" },
                 { 7, "altitudeAverage" },
@@ -720,6 +722,7 @@ namespace Web_ProjectName.Controllers
                 { 11, "plantingDistanceObj.Code" },
                 { 12, "plantingDesignDensity" },
                 { 13, "typeOfTreeObj.Code" },
+                { 14, "areaOld" },
                 { 15, "area" },
                 { 16, "holeQuantity" },
                 { 17, "effectiveTreeCorrectQuantity" },
@@ -865,7 +868,7 @@ namespace Web_ProjectName.Controllers
                 { 28, "shavingModeObj.Code" },
                 { 29, "startExploitationDate" },
                 { 30, "tappingAge" },
-                { 31, "yearOfShaving" },
+                { 31, "endExploitationDate" },
                 { 32, "shavingFaceConditionObj.Code" },
                 { 33, "productivityByArea" },
                 { 34, "productivityByTree" },
@@ -960,6 +963,7 @@ namespace Web_ProjectName.Controllers
                 row++;
             }
         }
+
         private void ProcessKDSystemSheet(XLWorkbook workbook, List<M_SurveyFarm> itemsList)
         {
             var ws = workbook.Worksheet("1.KD");
@@ -979,6 +983,7 @@ namespace Web_ProjectName.Controllers
                 { 11, "plantingDistanceObj.Code" },
                 { 12, "plantingDesignDensity" },
                 { 13, "typeOfTreeObj.Code" },
+                { 14, "areaOld" },
                 { 15, "area" },
                 { 16, "treeQuantity" },
                 { 17, "effectiveTreeShavingQuantity" },
@@ -990,7 +995,7 @@ namespace Web_ProjectName.Controllers
                 { 28, "shavingModeObj.Code" },
                 { 29, "startExploitationDate" },
                 { 30, "tappingAge" },
-                { 31, "yearOfShaving" },
+                { 31, "endExploitationDate" },
                 { 32, "shavingFaceConditionObj.Code" },
                 { 33, "totalOutput"},
                 { 34, "totalStaff"},

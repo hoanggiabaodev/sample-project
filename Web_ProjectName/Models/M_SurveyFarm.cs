@@ -6,6 +6,13 @@ namespace Web_ProjectName.Models
 {
     public class M_SurveyFarm : M_BaseModel.BaseCustom
     {
+        public decimal? Vanh50 { get; set; }        // vanh_50
+        public decimal? Vanh4549 { get; set; }      // vanh_45_49
+        public decimal? Vanh4044 { get; set; }      // vanh_40_44
+        public decimal? Vanh3539 { get; set; }      // vanh_35_39
+        public decimal? Vanh34 { get; set; }        // vanh_34
+        public decimal? BarkThickness { get; set; } // barkThickness
+
         public int Id { get; set; }
         public int PlaceMarkId { get; set; }
         public int SurveyBatchId { get; set; }
