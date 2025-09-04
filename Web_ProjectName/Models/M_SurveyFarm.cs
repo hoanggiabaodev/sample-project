@@ -12,7 +12,7 @@ namespace Web_ProjectName.Models
         public decimal? Vanh3539 { get; set; }      // vanh_35_39
         public decimal? Vanh34 { get; set; }        // vanh_34
         public decimal? BarkThickness { get; set; } // barkThickness
-
+        public float? AreaOld { get; set; }      // area_old
         public int Id { get; set; }
         public int PlaceMarkId { get; set; }
         public int SurveyBatchId { get; set; }
@@ -59,6 +59,7 @@ namespace Web_ProjectName.Models
         public int? IneffectiveTreeDryQuantity { get; set; }
         public int? ShavingTreeDensity { get; set; }
         public int? ShavingModeId { get; set; }
+        public float? totalStaff { get; set; }
         public DateOnly? StartExploitationDate { get; set; }
         public DateOnly? EndExploitationDate { get; set; }
         public int? TotalShavingSlice { get; set; }
