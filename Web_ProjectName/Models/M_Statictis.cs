@@ -25,6 +25,7 @@ namespace Web_ProjectName.Models
 
     public class M_SurveyFarmBusinessFarmByFarmGroup
     {
+        public float? TotalStaff { get; set; } // đội tổ
         public string FarmName { get; set; } // đơn vị
         public float? Area { get; set; }//Diện tích năm  hiện tại
         public float? AreaOld { get; set; }//Diện tích năm  ngoái

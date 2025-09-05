@@ -1434,15 +1434,15 @@ namespace Web_ProjectName.Controllers
                     labelCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     labelCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                    SetFormula(ws, row, 12, $"SUM(L{startRowOfYear}:L{row - 1})");
+                    SetFormula(ws, row, 12, $"SUM(L{startRowOfYear}:L{row - 1})", "0.##");
                     SetFormula(ws, row, 13, $"SUM(M{startRowOfYear}:M{row - 1})");
                     SetFormula(ws, row, 14, $"SUM(N{startRowOfYear}:N{row - 1})");
 
-                    SetFormula(ws, row, 20, $"AVERAGE(T{startRowOfYear}:T{row - 1})");
-                    SetFormula(ws, row, 21, $"AVERAGE(U{startRowOfYear}:U{row - 1})");
-                    SetFormula(ws, row, 22, $"AVERAGE(V{startRowOfYear}:V{row - 1})");
-                    SetFormula(ws, row, 24, $"AVERAGE(X{startRowOfYear}:X{row - 1})");
-                    SetFormula(ws, row, 25, $"AVERAGE(Y{startRowOfYear}:Y{row - 1})");
+                    SetFormula(ws, row, 20, $"AVERAGE(T{startRowOfYear}:T{row - 1})", "0.##");
+                    SetFormula(ws, row, 21, $"AVERAGE(U{startRowOfYear}:U{row - 1})", "0.##");
+                    SetFormula(ws, row, 22, $"AVERAGE(V{startRowOfYear}:V{row - 1})", "0.##");
+                    SetFormula(ws, row, 24, $"AVERAGE(X{startRowOfYear}:X{row - 1})", "0.##");
+                    SetFormula(ws, row, 25, $"AVERAGE(Y{startRowOfYear}:Y{row - 1})", "0.##");
 
                     row++;
                     startRowOfYear = row;
@@ -1479,11 +1479,11 @@ namespace Web_ProjectName.Controllers
                 SetFormula(ws, row, 13, $"SUM(M{startRowOfYear}:M{row - 1})");
                 SetFormula(ws, row, 14, $"SUM(N{startRowOfYear}:N{row - 1})");
 
-                SetFormula(ws, row, 20, $"AVERAGE(T{startRowOfYear}:T{row - 1})");
-                SetFormula(ws, row, 21, $"AVERAGE(U{startRowOfYear}:U{row - 1})");
-                SetFormula(ws, row, 22, $"AVERAGE(V{startRowOfYear}:V{row - 1})");
-                SetFormula(ws, row, 24, $"AVERAGE(X{startRowOfYear}:X{row - 1})");
-                SetFormula(ws, row, 25, $"AVERAGE(Y{startRowOfYear}:Y{row - 1})");
+                SetFormula(ws, row, 20, $"AVERAGE(T{startRowOfYear}:T{row - 1})", "0.##");
+                SetFormula(ws, row, 21, $"AVERAGE(U{startRowOfYear}:U{row - 1})", "0.##");
+                SetFormula(ws, row, 22, $"AVERAGE(V{startRowOfYear}:V{row - 1})", "0.##");
+                SetFormula(ws, row, 24, $"AVERAGE(X{startRowOfYear}:X{row - 1})", "0.##");
+                SetFormula(ws, row, 25, $"AVERAGE(Y{startRowOfYear}:Y{row - 1})", "0.##");
 
                 row++;
             }
@@ -1783,12 +1783,12 @@ namespace Web_ProjectName.Controllers
                 { 1, "tappingAge" },
                 { 2, "totalHecta" },
                 { 3, "q1" },
-                { 4, "q2" },
-                { 5, "q3" },
-                { 6, "q4" },
-                { 7, "percentQ1" },
-                { 8, "percentQ2" },
-                { 9, "percentQ3" },
+                { 4, "percentQ1"},
+                { 5, "q2" },
+                { 6, "percentQ2"},
+                { 7, "q3" },
+                { 8, "percentQ3" },
+                { 9, "q4" },
                 { 10, "percentQ4" }
             };
 

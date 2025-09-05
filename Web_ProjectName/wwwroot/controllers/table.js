@@ -414,7 +414,7 @@ function ExportExcel() {
 
     $.ajax({
         type: 'POST',
-        url: '/Table/ExportExcelOfSystem',
+        url: '/Table/ExportExcel',
         data: { year: year, variety: variety, ids: ids },
         success: function (response) {
             if (!CheckResponseIsSuccess(response)) return;
